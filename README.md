@@ -1,6 +1,6 @@
 # AgTeach - Backend Architecture
 
-This repository contains the backend codebase for our Agricultural Training Video Platform platform. Our backend is designed to provide robust, scalable, and efficient services to support video content management, user interactions, and data processing.
+This repository contains the backend codebase for our Agricultural Training Video platform. Our backend is designed to provide robust, scalable, and efficient services to support video content management, user interactions, and data processing.
 
 [//]: # (> 🎯 Samsung Web Clone <a href="https://samsungalphabeez.netlify.app/index.html">Click Here</a>.)
 
