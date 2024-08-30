@@ -1,6 +1,6 @@
-# AgTeach - Agricultural Training Video Platform
+# AgTeach - Backend Architecture
 
-This project is designed to help aspiring farmer to start growing plan with knowledge and product, The platform offers high-quality, paid agricultural training videos alongside a marketplace for related products. This dual approach provides comprehensive support for farmers and agricultural workers worldwide.  
+This repository contains the backend codebase for our Agricultural Training Video Platform platform. Our backend is designed to provide robust, scalable, and efficient services to support video content management, user interactions, and data processing.
 
 [//]: # (> 🎯 Samsung Web Clone <a href="https://samsungalphabeez.netlify.app/index.html">Click Here</a>.)
 
