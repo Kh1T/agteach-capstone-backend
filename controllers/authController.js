@@ -4,6 +4,7 @@ const UserAccount = require("../models/UserAccount");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
+
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPRES_IN,
