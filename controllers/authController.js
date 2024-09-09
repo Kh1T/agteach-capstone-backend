@@ -14,7 +14,7 @@ const createSendToken = (user, statusCode, res) => {
   const cookieOption = {
     // the date needed to convert to milliseconds
     expires: new Date(
-      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
+      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
     ),
     httpOnly: true,
   };
@@ -30,42 +30,37 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  try {
-    const { username, email, password, passwordConfirm, role, user_uid } =
-      req.body;
+  const { email, password, passwordConfirm } = req.body;
 
-    // Check if passwords match
-    if (password !== passwordConfirm) {
-      return next(new AppError("Passwords do not match!", 400));
-    }
-
-    // Check if user already exists
-    const existingUser = await UserAccount.findOne({ where: { email } });
-
-    if (existingUser) {
-      return next(new AppError("Email is already in use", 400));
-    }
-
-    // Create new user
-    const newUser = await UserAccount.create({
-      username, // Ensure this field is included
-      email,
-      password,
-      role,
-      user_uid,
-    });
-
-    // Send response
-    res.status(201).json({
-      status: "success",
-      data: {
-        user: newUser,
-      },
-    });
-  } catch (error) {
-    console.error("Error during user creation:", error);
-    return next(new AppError("Error creating user!", 500));
+  // Check if passwords match
+  if (password !== passwordConfirm) {
+    return next(new AppError("Passwords do not match!", 400));
   }
+
+  // Check if user already exists
+  const existingUser = await UserAccount.findOne({ where: { email } });
+
+  if (existingUser) {
+    return next(new AppError("Email is already in use", 400));
+  }
+
+  // Create new user
+  const newUser = await UserAccount.create({
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password,
+    passwordConfirm: req.body.passwordConfirm,
+    role: req.body.role,
+    user_uid: req.body.user_uid,
+  });
+
+  // Send response
+  res.status(201).json({
+    status: "success",
+    data: {
+      user: newUser,
+    },
+  });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -85,7 +80,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3) If everything ok, send token to client
-  // createSendToken(user, 200, req, res);
+  createSendToken(user, 200, req, res);
   res.status(200).json({
     status: "success",
     message: "Login successful",
