@@ -3,7 +3,8 @@ const cors = require("cors");
 const app = express();
 
 const ProductCategory = require("./models/ProductCategory");
-const UserAccount = require("./models/UserAccount");
+
+const authRoutes = require("./routes/auth");
 
 app.use(express.json());
 app.use(cors());
@@ -24,5 +25,8 @@ app.post("/create", async (req, res) => {
     data: createItem,
   });
 });
+
+// Routes
+app.use("/auth", authRoutes);
 
 module.exports = app;
