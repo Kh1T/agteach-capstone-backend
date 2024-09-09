@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
+const bcrypt = require("bcryptjs");
 const sequelize = require("../config/db");
 
 const UserAccount = sequelize.define(
@@ -40,8 +41,15 @@ const UserAccount = sequelize.define(
     },
   },
   {
-    tableName: "user_account", // Explicitly set the table name
-    timestamps: false, // Disable automatic timestamps if not needed
+    tableName: "user_account",
+    timestamps: false,
+    hooks: {
+      beforeCreate: async (user) => {
+        if (user.password) {
+          user.password = await bcrypt.hash(user.password, 12);
+        }
+      },
+    },
   }
 );
 

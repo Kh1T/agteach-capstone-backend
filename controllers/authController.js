@@ -4,6 +4,7 @@ const UserAccount = require("../models/UserAccount");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
+
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPRES_IN,
@@ -31,23 +32,21 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   try {
-    const { username, email, password, passwordConfirm, role } = req.body;
+    const { username, email, password, passwordConfirm, role, user_uid } =
+      req.body;
 
     // Check if passwords match
     if (password !== passwordConfirm) {
       return next(new AppError("Passwords do not match!", 400));
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 12);
-
     // Create new user
     const newUser = await UserAccount.create({
       username, // Ensure this field is included
       email,
-      password: hashedPassword,
+      password,
       role,
-      user_uid: req.body.user_uid,
+      user_uid,
     });
 
     // Send response
