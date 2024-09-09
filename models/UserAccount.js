@@ -50,7 +50,7 @@ const UserAccount = sequelize.define(
         }
       },
     },
-  }
+  },
 );
 
 module.exports = UserAccount;

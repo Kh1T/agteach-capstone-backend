@@ -4,7 +4,6 @@ const UserAccount = require("../models/UserAccount");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
-
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPRES_IN,
@@ -40,6 +39,13 @@ exports.signup = catchAsync(async (req, res, next) => {
       return next(new AppError("Passwords do not match!", 400));
     }
 
+    // Check if user already exists
+    const existingUser = await UserAccount.findOne({ where: { email } });
+
+    if (existingUser) {
+      return next(new AppError("Email is already in use", 400));
+    }
+
     // Create new user
     const newUser = await UserAccount.create({
       username, // Ensure this field is included
@@ -72,16 +78,11 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 2) Check if user exists && password is correct
   const user = await UserAccount.findOne({ where: { email } });
-  console.log(password, user.password);
 
   // Check if user exists and password is correct using bcrypt
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
   }
-
-  // if (!user || !(password === user.password)) {
-  //   return next(new AppError("Incorrect email or password", 401));
-  // }
 
   // 3) If everything ok, send token to client
   // createSendToken(user, 200, req, res);
