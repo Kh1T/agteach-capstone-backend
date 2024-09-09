@@ -18,7 +18,7 @@ const createSendToken = (user, statusCode, res) => {
   const cookieOption = {
     // the date needed to convert to milliseconds
     expires: new Date(
-      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
+      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
     ),
     // this will make the cookie can not be modify or anything from browser
     httpOnly: true,
@@ -87,7 +87,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   console.log(user);
   // 3) If everything ok, send token to client
-  // createSendToken(user, 200, req, res);
+  createSendToken(user, 200, req, res);
   res.status(200).json({
     status: "success",
     message: "Login successful",
