@@ -29,6 +29,7 @@ const UserAccount = sequelize.define(
     },
     last_login: {
       type: DataTypes.DATE,
+      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
     },
     created_at: {
       type: DataTypes.DATE,
@@ -42,7 +43,7 @@ const UserAccount = sequelize.define(
   {
     tableName: "user_account", // Explicitly set the table name
     timestamps: false, // Disable automatic timestamps if not needed
-  }
+  },
 );
 
 module.exports = UserAccount;
