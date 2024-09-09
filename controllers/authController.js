@@ -12,6 +12,7 @@ const createSendToken = (user, statusCode, res) => {
     expires: new Date(
       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
     ),
+    // this will make the cookie can not be modify or anything from browser
     httpOnly: true,
   };
 
