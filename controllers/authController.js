@@ -36,23 +36,28 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   try {
-    const { username, email, password, passwordConfirm, role } = req.body;
+    const { username, email, password, passwordConfirm, role, user_uid } =
+      req.body;
 
     // Check if passwords match
     if (password !== passwordConfirm) {
       return next(new AppError("Passwords do not match!", 400));
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Check if user already exists
+    const existingUser = await UserAccount.findOne({ where: { email } });
+
+    if (existingUser) {
+      return next(new AppError("Email is already in use", 400));
+    }
 
     // Create new user
     const newUser = await UserAccount.create({
       username, // Ensure this field is included
       email,
-      password: hashedPassword,
+      password,
       role,
-      user_uid: req.body.user_uid,
+      user_uid,
     });
 
     // Send response
@@ -114,16 +119,11 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 2) Check if user exists && password is correct
   const user = await UserAccount.findOne({ where: { email } });
-  console.log(password, user.password);
 
   // Check if user exists and password is correct using bcrypt
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
   }
-
-  // if (!user || !(password === user.password)) {
-  //   return next(new AppError("Incorrect email or password", 401));
-  // }
 
   // 3) If everything ok, send token to client
   // createSendToken(user, 200, req, res);
