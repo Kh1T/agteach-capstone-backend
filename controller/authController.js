@@ -3,13 +3,13 @@
 // const jwt = require("jsonwebtoken");
 // const Email = require("./../utils/email");
 const bcrypt = require("bcryptjs");
-const User = require("../models/User");
+const UserAccount = require("../models/UserAccount");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
 exports.signup = catchAsync(async (req, res, next) => {
   try {
-    const { username, email, password, passwordConfirm } = req.body;
+    const { username, email, password, passwordConfirm, role } = req.body;
 
     // Check if passwords match
     if (password !== passwordConfirm) {
@@ -20,10 +20,12 @@ exports.signup = catchAsync(async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create new user
-    const newUser = await User.create({
+    const newUser = await UserAccount.create({
       username, // Ensure this field is included
       email,
       password: hashedPassword,
+      role,
+      user_uid: req.body.user_uid,
     });
 
     // Send response
@@ -48,7 +50,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 2) Check if user exists && password is correct
-  const user = await User.findOne({ where: { email } });
+  const user = await UserAccount.findOne({ where: { email } });
 
   // Check if user exists and password is correct using bcrypt
   if (!user || !(await bcrypt.compare(password, user.password))) {
