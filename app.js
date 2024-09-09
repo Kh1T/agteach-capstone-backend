@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const ProductCategory = require("./models/ProductCategory");
+
+const authRoutes = require("./routes/auth");
+
 app.use(express.json());
 app.use(cors());
 
@@ -21,5 +24,8 @@ app.post("/create", async (req, res) => {
     data: createItem,
   });
 });
+
+// Routes
+app.use("/auth", authRoutes);
 
 module.exports = app;
