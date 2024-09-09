@@ -9,16 +9,42 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+// const createSendToken = (user, statusCode, res) => {
+//   const token = signToken(user.user_uid);
+
+//   const cookieOption = {
+//     // the date needed to convert to milliseconds
+//     expires: new Date(
+//       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
+//     ),
+//     // this will make the cookie can not be modify or anything from browser
+//     httpOnly: true,
+//   };
+
+//   res.cookie("jwt", token, cookieOption);
+//   console.log("hi");
+
+//   res.status(statusCode).json({
+//     status: "success",
+//     token,
+//     data: {
+//       user,
+//     },
+//   });
+// };
+
 const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user.user_uid);
+  const token = signToken(user._id);
   const cookieOption = {
     // the date needed to convert to milliseconds
     expires: new Date(
-      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
+      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
     ),
     // this will make the cookie can not be modify or anything from browser
     httpOnly: true,
   };
+
+  if (process.env.NODE_ENV === "production") cookieOption.secure = true;
 
   res.cookie("jwt", token, cookieOption);
 
@@ -30,30 +56,6 @@ const createSendToken = (user, statusCode, res) => {
     },
   });
 };
-
-// const createSendToken = (user, statusCode, res) => {
-//   const token = signToken(user._id);
-//   const cookieOption = {
-//     // the date needed to convert to milliseconds
-//     expires: new Date(
-//       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
-//     ),
-//     // this will make the cookie can not be modify or anything from browser
-//     httpOnly: true
-//   };
-
-//   if (process.env.NODE_ENV === 'production') cookieOption.secure = true;
-
-//   res.cookie('jwt', token, cookieOption);
-
-//   res.status(statusCode).json({
-//     status: 'success',
-//     token,
-//     data: {
-//       user
-//     }
-//   });
-// };
 
 exports.signup = catchAsync(async (req, res, next) => {
   try {
@@ -112,11 +114,12 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 3) If everything ok, send token to client
   // createSendToken(user, 200, req, res);
-  const tour = createSendToken(user, 200, res);
+
   res.status(200).json({
     status: "success",
     message: "Login successful",
   });
+  createSendToken(user, 200, res);
 });
 
 // exports.protect = catchAsync(async (req, res, next) => {
