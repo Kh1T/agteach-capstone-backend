@@ -4,10 +4,12 @@ const sequelize = require("../config/db");
 const UserAccount = sequelize.define(
   "UserAccount",
   {
-    user_id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+    user_uid: {
+      type: DataTypes.UUID,
+      unique: true,
+      allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     email: {
       type: DataTypes.STRING(50),
@@ -36,16 +38,11 @@ const UserAccount = sequelize.define(
       type: DataTypes.DATE,
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
     },
-    user_uid: {
-      type: DataTypes.UUID,
-      unique: true,
-      allowNull: false,
-    },
   },
   {
     tableName: "user_account", // Explicitly set the table name
     timestamps: false, // Disable automatic timestamps if not needed
-  },
+  }
 );
 
 module.exports = UserAccount;
