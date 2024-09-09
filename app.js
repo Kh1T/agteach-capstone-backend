@@ -1,14 +1,13 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-
-const ProductCategory = require("./models/ProductCategory");
-const UserAccount = require("./models/UserAccount");
+const morgan = require("morgan");
 
 const userRouter = require("./routes/userRoutes");
 
 app.use(express.json());
 app.use(cors());
+app.use(morgan());
 
 // Routes
 app.use("/users", userRouter);
