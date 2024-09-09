@@ -5,7 +5,7 @@ const app = express();
 const ProductCategory = require("./models/ProductCategory");
 const UserAccount = require("./models/UserAccount");
 
-const userRoutes = require("./routes/userRoutes");
+const userRouter = require("./routes/userRoutes");
 
 app.use(express.json());
 app.use(cors());
@@ -28,6 +28,6 @@ app.post("/create", async (req, res) => {
 });
 
 // Routes
-app.use("/users", userRoutes);
+app.use("/users", userRouter);
 
 module.exports = app;
