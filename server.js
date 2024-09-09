@@ -1,9 +1,5 @@
-const app = require("./app");
 const sequelize = require("./config/db");
-
-app.listen(3000, () => {
-  console.log("listen on port: ", 3000);
-});
+const app = require("./app");
 
 try {
   const sync = async () => await sequelize.authenticate();
@@ -12,3 +8,7 @@ try {
 } catch (error) {
   console.error("Unable to connect to the database:", error);
 }
+
+app.listen(3000, () => {
+  console.log("listen on port: ", 3000);
+});

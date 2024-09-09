@@ -6,6 +6,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get("/", async (req, res) => {
+  console.log(process.env.HOST_DB);
   const product = await ProductCategory.findAll();
   res.status(200).json({
     status: "success",
@@ -15,7 +16,6 @@ app.get("/", async (req, res) => {
 
 app.post("/create", async (req, res) => {
   const createItem = await ProductCategory.create(req.body);
-
   res.json({
     status: "success",
     data: createItem,
