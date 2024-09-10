@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
 
@@ -29,5 +30,7 @@ app.post("/create", async (req, res) => {
 
 // Routes
 app.use("/users", userRoutes);
+
+app.use(globalErrorHandler);
 
 module.exports = app;
