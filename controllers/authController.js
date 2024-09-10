@@ -11,7 +11,6 @@ const signToken = (id) =>
   });
 
 const createSendToken = (user, statusCode, res) => {
-  console.log(user);
   const token = signToken(user.user_uid);
 
   const cookieOption = {
@@ -60,12 +59,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   // Send response
-  res.status(201).json({
-    status: "success",
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -84,7 +78,6 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  console.log(user);
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
 });
@@ -109,10 +102,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2) Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // console.log(token);
 
-  console.log(decoded);
   // 3) Check if user still exists
-  const currentUser = await UserAccount.findOne(decoded);
+  const currentUser = await UserAccount.findByPk(decoded.id);
 
   if (!currentUser) {
     return next(
@@ -122,8 +115,6 @@ exports.protect = catchAsync(async (req, res, next) => {
       )
     );
   }
-
-  console.log(currentUser);
 
   // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
