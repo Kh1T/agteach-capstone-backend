@@ -4,6 +4,7 @@ const { promisify } = require("util");
 const UserAccount = require("../models/UserAccount");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const sendEmail = require("../utils/sendEmail");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -59,7 +60,16 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   // Send response
-  createSendToken(newUser, 201, res);
+  // createSendToken(newUser, 201, res);
+
+  // Send email
+  sendEmail({
+    to: newUser.email,
+    from: process.env.EMAIL_FROM,
+    subject: "Your account has been created",
+    text: "Hello",
+    html: "<h1>Hello</h1>",
+  });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
