@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const globalErrorHandler = require("./controllers/errorController");
 
+
 const app = express();
 
 // Routes
@@ -16,6 +17,8 @@ app.use(morgan());
 // Routes
 
 app.use("/api/users", userRouter);
+app.use(globalErrorHandler);
+
 app.use(globalErrorHandler);
 
 module.exports = app;
