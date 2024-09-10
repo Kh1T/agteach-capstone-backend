@@ -38,7 +38,7 @@ const createSendToken = (user, statusCode, res) => {
   const cookieOption = {
     // the date needed to convert to milliseconds
     expires: new Date(
-      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
+      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
     ),
     // this will make the cookie can not be modify or anything from browser
     httpOnly: true,
@@ -49,6 +49,8 @@ const createSendToken = (user, statusCode, res) => {
   // ERROR HERE
 
   res.cookie("jwt", token, cookieOption);
+
+  console.log("s");
 
   res.status(statusCode).json({
     status: "success",
