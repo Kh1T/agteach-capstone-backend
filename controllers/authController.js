@@ -21,6 +21,8 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: true,
   };
 
+  res.cookie("jwt", token, cookieOption);
+
   res.status(statusCode).json({
     status: "success",
     token,
@@ -70,27 +72,23 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    // 1) Check if email and password exist
-    if (!email || !password) {
-      return next(new AppError("Please provide email and password!", 400));
-    }
-
-    // 2) Check if user exists && password is correct
-    const user = await UserAccount.findOne({ where: { email } });
-
-    // Check if user exists and password is correct using bcrypt
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return next(new AppError("Incorrect email or password", 401));
-    }
-
-    // 3) If everything ok, send token to client
-    createSendToken(user, 200, res);
-  } catch (err) {
-    res.json({ err });
+  // 1) Check if email and password exist
+  if (!email || !password) {
+    return next(new AppError("Please provide email and password!", 400));
   }
+
+  // 2) Check if user exists && password is correct
+  const user = await UserAccount.findOne({ where: { email } });
+
+  // Check if user exists and password is correct using bcrypt
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return next(new AppError("Incorrect email or password", 401));
+  }
+
+  // 3) If everything ok, send token to client
+  createSendToken(user, 200, res);
 });
 
 // exports.protect = catchAsync(async (req, res, next) => {

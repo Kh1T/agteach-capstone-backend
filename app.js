@@ -10,6 +10,6 @@ app.use(cors());
 app.use(morgan());
 
 // Routes
-app.use("/users", userRouter);
+app.use("/api/users", userRouter);
 
 module.exports = app;
