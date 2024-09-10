@@ -81,7 +81,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3) If everything ok, send token to client
-  createSendToken(user, 200, req, res);
+  // createSendToken(user, 200, req, res);
   res.status(200).json({
     status: "success",
     message: "Login successful",
