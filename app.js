@@ -18,4 +18,6 @@ app.use(morgan());
 app.use("/api/users", userRouter);
 app.use(globalErrorHandler);
 
+app.use(globalErrorHandler);
+
 module.exports = app;

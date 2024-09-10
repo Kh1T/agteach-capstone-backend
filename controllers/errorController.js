@@ -32,7 +32,6 @@ const sendErrorDev = (err, req, res) =>
     message: err.message,
     stack: err.stack,
   });
-
 const sendErrorProd = (err, req, res) => {
   // A) API
   if (err.isOperational) {
