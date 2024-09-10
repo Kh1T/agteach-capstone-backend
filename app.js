@@ -1,13 +1,13 @@
+const morgan = require("morgan");
 const express = require("express");
 const cors = require("cors");
 const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
-const morgan = require("morgan");
 
-const ProductCategory = require("./models/ProductCategory");
-const UserAccount = require("./models/UserAccount");
-const userRoutes = require("./routes/userRoutes");
+// Routes
+
+const userRouter = require("./routes/userRoutes");
 
 app.use(express.json());
 app.use(cors());
