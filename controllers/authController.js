@@ -9,48 +9,17 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-// const createSendToken = (user, statusCode, res) => {
-//   const token = signToken(user.user_uid);
-
-//   const cookieOption = {
-//     // the date needed to convert to milliseconds
-//     expires: new Date(
-//       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
-//     ),
-//     // this will make the cookie can not be modify or anything from browser
-//     httpOnly: true,
-//   };
-
-//   res.cookie("jwt", token, cookieOption);
-//   console.log("hi");
-
-//   res.status(statusCode).json({
-//     status: "success",
-//     token,
-//     data: {
-//       user,
-//     },
-//   });
-// };
-
 const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user._id);
+  const token = signToken(user.user_uid);
+
   const cookieOption = {
     // the date needed to convert to milliseconds
     expires: new Date(
-      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
+      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
     ),
     // this will make the cookie can not be modify or anything from browser
     httpOnly: true,
   };
-
-  if (process.env.NODE_ENV === "production") cookieOption.secure = true;
-
-  // ERROR HERE
-
-  res.cookie("jwt", token, cookieOption);
-
-  console.log("s");
 
   res.status(statusCode).json({
     status: "success",
@@ -101,29 +70,27 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  // 1) Check if email and password exist
-  if (!email || !password) {
-    return next(new AppError("Please provide email and password!", 400));
+    // 1) Check if email and password exist
+    if (!email || !password) {
+      return next(new AppError("Please provide email and password!", 400));
+    }
+
+    // 2) Check if user exists && password is correct
+    const user = await UserAccount.findOne({ where: { email } });
+
+    // Check if user exists and password is correct using bcrypt
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return next(new AppError("Incorrect email or password", 401));
+    }
+
+    // 3) If everything ok, send token to client
+    createSendToken(user, 200, res);
+  } catch (err) {
+    res.json({ err });
   }
-
-  // 2) Check if user exists && password is correct
-  const user = await UserAccount.findOne({ where: { email } });
-
-  // Check if user exists and password is correct using bcrypt
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return next(new AppError("Incorrect email or password", 401));
-  }
-
-  // 3) If everything ok, send token to client
-  // createSendToken(user, 200, req, res);
-
-  res.status(200).json({
-    status: "success",
-    message: "Login successful",
-  });
-  createSendToken(user, 200, res);
 });
 
 // exports.protect = catchAsync(async (req, res, next) => {
