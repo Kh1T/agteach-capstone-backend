@@ -13,6 +13,8 @@ try {
   console.error("Unable to connect to the database:", error);
 }
 
+console.log("process.env.NODE_ENV: ", process.env.NODE_ENV);
+
 app.listen(3000, () => {
   console.log("listen on port: ", 3000);
 });
