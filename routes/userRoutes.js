@@ -6,6 +6,9 @@ const router = express.Router();
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 
+router.post("/verify-email", authController.verifyEmail);
+
+
 router.get("/test", authController.protect, (req, res) => {
   res.json({
     user: req.user,
