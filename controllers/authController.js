@@ -59,12 +59,10 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role,
-    user_uid: req.body.user_uid,
-    verificationCode, // Store the verification code
+    // user_uid: req.body.user_uid,
   });
 
   // Send response
-  // createSendToken(newUser, 201, res);
 
   // Send email
   await sendEmail({
@@ -76,11 +74,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
   });
 
-  res.status(201).json({
-    status: "success",
-    message:
-      "User created successfully. Please check your email to verify your account.",
-  });
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
