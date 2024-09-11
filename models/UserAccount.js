@@ -10,11 +10,15 @@ const UserAccount = sequelize.define("user_account", {
     unique: true,
     allowNull: false,
     primaryKey: true,
-    autoIncrement: true,
+    defaultValue: DataTypes.UUIDV4, // Use default UUID generator
   },
   email: {
     type: DataTypes.STRING(50),
     allowNull: false,
+    unique: true, // Enforce unique emails
+    validate: {
+      isEmail: true, // Validates proper email format
+    },
   },
   username: {
     type: DataTypes.STRING(50),
@@ -25,7 +29,16 @@ const UserAccount = sequelize.define("user_account", {
     allowNull: false,
   },
   passwordConfirm: {
-    type: DataTypes.VIRTUAL(DataTypes.STRING(50)),
+    type: DataTypes.VIRTUAL, // Virtual field for password confirmation
+    allowNull: false, // Ensures passwordConfirm is not empty
+    validate: {
+      notEmpty: true,
+      isMatch(value) {
+        if (value !== this.password) {
+          throw new Error("Passwords do not match!"); // Custom error
+        }
+      },
+    },
   },
   role: {
     type: DataTypes.STRING(50),
@@ -51,19 +64,23 @@ const UserAccount = sequelize.define("user_account", {
 
 module.exports = UserAccount;
 
-UserAccount.beforeCreate(async (user) => {
-  // Check if passwords match
-  if (user.password !== user.passwordConfirm) {
-    return new AppError("Passwords do not match!", 400);
-  }
+// Encrpty Password & Validate Email
 
-  // Check if user already exists
-  const existingUser = await UserAccount.findByPk(user.email);
+UserAccount.beforeCreate(async (user) => {
+  // Check if user already exists by email
+  const existingUser = await UserAccount.findOne({
+    where: { email: user.email },
+  });
 
   if (existingUser) {
-    return new AppError("Email is already in use", 400);
+    throw new AppError("Email is already in use", 400); // Throw error
   }
+
+  // Hash the password before saving
   if (user.password) {
     user.password = await bcrypt.hash(user.password, 12);
   }
 });
+
+// Send Email
+UserAccount.beforeCreate(async (user) => {});

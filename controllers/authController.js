@@ -36,22 +36,6 @@ const createSendToken = (user, statusCode, res) => {
 const code = Math.floor(100000 + Math.random() * 900000);
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { email, password, passwordConfirm } = req.body;
-
-  // Check if passwords match
-  if (password !== passwordConfirm) {
-    return next(new AppError("Passwords do not match!", 400));
-  }
-
-  // Check if user already exists
-  const existingUser = await UserAccount.findOne({ where: { email } });
-
-  if (existingUser) {
-    return next(new AppError("Email is already in use", 400));
-  }
-
-  const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
-
   // Create new user
   const newUser = await UserAccount.create({
     username: req.body.username,
@@ -63,16 +47,16 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   // Send response
-
+  // const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
   // Send email
-  await sendEmail({
-    to: newUser.email,
-    from: process.env.EMAIL_FROM,
-    subject: "Your account has been created",
-    username: newUser.username,
-    code: { verificationCode },
-    text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
-  });
+  // await sendEmail({
+  //   to: newUser.email,
+  //   from: process.env.EMAIL_FROM,
+  //   subject: "Your account has been created",
+  //   username: newUser.username,
+  //   code: { verificationCode },
+  //   text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
+  // });
 
   createSendToken(newUser, 201, res);
 });
