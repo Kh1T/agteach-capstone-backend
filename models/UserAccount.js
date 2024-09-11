@@ -1,6 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const AppError = require("../utils/appError");
+const sendEmail = require("../utils/sendEmail");
 
 const sequelize = require("../config/db");
 
@@ -83,4 +84,16 @@ UserAccount.beforeCreate(async (user) => {
 });
 
 // Send Email
-UserAccount.beforeCreate(async (user) => {});
+UserAccount.beforeCreate(async (user) => {
+  // Send response
+  const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+  // Send email
+  await sendEmail({
+    to: user.email,
+    from: process.env.EMAIL_FROM,
+    subject: "Your account has been created",
+    username: user.username,
+    code: { verificationCode },
+    text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
+  });
+});

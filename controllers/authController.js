@@ -33,7 +33,6 @@ const createSendToken = (user, statusCode, res) => {
     },
   });
 };
-const code = Math.floor(100000 + Math.random() * 900000);
 
 exports.signup = catchAsync(async (req, res, next) => {
   // Create new user
@@ -43,20 +42,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role,
-    // user_uid: req.body.user_uid,
   });
-
-  // Send response
-  // const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
-  // Send email
-  // await sendEmail({
-  //   to: newUser.email,
-  //   from: process.env.EMAIL_FROM,
-  //   subject: "Your account has been created",
-  //   username: newUser.username,
-  //   code: { verificationCode },
-  //   text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
-  // });
 
   createSendToken(newUser, 201, res);
 });
