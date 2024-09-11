@@ -32,9 +32,9 @@ const UserAccount = sequelize.define("user_account", {
   password: {
     type: DataTypes.STRING(60),
     allowNull: false,
-    validate: {
-      len: [8, 30],
-    },
+    // validate: {
+    //   len: [8, 30],
+    // },
   },
   passwordConfirm: {
     type: DataTypes.VIRTUAL,
@@ -80,13 +80,8 @@ module.exports = UserAccount;
 
 UserAccount.beforeCreate(async (user) => {
   // Check if user already exists
-  const existingUser = await UserAccount.findOne({
-    where: { email: user.email, username: user.username },
-  });
-
-  if (existingUser) {
-    throw new AppError("Email is already in use", 400);
-  }
+  const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+  user.emailVerifyCode = verificationCode;
 });
 
 // Encrpty Password
@@ -99,11 +94,7 @@ useBcrypt(UserAccount, {
 
 // Send Email
 UserAccount.afterCreate(async (user) => {
-  // Send response
-  const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
-
-  //Set the verification code in the database
-  user.emailVerifyCode = verificationCode;
+  const verificationCode = user.emailVerifyCode;
   // Send email
   await sendEmail({
     to: user.email,
