@@ -4,6 +4,7 @@ const { promisify } = require("util");
 const UserAccount = require("../models/UserAccount");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const sendEmail = require("../utils/sendEmail");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -32,6 +33,7 @@ const createSendToken = (user, statusCode, res) => {
     },
   });
 };
+const code = Math.floor(100000 + Math.random() * 900000);
 
 exports.signup = catchAsync(async (req, res, next) => {
   const { email, password, passwordConfirm } = req.body;
@@ -48,6 +50,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     return next(new AppError("Email is already in use", 400));
   }
 
+  const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+
   // Create new user
   const newUser = await UserAccount.create({
     username: req.body.username,
@@ -56,10 +60,27 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role,
     user_uid: req.body.user_uid,
+    verificationCode, // Store the verification code
   });
 
   // Send response
-  createSendToken(newUser, 201, res);
+  // createSendToken(newUser, 201, res);
+
+  // Send email
+  await sendEmail({
+    to: newUser.email,
+    from: process.env.EMAIL_FROM,
+    subject: "Your account has been created",
+    username: newUser.username,
+    code: { verificationCode },
+    text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
+  });
+
+  res.status(201).json({
+    status: "success",
+    message:
+      "User created successfully. Please check your email to verify your account.",
+  });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
