@@ -6,7 +6,7 @@ const sequelize = require("./config/db");
 const app = require("./app");
 
 try {
-  const sync = async () => await sequelize.authenticate();
+  const sync = async () => await sequelize.sync();
   sync();
   console.log("Connection has been established successfully.");
 } catch (error) {
