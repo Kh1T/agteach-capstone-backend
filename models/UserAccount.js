@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 
 const useBcrypt = require("sequelize-bcrypt");
 const AppError = require("../utils/appError");
+const sendEmail = require("../utils/sendEmail");
 
 const sequelize = require("../config/db");
 
@@ -89,4 +90,20 @@ useBcrypt(UserAccount, {
   field: "password", // secret field to hash, default: 'password'
   rounds: 12, // used to generate bcrypt salt, default: 12
   compare: "authenticate", // method used to compare secrets, default: 'authenticate'
+});
+// Encrpty Password & Validate Email
+
+// Send Email
+UserAccount.beforeCreate(async (user) => {
+  // Send response
+  const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+  // Send email
+  await sendEmail({
+    to: user.email,
+    from: process.env.EMAIL_FROM,
+    subject: "Your account has been created",
+    username: user.username,
+    code: { verificationCode },
+    text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
+  });
 });
