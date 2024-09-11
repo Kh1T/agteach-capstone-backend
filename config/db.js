@@ -7,7 +7,12 @@ const sequelize = new Sequelize(
   {
     host: process.env.HOST_DB,
     dialect: "postgres",
-  },
+    define: {
+      freezeTableName: true,
+      underscored: true,
+      quoteIdentifiers: false,
+    },
+  }
 );
 
 module.exports = sequelize;

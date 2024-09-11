@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const sequelize = require("../config/db");
 
 const UserAccount = sequelize.define(
-  "UserAccount",
+  "user_account",
   {
     user_uid: {
       type: DataTypes.UUID,
@@ -42,8 +42,6 @@ const UserAccount = sequelize.define(
     },
   },
   {
-    tableName: "user_account",
-    timestamps: false,
     hooks: {
       beforeCreate: async (user) => {
         if (user.password) {
