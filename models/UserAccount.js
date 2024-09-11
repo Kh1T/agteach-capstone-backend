@@ -16,8 +16,8 @@ const UserAccount = sequelize.define("user_account", {
   email: {
     type: DataTypes.STRING(50),
     allowNull: false,
+ 
     validate: {
-      unique: true,
       isEmail: true,
     },
   },
@@ -70,6 +70,12 @@ const UserAccount = sequelize.define("user_account", {
 });
 
 module.exports = UserAccount;
+
+UserAccount.beforeCreate((user) => {
+  const userEmail = user.email;
+}
+
+
 
 // Encrpty Password
 useBcrypt(UserAccount, {

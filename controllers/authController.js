@@ -41,18 +41,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  // Send response
-  // const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
-  // Send email
-  // await sendEmail({
-  //   to: newUser.email,
-  //   from: process.env.EMAIL_FROM,
-  //   subject: "Your account has been created",
-  //   username: newUser.username,
-  //   code: { verificationCode },
-  //   text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
-  // });
-
   createSendToken(newUser, 201, res);
 });
 
