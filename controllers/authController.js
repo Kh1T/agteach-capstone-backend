@@ -1,10 +1,8 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const { promisify } = require("util");
 const UserAccount = require("../models/UserAccount");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const sendEmail = require("../utils/sendEmail");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -33,7 +31,6 @@ const createSendToken = (user, statusCode, res) => {
     },
   });
 };
-const code = Math.floor(100000 + Math.random() * 900000);
 
 exports.signup = catchAsync(async (req, res, next) => {
   // Create new user
@@ -42,8 +39,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    role: req.body.role,
-    // user_uid: req.body.user_uid,
   });
 
   // Send response
@@ -72,11 +67,11 @@ exports.login = catchAsync(async (req, res, next) => {
   // 2) Check if user exists && password is correct
   const user = await UserAccount.findOne({ where: { email } });
 
-  // Check if user exists and password is correct using bcrypt
-  if (!user || !(await bcrypt.compare(password, user.password))) {
+  // Check if password is correct
+
+  if (!user.authenticate(password)) {
     return next(new AppError("Incorrect email or password", 401));
   }
-
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
 });

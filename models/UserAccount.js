@@ -1,41 +1,47 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const bcrypt = require("bcryptjs");
+
+const useBcrypt = require("sequelize-bcrypt");
 const AppError = require("../utils/appError");
 
 const sequelize = require("../config/db");
 
 const UserAccount = sequelize.define("user_account", {
-  user_uid: {
+  userUid: {
     type: DataTypes.UUID,
     unique: true,
     allowNull: false,
     primaryKey: true,
-    defaultValue: DataTypes.UUIDV4, // Use default UUID generator
+    defaultValue: DataTypes.UUIDV4,
   },
   email: {
     type: DataTypes.STRING(50),
     allowNull: false,
-    unique: true, // Enforce unique emails
     validate: {
-      isEmail: true, // Validates proper email format
+      unique: true,
+      isEmail: true,
     },
   },
   username: {
     type: DataTypes.STRING(50),
     allowNull: false,
+    unique: true,
   },
   password: {
     type: DataTypes.STRING(60),
     allowNull: false,
+    validate: {
+      len: [8, 30],
+    },
   },
   passwordConfirm: {
-    type: DataTypes.VIRTUAL, // Virtual field for password confirmation
-    allowNull: false, // Ensures passwordConfirm is not empty
+    type: DataTypes.VIRTUAL,
+    allowNull: false,
     validate: {
+      len: [8, 30],
       notEmpty: true,
       isMatch(value) {
         if (value !== this.password) {
-          throw new Error("Passwords do not match!"); // Custom error
+          throw new AppError("Passwords do not match!", 400);
         }
       },
     },
@@ -43,20 +49,21 @@ const UserAccount = sequelize.define("user_account", {
   role: {
     type: DataTypes.STRING(50),
     allowNull: false,
+    defaultValue: "guest",
   },
-  last_login: {
+  lastLogin: {
     type: DataTypes.DATE,
-    defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+    defaultValue: DataTypes.NOW,
   },
-  created_at: {
+  createdAt: {
     type: DataTypes.DATE,
-    defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+    defaultValue: DataTypes.NOW,
   },
-  updated_at: {
+  updatedAt: {
     type: DataTypes.DATE,
-    defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+    defaultValue: DataTypes.NOW,
   },
-  is_verify: {
+  isVerify: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
@@ -64,23 +71,8 @@ const UserAccount = sequelize.define("user_account", {
 
 module.exports = UserAccount;
 
-// Encrpty Password & Validate Email
-
-UserAccount.beforeCreate(async (user) => {
-  // Check if user already exists by email
-  const existingUser = await UserAccount.findOne({
-    where: { email: user.email },
-  });
-
-  if (existingUser) {
-    throw new AppError("Email is already in use", 400); // Throw error
-  }
-
-  // Hash the password before saving
-  if (user.password) {
-    user.password = await bcrypt.hash(user.password, 12);
-  }
+// Encrpty Password
+useBcrypt(UserAccount, {
+  field: "password", // secret field to hash, default: 'password'
+  rounds: 12, // used to generate bcrypt salt, default: 12
 });
-
-// Send Email
-UserAccount.beforeCreate(async (user) => {});

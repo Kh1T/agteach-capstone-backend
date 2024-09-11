@@ -2,7 +2,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
 const ProductCategory = sequelize.define("product_category", {
-  category_id: {
+  categoryId: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
@@ -15,11 +15,11 @@ const ProductCategory = sequelize.define("product_category", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  created_at: {
+  createdAt: {
     type: DataTypes.DATE,
     defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
   },
-  updated_at: {
+  updatedAt: {
     type: DataTypes.DATE,
     defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
   },

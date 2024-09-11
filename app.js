@@ -5,13 +5,16 @@ const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
 
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+
 // Routes
 
 const userRouter = require("./routes/userRoutes");
 
 app.use(express.json());
 app.use(cors());
-app.use(morgan());
 
 // Routes
 
