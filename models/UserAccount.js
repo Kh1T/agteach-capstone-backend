@@ -32,9 +32,9 @@ const UserAccount = sequelize.define("user_account", {
   password: {
     type: DataTypes.STRING(60),
     allowNull: false,
-    // validate: {
-    //   len: [8, 30],
-    // },
+    validate: {
+      len: [8, 30],
+    },
   },
   passwordConfirm: {
     type: DataTypes.VIRTUAL,
