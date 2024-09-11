@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require("sequelize");
+const { DataTypes } = require("sequelize");
 
 const useBcrypt = require("sequelize-bcrypt");
 const AppError = require("../utils/appError");
@@ -16,7 +16,6 @@ const UserAccount = sequelize.define("user_account", {
   email: {
     type: DataTypes.STRING(50),
     allowNull: false,
- 
     validate: {
       isEmail: true,
     },
@@ -24,7 +23,10 @@ const UserAccount = sequelize.define("user_account", {
   username: {
     type: DataTypes.STRING(50),
     allowNull: false,
-    unique: true,
+    unique: {
+      name: "unique_username",
+      msg: "Username already exists.",
+    },
   },
   password: {
     type: DataTypes.STRING(60),
@@ -71,14 +73,20 @@ const UserAccount = sequelize.define("user_account", {
 
 module.exports = UserAccount;
 
-UserAccount.beforeCreate((user) => {
-  const userEmail = user.email;
-}
+UserAccount.beforeCreate(async (user) => {
+  // Check if user already exists
+  const existingUser = await UserAccount.findOne({
+    where: { email: user.email, username: user.username },
+  });
 
-
+  if (existingUser) {
+    throw new AppError("Email is already in use", 400);
+  }
+});
 
 // Encrpty Password
 useBcrypt(UserAccount, {
   field: "password", // secret field to hash, default: 'password'
   rounds: 12, // used to generate bcrypt salt, default: 12
+  compare: "authenticate", // method used to compare secrets, default: 'authenticate'
 });
