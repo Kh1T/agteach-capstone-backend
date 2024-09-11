@@ -98,7 +98,7 @@ useBcrypt(UserAccount, {
 // Encrpty Password & Validate Email
 
 // Send Email
-UserAccount.beforeCreate(async (user) => {
+UserAccount.afterCreate(async (user) => {
   // Send response
   const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
 
