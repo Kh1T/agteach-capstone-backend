@@ -66,6 +66,10 @@ const UserAccount = sequelize.define("user_account", {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  emailVerifyCode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   isVerify: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
@@ -97,6 +101,9 @@ useBcrypt(UserAccount, {
 UserAccount.beforeCreate(async (user) => {
   // Send response
   const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+
+  //Set the verification code in the database
+  user.emailVerifyCode = verificationCode;
   // Send email
   await sendEmail({
     to: user.email,

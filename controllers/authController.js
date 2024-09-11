@@ -45,6 +45,27 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, res);
 });
 
+exports.verifyEmail = catchAsync(async (req, res, next) => {
+  const { emailVerifyCode } = req.body;
+
+  // Find the user with the provided verification code
+  const user = await UserAccount.findOne({ where: { emailVerifyCode } });
+
+  if (!user) {
+    return next(new AppError("Invalid verification code", 400));
+  }
+
+  // Mark the user as verified
+  user.isVerified = true;
+  user.emailVerifyCode = null; // Clear the verification code
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Email successfully verified",
+  });
+});
+
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
