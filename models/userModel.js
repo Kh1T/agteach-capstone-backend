@@ -99,7 +99,6 @@ useBcrypt(UserAccount, {
 
 // Generate Code for Email Verification
 UserAccount.beforeCreate(async (user) => {
-  // Check if user already exists
   const verificationCode = getDigitalCode(4);
   user.emailVerifyCode = verificationCode;
 });
