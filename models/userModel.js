@@ -127,12 +127,12 @@ UserAccount.prototype.createEmailVerifyCode = function () {
   return verificationCode;
 };
 
-// Update password ChangeAt
+// Update passwordChangeAt of the password has been changed
+
 UserAccount.prototype.updatePasswordChangedAt = function () {
-  // if (this.passwordChangedAt) {
-  //   this.passwordChangedAt = Date.now();
-  // }
-  console.passwordChangedAtlog(this.isModified());
+  if (this.changed("passwordChangedAt")) {
+    this.passwordChangedAt = Date.now();
+  }
 };
 
 // UserAccount.beforeCreate(async function (user) {

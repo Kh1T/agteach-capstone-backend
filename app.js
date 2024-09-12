@@ -21,8 +21,6 @@ app.use(cors());
 // Routes
 app.use("/api/users", userRouter);
 
-app.use("/", authController.forgotPassword);
-
 app.use(globalErrorHandler);
 
 module.exports = app;
