@@ -7,6 +7,8 @@ const AppError = require("../utils/appError");
 const UserAccount = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const sendEmail = require("../utils/sendEmail");
+const AppError = require("../utils/appError");
+// const { resendCode } = require("../utils/resendCode");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -48,23 +50,39 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, res);
 });
 
-exports.resendCode = catchAsync(async (req, res, next) => {
+exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const { email } = req.body;
-
   // Find the user by email
   const user = await UserAccount.findOne({ where: { email } });
-  // Optional: Check for a cooldown period (e.g., 1 minute)
+  // Reset the verification code
+  const verificationCode = user.createEmailVerifyCode();
+
+  // check if the cool down is active
   const lastSent = user.updatedAt;
-  const isCooldownActive = Date.now() - new Date(lastSent) < 1 * 60 * 1000;
+  const cooldownDuration = 1 * 60 * 1000; // 1 minute
+  const timeDifference = Date.now() - new Date(lastSent).getTime();
+  const isCooldownActive = timeDifference < cooldownDuration;
+
   if (isCooldownActive) {
-    return res
-      .status(429)
-      .send("Please wait a minute before resending the verification code.");
+    return res.status(429).json({
+      status: "fail",
+      message: "Your verification is in cooldown 1 minute.",
+    });
   }
 
-  // Resend the verification code
-  const newCode = await resendCode(user);
-  res.send(`Verification code resent successfully: ${newCode}`);
+  // Update user and resend code
+  user.updatedAt = new Date(); // Update the timestamp
+  await user.save(); // Save the changes
+
+  // Send email
+  await sendEmail(user, {
+    subject: "Here is your new verification code.",
+    text: `Here is your new verification code: ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
+  });
+  res.status(200).json({
+    status: "success",
+    message: `Verification code resent successfully: ${verificationCode}`,
+  });
 });
 
 exports.verifyEmail = catchAsync(async (req, res, next) => {
@@ -104,44 +122,6 @@ exports.login = catchAsync(async (req, res, next) => {
   }
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
-});
-
-exports.resendCode = catchAsync(async (req, res, next) => {
-  const { email } = req.body;
-
-  // Find the user by email
-  const user = await UserAccount.findOne({ where: { email } });
-  // Optional: Check for a cooldown period (e.g., 1 minute)
-  const lastSent = user.updatedAt;
-  const isCooldownActive = Date.now() - new Date(lastSent) < 1 * 60 * 1000;
-  if (isCooldownActive) {
-    return res
-      .status(429)
-      .send("Please wait a minute before resending the verification code.");
-  }
-
-  // Resend the verification code
-  const newCode = await resendCode(user);
-  res.send(`Verification code resent successfully: ${newCode}`);
-});
-
-exports.verifyEmail = catchAsync(async (req, res, next) => {
-  const { emailVerifyCode } = req.body;
-  // Find the user with the provided verification code
-  const user = await UserAccount.findOne({ where: { emailVerifyCode } });
-
-  if (!user) {
-    return next(new AppError("Invalid verification code", 400));
-  }
-  // Mark the user as verified
-  user.isVerified = true;
-  user.emailVerifyCode = null; // Clear the verification code
-  await user.save();
-
-  res.status(200).json({
-    status: "success",
-    message: "Email successfully verified",
-  });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
