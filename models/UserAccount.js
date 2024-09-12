@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-
+const { getDigitalCode } = require("node-verification-code");
 const useBcrypt = require("sequelize-bcrypt");
 const AppError = require("../utils/appError");
 const sendEmail = require("../utils/sendEmail");
@@ -78,12 +78,6 @@ const UserAccount = sequelize.define("user_account", {
 
 module.exports = UserAccount;
 
-UserAccount.beforeCreate(async (user) => {
-  // Check if user already exists
-  const verificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
-  user.emailVerifyCode = verificationCode;
-});
-
 // Encrpty Password
 useBcrypt(UserAccount, {
   field: "password", // secret field to hash, default: 'password'
@@ -92,10 +86,16 @@ useBcrypt(UserAccount, {
 });
 // Encrpty Password & Validate Email
 
+// Generate Code for Email Verification
+UserAccount.beforeCreate(async (user) => {
+  // Check if user already exists
+  const verificationCode = getDigitalCode(4);
+  user.emailVerifyCode = verificationCode;
+});
+
 // Send Email
 UserAccount.afterCreate(async (user) => {
   const verificationCode = user.emailVerifyCode;
-  // Send email
   await sendEmail({
     to: user.email,
     from: process.env.EMAIL_FROM,
