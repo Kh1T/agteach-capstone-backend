@@ -5,6 +5,8 @@ const { Op } = require("sequelize");
 const AppError = require("../utils/appError");
 const UserAccount = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
+const { resendCode } = require("../utils/resendCode");
 const sendEmail = require("../utils/sendEmail");
 
 // const { resendCode } = require("../utils/resendCode");
@@ -121,6 +123,44 @@ exports.login = catchAsync(async (req, res, next) => {
   }
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
+});
+
+exports.resendVerifyCode = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  // Find the user by email
+  const user = await UserAccount.findOne({ where: { email } });
+  // Optional: Check for a cooldown period (e.g., 1 minute)
+  const lastSent = user.updatedAt;
+  const isCooldownActive = Date.now() - new Date(lastSent) < 1 * 60 * 1000;
+  if (isCooldownActive) {
+    return res
+      .status(429)
+      .send("Please wait a minute before resending the verification code.");
+  }
+
+  // Resend the verification code
+  const newCode = await resendCode(user);
+  res.send(`Verification code resent successfully: ${newCode}`);
+});
+
+exports.verifyEmail = catchAsync(async (req, res, next) => {
+  const { emailVerifyCode } = req.body;
+  // Find the user with the provided verification code
+  const user = await UserAccount.findOne({ where: { emailVerifyCode } });
+
+  if (!user) {
+    return next(new AppError("Invalid verification code", 400));
+  }
+  // Mark the user as verified
+  user.isVerified = true;
+  user.emailVerifyCode = null; // Clear the verification code
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Email successfully verified",
+  });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
