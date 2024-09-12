@@ -12,34 +12,28 @@ const filterObj = (obj, ...allowedFields) => {
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
-  console.log(req.body);
-
-  // if (req.body.password || req.body.passwordConfirm) {
-  //   return next(
-  //     new AppError(
-  //       "This route is not for password updates. Please use /updateMyPassword.",
-  //       400
-  //     )
-  //   );
-  // }
-  // // Get the updated user
-  // const user = await User.findByPk(req.user.userUid);
-
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(
+      new AppError(
+        "This route is not for password updates. Please use /updateMyPassword.",
+        400
+      )
+    );
+  }
   // // 2) Filtered out unwanted fields names that are not allowed to be updated
-  // const filteredBody = filterObj(req.body, "email");
-  // if (req.file) filteredBody.photo = req.file.filename;
+  const filteredBody = filterObj(req.body, "username", "email");
 
   // // 3) Update user document
-  // const updatedUser = await User.update(filteredBody, {
-  //   where: { userUid: req.user.userUid },
-  //   returning: true,
-  //   individualHooks: true, // to run validators
-  // });
+  const updatedUser = await User.update(filteredBody, {
+    where: { userUid: req.user.userUid },
+    returning: true,
+    individualHooks: true, // to run validators
+  });
 
   res.status(200).json({
     status: "success",
     data: {
-      user: req.user,
+      user: updatedUser[1][0], // updatedUser[1] contains the updated records
     },
   });
 });
