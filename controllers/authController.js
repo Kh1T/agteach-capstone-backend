@@ -1,9 +1,10 @@
 /* eslint-disable no-undef */
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
+const crypto = require("crypto");
+const AppError = require("../utils/appError");
 const UserAccount = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -192,6 +193,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   user.save({ validateBeforeSave: false });
 
+  user.updatePasswordChangedAt();
+
   res.json({ status: "success", resetToken });
 
   // try {
@@ -215,4 +218,31 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   //     500
   //   );
   // }
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // DON"T FORGET TO CHANGE UPDATE TO req.params.token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.body.token)
+    .digest("hex");
+
+  const user = await UserAccount.findOne({
+    where: {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { [Op.gt]: Date.now() },
+    },
+  });
+
+  if (!user) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  createSendToken(user, 200, res);
 });

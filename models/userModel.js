@@ -6,7 +6,6 @@ const AppError = require("../utils/appError");
 const sendEmail = require("../utils/sendEmail");
 
 const sequelize = require("../config/db");
-const { token } = require("morgan");
 
 const UserAccount = sequelize.define("user_account", {
   userUid: {
@@ -127,3 +126,17 @@ UserAccount.prototype.createEmailVerifyCode = function () {
   this.updatedAt = Date.now();
   return verificationCode;
 };
+
+// Update password ChangeAt
+UserAccount.prototype.updatePasswordChangedAt = function () {
+  // if (this.passwordChangedAt) {
+  //   this.passwordChangedAt = Date.now();
+  // }
+  console.passwordChangedAtlog(this.isModified());
+};
+
+// UserAccount.beforeCreate(async function (user) {
+//   console.log(this);
+//   // if (this.isModified("password"))
+//   //   this.passwordChangedAt = Date.now() - 1000;
+// });
