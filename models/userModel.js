@@ -122,8 +122,7 @@ UserAccount.prototype.createPasswordResetToken = function () {
 
 // Create email verify code & Send Email
 UserAccount.prototype.createEmailVerifyCode = async function () {
-  const verificationCode = getDigitalCode(4);
-
+  const verificationCode = getDigitalCode(4).toString("utf8");
   this.emailVerifyCode = verificationCode;
 
   await sendEmail(this, {
@@ -132,9 +131,7 @@ UserAccount.prototype.createEmailVerifyCode = async function () {
   });
 
   this.updatedAt = Date.now();
-
   await this.save();
-
   return verificationCode;
 };
 

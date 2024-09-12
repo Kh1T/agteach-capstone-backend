@@ -93,7 +93,7 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid verification code", 400));
   }
   // Mark the user as verified
-  user.isVerified = true;
+  user.isVerify = true;
   user.emailVerifyCode = null; // Clear the verification code
   await user.save();
 
