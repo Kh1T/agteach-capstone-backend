@@ -12,8 +12,8 @@ router.use(authController.protect);
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword", authController.resetPassword);
 
-router.post("/resendCode", authController.resendVerifyCode);
-router.post("/verifyEmail", authController.verifyEmail);
+router.post("/resend-code", authController.resendVerifyCode);
+router.post("/verify-email", authController.verifyEmail);
 
 router.patch("/updateMe", userController.updateMe);
 
