@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 const UserAccount = require("../models/UserAccount");
@@ -10,8 +11,7 @@ const signToken = (id) =>
   });
 
 const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user.user_uid);
-
+  const token = signToken(user.userUid);
   const cookieOption = {
     // the date needed to convert to milliseconds
     expires: new Date(
@@ -106,11 +106,11 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2) Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
   // console.log(token);
 
   // 3) Check if user still exists
   const currentUser = await UserAccount.findByPk(decoded.id);
-
   if (!currentUser) {
     return next(
       new AppError(
