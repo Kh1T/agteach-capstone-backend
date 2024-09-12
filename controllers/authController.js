@@ -1,9 +1,10 @@
 /* eslint-disable no-undef */
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
-const UserAccount = require("../models/UserAccount");
+const UserAccount = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const { resendCode } = require("../utils/resendCode");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -45,14 +46,18 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, res);
 });
 
-exports.resendCode = catchAsync(async (req, res, next) => {
+exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const { email } = req.body;
 
   // Find the user by email
   const user = await UserAccount.findOne({ where: { email } });
   // Optional: Check for a cooldown period (e.g., 1 minute)
   const lastSent = user.updatedAt;
-  const isCooldownActive = Date.now() - new Date(lastSent) < 1 * 60 * 1000;
+  console.log("last Send:", lastSent);
+  const isCooldownActive =
+    Date.now() - new Date(lastSent).getTime() < 1 * 60 * 1000;
+  console.log("Is cooldown active:", isCooldownActive);
+
   if (isCooldownActive) {
     return res
       .status(429)
@@ -60,7 +65,7 @@ exports.resendCode = catchAsync(async (req, res, next) => {
   }
 
   // Resend the verification code
-  const newCode = await resendCode(user);
+  // const newCode = await resendCode(user);
   res.send(`Verification code resent successfully: ${newCode}`);
 });
 
@@ -103,7 +108,7 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-exports.resendCode = catchAsync(async (req, res, next) => {
+exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const { email } = req.body;
 
   // Find the user by email
