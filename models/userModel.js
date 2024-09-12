@@ -33,15 +33,22 @@ const UserAccount = sequelize.define("user_account", {
   password: {
     type: DataTypes.STRING(60),
     allowNull: false,
-    validate: {
-      len: [8, 30],
-    },
+    minlength: 8,
+    // validate: {
+    //   len: {
+    //     args: [8, 30],
+    //     msg: "Password must be between 8 and 30 characters.",
+    //   },
+    // },
   },
   passwordConfirm: {
     type: DataTypes.VIRTUAL,
     allowNull: false,
     validate: {
-      len: [8, 30],
+      // len: {
+      //   args: [8, 30],
+      //   msg: "Password must be between 8 and 30 characters.",
+      // },
       notEmpty: true,
       isMatch(value) {
         if (value !== this.password) {

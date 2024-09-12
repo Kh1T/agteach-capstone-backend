@@ -7,19 +7,14 @@ const router = express.Router();
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 
-router.post("/forgotPassword", authController.forgotPassword);
+router.use(authController.protect);
 
+router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword", authController.resetPassword);
 
-router.post("/resend-code", authController.resendVerifyCode);
-router.post("/verify-email", authController.verifyEmail);
+router.post("/resendCode", authController.resendVerifyCode);
+router.post("/verifyEmail", authController.verifyEmail);
 
 router.patch("/updateMe", userController.updateMe);
-
-// router.get("/test", authController.protect, (req, res) => {
-//   res.json({
-//     user: req.user,
-//   });
-// });
 
 module.exports = router;

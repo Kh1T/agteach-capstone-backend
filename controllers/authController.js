@@ -1,13 +1,12 @@
-/* eslint-disable no-undef */
-const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 const crypto = require("crypto");
-const Sequelize = require("sequelize");
+const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
 const AppError = require("../utils/appError");
 const UserAccount = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const sendEmail = require("../utils/sendEmail");
-const AppError = require("../utils/appError");
+
 // const { resendCode } = require("../utils/resendCode");
 
 const signToken = (id) =>
@@ -184,7 +183,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     "host"
   )}/api/users/resetPassword/${resetToken}`;
 
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm`;
 
   try {
     // await sendEmail({
@@ -193,9 +192,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     //   message,
     // });
     console.log("hi");
-    await sendEmail(resetURL, user, {
+    await sendEmail(user, {
       subject: "Forgot password",
       text: message,
+      code: resetURL,
     });
 
     res.status(200).json({
@@ -225,7 +225,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({
     where: {
       passwordResetToken: hashedToken,
-      passwordResetExpires: { [Sequelize.Op.gt]: now },
+      passwordResetExpires: { [Op.gt]: Date.now() },
     },
   });
 
@@ -238,6 +238,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
-
   createSendToken(user, 200, res);
+  console.log("hi");
 });
