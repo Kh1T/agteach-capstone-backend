@@ -95,13 +95,8 @@ useBcrypt(UserAccount, {
   rounds: 12, // used to generate bcrypt salt, default: 12
   compare: "authenticate", // method used to compare secrets, default: 'authenticate'
 });
-// Encrpty Password & Validate Email
 
 // Generate Code for Email Verification
-UserAccount.beforeCreate(async (user) => {
-  const verificationCode = getDigitalCode(4);
-  user.emailVerifyCode = verificationCode;
-});
 
 // Send Email
 UserAccount.afterCreate(async (user) => {
@@ -123,4 +118,12 @@ UserAccount.prototype.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
+};
+
+// Create email verify code & input code into DB
+UserAccount.prototype.createEmailVerifyCode = function () {
+  const verificationCode = getDigitalCode(4);
+  this.emailVerifyCode = verificationCode;
+  this.updatedAt = Date.now();
+  return verificationCode;
 };

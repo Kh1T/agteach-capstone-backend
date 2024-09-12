@@ -192,25 +192,27 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   user.save({ validateBeforeSave: false });
 
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: "Your password reset token (valid for 10 min)",
-      message,
-    });
+  res.json({ status: "success", resetToken });
 
-    res.status(200).json({
-      status: "success",
-      message: "Token sent to email!",
-    });
-  } catch (err) {
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save({ validateBeforeSave: false });
+  // try {
+  //   await sendEmail({
+  //     email: user.email,
+  //     subject: "Your password reset token (valid for 10 min)",
+  //     message,
+  //   });
 
-    return next(
-      new AppError("There was an error sending the email. Try again later!"),
-      500
-    );
-  }
+  //   res.status(200).json({
+  //     status: "success",
+  //     message: "Token sent to email!",
+  //   });
+  // } catch (err) {
+  //   user.passwordResetToken = undefined;
+  //   user.passwordResetExpires = undefined;
+  //   await user.save({ validateBeforeSave: false });
+
+  //   return next(
+  //     new AppError("There was an error sending the email. Try again later!"),
+  //     500
+  //   );
+  // }
 });

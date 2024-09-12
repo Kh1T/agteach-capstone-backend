@@ -14,7 +14,6 @@ const sendEmail = ({ email, emailVerifyCode, username }, options) => {
       text: options.text,
     },
   };
-  //   console.log(msg);
 
   sgMail
     .send(msg)
