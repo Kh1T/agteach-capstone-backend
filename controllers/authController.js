@@ -55,9 +55,10 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const { email } = req.body;
   // Find the user by email
   const user = await UserAccount.findOne({ where: { email } });
-  // Resend the verification code
+  // Reset the verification code
   const verificationCode = user.createEmailVerifyCode();
-  // Optional: Check for a cooldown period (e.g., 1 minute)
+
+  // check if the cool down is active
   const lastSent = user.updatedAt;
   const cooldownDuration = 1 * 60 * 1000; // 1 minute
   const timeDifference = Date.now() - new Date(lastSent).getTime();
