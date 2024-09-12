@@ -65,16 +65,33 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+exports.resendCode = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  // Find the user by email
+  const user = await UserAccount.findOne({ where: { email } });
+  // Optional: Check for a cooldown period (e.g., 1 minute)
+  const lastSent = user.updatedAt;
+  const isCooldownActive = Date.now() - new Date(lastSent) < 1 * 60 * 1000;
+  if (isCooldownActive) {
+    return res
+      .status(429)
+      .send("Please wait a minute before resending the verification code.");
+  }
+
+  // Resend the verification code
+  const newCode = await resendCode(user);
+  res.send(`Verification code resent successfully: ${newCode}`);
+});
+
 exports.verifyEmail = catchAsync(async (req, res, next) => {
   const { emailVerifyCode } = req.body;
-
   // Find the user with the provided verification code
   const user = await UserAccount.findOne({ where: { emailVerifyCode } });
 
   if (!user) {
     return next(new AppError("Invalid verification code", 400));
   }
-
   // Mark the user as verified
   user.isVerified = true;
   user.emailVerifyCode = null; // Clear the verification code
