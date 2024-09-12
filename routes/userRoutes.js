@@ -10,7 +10,7 @@ router.post("/forgotPassword", authController.forgotPassword);
 
 router.patch("/resetPassword", authController.resetPassword);
 
-router.post("/resend-code", authController.resendCode);
+router.post("/resend-code", authController.resendVerifyCode);
 router.post("/verify-email", authController.verifyEmail);
 
 // router.get("/test", authController.protect, (req, res) => {
