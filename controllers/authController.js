@@ -6,7 +6,6 @@ const Sequelize = require("sequelize");
 const AppError = require("../utils/appError");
 const UserAccount = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
 // const { resendCode } = require("../utils/resendCode");
 const sendEmail = require("../utils/sendEmail");
 
