@@ -54,19 +54,14 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const { email } = req.body;
   // Find the user by email
   const user = await UserAccount.findOne({ where: { email } });
-  // Resend the verification code
+  // Reset the verification code
   const verificationCode = user.createEmailVerifyCode();
-  // Optional: Check for a cooldown period (e.g., 1 minute)
+
+  // check if the cool down is active
   const lastSent = user.updatedAt;
-  const currentTime = Date.now();
-
   const cooldownDuration = 1 * 60 * 1000; // 1 minute
-  const timeDifference = currentTime - new Date(lastSent).getTime();
-  console.log("Time Difference (ms):", timeDifference);
-
+  const timeDifference = Date.now() - new Date(lastSent).getTime();
   const isCooldownActive = timeDifference < cooldownDuration;
-  console.log("Is cooldown active:", isCooldownActive);
-  console.log(cooldownDuration);
 
   if (isCooldownActive) {
     return res.status(429).json({
@@ -79,10 +74,11 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   user.updatedAt = new Date(); // Update the timestamp
   await user.save(); // Save the changes
 
-  // await sendEmail(user, {
-  //   subject: "Here is your new verification code.",
-  //   text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
-  // });
+  // Send email
+  await sendEmail(user, {
+    subject: "Here is your new verification code.",
+    text: `Here is your new verification code: ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
+  });
   res.status(200).json({
     status: "success",
     message: `Verification code resent successfully: ${verificationCode}`,
