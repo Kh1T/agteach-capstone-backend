@@ -1,20 +1,20 @@
 const sgMail = require("@sendgrid/mail");
 
-const sendEmail = (options) => {
+const sendEmail = ({ email, emailVerifyCode, username }, options) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
   const msg = {
-    to: options.to,
-    from: options.from,
+    to: email,
+    from: process.env.EMAIL_FROM,
     subject: options.subject,
     templateId: process.env.EMAIL_TEMPLATE_ID,
     dynamicTemplateData: {
-      username: options.username,
-      code: options.code,
+      username: username,
+      code: emailVerifyCode,
       text: options.text,
     },
   };
-//   console.log(msg);
+  //   console.log(msg);
 
   sgMail
     .send(msg)

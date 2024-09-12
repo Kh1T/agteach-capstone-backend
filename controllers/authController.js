@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
-const UserAccount = require("../models/UserAccount");
+const UserAccount = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
@@ -125,4 +125,37 @@ exports.protect = catchAsync(async (req, res, next) => {
   res.locals.user = currentUser;
 
   next();
+});
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  const user = await UserAccount.findOne({ where: { email: req.body.email } });
+
+  if (!user) {
+    return next(new AppError("There is no user with email address.", 404));
+  }
+
+  const resetToken = user.createPasswordResetToken();
+  user.save({ validateBeforeSave: false });
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset token (valid for 10 min)",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email!",
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError("There was an error sending the email. Try again later!"),
+      500
+    );
+  }
 });

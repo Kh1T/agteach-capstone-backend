@@ -1,10 +1,12 @@
 const { DataTypes } = require("sequelize");
 const { getDigitalCode } = require("node-verification-code");
+const crypto = require("crypto");
 const useBcrypt = require("sequelize-bcrypt");
 const AppError = require("../utils/appError");
 const sendEmail = require("../utils/sendEmail");
 
 const sequelize = require("../config/db");
+const { token } = require("morgan");
 
 const UserAccount = sequelize.define("user_account", {
   userUid: {
@@ -74,6 +76,15 @@ const UserAccount = sequelize.define("user_account", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  passwordResetToken: {
+    type: DataTypes.STRING,
+  },
+  passwordChangedAt: {
+    type: DataTypes.DATE,
+  },
+  passwordResetExpires: {
+    type: DataTypes.DATE,
+  },
 });
 
 module.exports = UserAccount;
@@ -96,12 +107,21 @@ UserAccount.beforeCreate(async (user) => {
 // Send Email
 UserAccount.afterCreate(async (user) => {
   const verificationCode = user.emailVerifyCode;
-  await sendEmail({
-    to: user.email,
-    from: process.env.EMAIL_FROM,
+  await sendEmail(user, {
     subject: "Your account has been created",
-    username: user.username,
-    code: { verificationCode },
     text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
   });
 });
+
+UserAccount.prototype.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};

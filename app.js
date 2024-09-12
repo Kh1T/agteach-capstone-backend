@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const globalErrorHandler = require("./controllers/errorController");
 
+const authController = require("./controllers/authController");
+
 const app = express();
 
 if (process.env.NODE_ENV === "development") {
@@ -17,8 +19,10 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-
 app.use("/api/users", userRouter);
+
+app.use("/", authController.forgotPassword);
+
 app.use(globalErrorHandler);
 
 module.exports = app;

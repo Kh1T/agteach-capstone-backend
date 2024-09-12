@@ -8,10 +8,10 @@ router.post("/login", authController.login);
 
 router.post("/verify-email", authController.verifyEmail);
 
-router.get("/test", authController.protect, (req, res) => {
-  res.json({
-    user: req.user,
-  });
-});
+// router.get("/test", authController.protect, (req, res) => {
+//   res.json({
+//     user: req.user,
+//   });
+// });
 
 module.exports = router;
