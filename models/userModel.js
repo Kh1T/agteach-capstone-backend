@@ -25,6 +25,12 @@ const UserAccount = sequelize.define("user_account", {
   username: {
     type: DataTypes.STRING(50),
     allowNull: false,
+    validate: {
+      notEmpty: {
+        name: "unique_username",
+        msg: "Username cannot be empty.",
+      },
+    },
     unique: {
       name: "unique_username",
       msg: "Username already exists.",
@@ -34,12 +40,9 @@ const UserAccount = sequelize.define("user_account", {
     type: DataTypes.STRING(60),
     allowNull: false,
     minlength: 8,
-    // validate: {
-    //   len: {
-    //     args: [8, 30],
-    //     msg: "Password must be between 8 and 30 characters.",
-    //   },
-    // },
+    validate: {
+      notEmpty: true,
+    },
   },
   passwordConfirm: {
     type: DataTypes.VIRTUAL,
