@@ -105,13 +105,7 @@ useBcrypt(UserAccount, {
 // Generate Code for Email Verification
 
 // Send Email
-UserAccount.afterCreate(async (user) => {
-  const verificationCode = user.emailVerifyCode;
-  await sendEmail(user, {
-    subject: "Your account has been created",
-    text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
-  });
-});
+// UserAccount.afterCreate(async (user) => {});
 
 UserAccount.prototype.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
@@ -126,11 +120,21 @@ UserAccount.prototype.createPasswordResetToken = function () {
   return resetToken;
 };
 
-// Create email verify code & input code into DB
-UserAccount.prototype.createEmailVerifyCode = function () {
+// Create email verify code & Send Email
+UserAccount.prototype.createEmailVerifyCode = async function () {
   const verificationCode = getDigitalCode(4);
+
   this.emailVerifyCode = verificationCode;
+
+  await sendEmail(this, {
+    subject: "Your account has been created",
+    text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
+  });
+
   this.updatedAt = Date.now();
+
+  await this.save();
+
   return verificationCode;
 };
 
