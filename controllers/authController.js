@@ -53,8 +53,6 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const { email } = req.body;
   // Find the user by email
   const user = await UserAccount.findOne({ where: { email } });
-  // Reset the verification code
-  const verificationCode = user.createEmailVerifyCode();
 
   // check if the cool down is active
   const lastSent = user.updatedAt;
@@ -69,15 +67,9 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
     });
   }
 
-  // Update user and resend code
-  user.updatedAt = new Date(); // Update the timestamp
-  await user.save(); // Save the changes
+  // Reset the verification code
+  const verificationCode = user.createEmailVerifyCode();
 
-  // Send email
-  await sendEmail(user, {
-    subject: "Here is your new verification code.",
-    text: `Here is your new verification code: ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
-  });
   res.status(200).json({
     status: "success",
     message: `Verification code resent successfully: ${verificationCode}`,
@@ -179,19 +171,11 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   user.updatePasswordChangedAt();
 
   // 3) Send it to user's email
-  const resetURL = `${req.protocol}://${req.get(
-    "host"
-  )}/api/users/resetPassword/${resetToken}`;
+  const resetURL = `${req.protocol}://${req.get("host")}/api/users/resetPassword/${resetToken}`;
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm`;
 
   try {
-    // await sendEmail({
-    //   email: user.email,
-    //   subject: "Your password reset token (valid for 10 min)",
-    //   message,
-    // });
-    console.log("hi");
     await sendEmail(user, {
       subject: "Forgot password",
       text: message,
@@ -233,11 +217,12 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError("Token is invalid or has expired", 400));
   }
 
+  // user.updatePasswordChangedAt()
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
   createSendToken(user, 200, res);
-  console.log("hi");
+
 });

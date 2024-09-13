@@ -105,11 +105,6 @@ useBcrypt(UserAccount, {
   compare: "authenticate", // method used to compare secrets, default: 'authenticate'
 });
 
-// Generate Code for Email Verification
-
-// Send Email
-// UserAccount.afterCreate(async (user) => {});
-
 UserAccount.prototype.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
 
@@ -125,7 +120,7 @@ UserAccount.prototype.createPasswordResetToken = function () {
 
 // Create email verify code & Send Email
 UserAccount.prototype.createEmailVerifyCode = async function () {
-  const verificationCode = getDigitalCode(4).toString("utf8");
+  const verificationCode = getDigitalCode(6).toString("utf8");
   this.emailVerifyCode = verificationCode;
 
   await sendEmail(this, {
@@ -140,14 +135,8 @@ UserAccount.prototype.createEmailVerifyCode = async function () {
 
 // Update passwordChangeAt of the password has been changed
 
+
 UserAccount.prototype.updatePasswordChangedAt = function () {
   if (this.changed("passwordChangedAt")) {
     this.passwordChangedAt = Date.now();
-  }
-};
-
-// UserAccount.beforeCreate(async function (user) {
-//   console.log(this);
-//   // if (this.isModified("password"))
-//   //   this.passwordChangedAt = Date.now() - 1000;
-// });
+  }}
