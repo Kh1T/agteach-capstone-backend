@@ -1,7 +1,4 @@
 const Sequelize = require("sequelize");
-const dotenv = require("dotenv");
-
-dotenv.config({ path: "./config.env" });
 
 const sequelize = new Sequelize(
   process.env.DB,
@@ -10,7 +7,12 @@ const sequelize = new Sequelize(
   {
     host: process.env.HOST_DB,
     dialect: "postgres",
-  },
+    define: {
+      freezeTableName: true,
+      underscored: true,
+      quoteIdentifiers: false,
+    },
+  }
 );
 
 module.exports = sequelize;

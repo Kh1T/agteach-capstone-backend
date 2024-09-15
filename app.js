@@ -1,25 +1,26 @@
+const morgan = require("morgan");
 const express = require("express");
 const cors = require("cors");
+const globalErrorHandler = require("./controllers/errorController");
+
+const authController = require("./controllers/authController");
+
 const app = express();
-const ProductCategory = require("./models/ProductCategory");
+
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+
+// Routes
+
+const userRouter = require("./routes/userRoutes");
+
 app.use(express.json());
 app.use(cors());
 
-app.get("/", async (req, res) => {
-  console.log(process.env.HOST_DB);
-  const product = await ProductCategory.findAll();
-  res.status(200).json({
-    status: "success",
-    data: product,
-  });
-});
+// Routes
+app.use("/api/users", userRouter);
 
-app.post("/create", async (req, res) => {
-  const createItem = await ProductCategory.create(req.body);
-  res.json({
-    status: "success",
-    data: createItem,
-  });
-});
+app.use(globalErrorHandler);
 
 module.exports = app;
