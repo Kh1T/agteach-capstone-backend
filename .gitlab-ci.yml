@@ -8,9 +8,10 @@ install_dependencies:
   image: node:20
   script:
     - node -v   # Verify Node.js installation
+    - echo "Installing dependencies"
     - npm install   # Install dependencies
-    - echo "Building Node.js app"
   cache:
+    key: ${CI_COMMIT_REF_SLUG}
     paths:
       - node_modules/   # Cache node_modules for faster future runs
 
@@ -18,8 +19,8 @@ install_dependencies:
 deploy_to_ec2:
   stage: deploy
   image: node:20
-  only:
-    - feat-yml-script
+  # only:
+  #   - feat-yml-script
   before_script:
     - 'which ssh-agent || (brew install openssh)'
     - eval $(ssh-agent -s)
