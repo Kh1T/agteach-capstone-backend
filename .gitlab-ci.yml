@@ -1,24 +1,68 @@
-#.git-ci.yml
+# #.git-ci.yml
+# stages:
+#   - install
+#   - deploy
+
+# install_dependencies:
+#   stage: install
+#   image: node:20
+#   script:
+#     - node -v
+#     - echo "Installing dependencies"
+#     - npm install
+#   cache:
+#     paths:
+#       - node_modules/
+
+# deploy_to_ec2:
+#   stage: deploy
+#   image: node:20 #Image with SSH and Node.js available
+#   only:
+#     - feat-yml-script # This job will only run on develop branch
+#   before_script:
+#     - 'which ssh-agent || (apt-get update -y && apt-get install openssh-client -y)'
+#     - eval $(ssh-agent -s) # Start the ssh-agent cache
+#     - mkdir -p ~/.ssh # Ensure that the .ssh directory exists
+#     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null # Add the SSH private key
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan -H $AWS_SSH_IP >> ~/.ssh/known_hosts # Add EC2 instance to known hosts to prevent man-in-the-middle attacks
+#   script:
+#     - echo "Deploying application to EC2"
+#     - scp -i ~/.ssh/agtech.pem -r ./* $AWS_SSH_USER@$AWS_SSH_IP:/home/ubuntu/app/backend/ # Copy entire application folder
+#     - ssh -i ~/.ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "cd /home/ubuntu/app/backend && npm install" # SSH to EC2 and install dependencies
+#     - ssh -i ~/.ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "pm2 restart all" # Restart the app using PM2
+#   environment:
+#     name: development
+#     url: http://$AWS_SSH_IP
+
+# Define the stages
 stages:
   - install
   - deploy
 
+# Install stage - install dependencies and build the app
 install_dependencies:
   stage: install
-  image: node:20
+  image: node:20 # Use an official Node.js image, adjust based on your Node.js version
   script:
-    - node -v
     - echo "Installing dependencies"
     - npm install
+    - echo "Building the application"
+    - npm run build # Adjust according to your app's build step
+  artifacts:
+    paths:
+      - build/ # Save build artifacts for later stages if needed
   cache:
+    key: ${CI_COMMIT_REF_SLUG}
     paths:
       - node_modules/
 
+# Deploy to EC2 - this job will run on the develop branch
 deploy_to_ec2:
   stage: deploy
-  image: node:20 #Image with SSH and Node.js available
+  image: node:20 # Image with SSH and Node.js available
   only:
-    - feat-yml-script # This job will only run on develop branch
+    - develop # This job will only run on develop branch
   before_script:
     - 'which ssh-agent || (apt-get update -y && apt-get install openssh-client -y)'
     - eval $(ssh-agent -s) # Start the ssh-agent cache
