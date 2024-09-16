@@ -15,17 +15,15 @@ const signToken = (id) =>
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user.userUid);
   const cookieOption = {
-    // the date needed to convert to milliseconds
     expires: new Date(
-      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000
+      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
     ),
-    // this will make the cookie can not be modify or anything from browser
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: "None",
+    secure: true, // Add this line
+    // domain: 'your-domain.com', // Uncomment and set if needed
   };
-
   res.cookie("jwt", token, cookieOption);
-
   res.status(statusCode).json({
     status: "success",
     token,
