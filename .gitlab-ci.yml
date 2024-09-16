@@ -6,14 +6,9 @@ stages:
 install_dependencies:
   stage: install
   script:
-    - echo "Node.js is already installed"
     - node -v   # Verify Node.js installation
     - npm install   # Install dependencies
     - echo "Building Node.js app"
-    - npm run build  # Build the project if applicable
-  artifacts:
-    paths:
-      - build   # Store the build folder as an artifact (if building a frontend)
   cache:
     paths:
       - node_modules/   # Cache node_modules for faster future runs
