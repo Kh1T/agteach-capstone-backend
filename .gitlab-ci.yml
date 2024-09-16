@@ -19,8 +19,6 @@ install_dependencies:
 deploy_to_ec2:
   stage: deploy
   image: node:20
-  # only:
-  #   - feat-yml-script
   before_script:
     - 'which ssh-agent || (brew install openssh)'
     - eval $(ssh-agent -s)
