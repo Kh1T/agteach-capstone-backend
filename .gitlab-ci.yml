@@ -5,6 +5,7 @@ stages:
 # Define Installing Stage
 install_dependencies:
   stage: install
+  image: node:20
   script:
     - node -v   # Verify Node.js installation
     - npm install   # Install dependencies
@@ -16,8 +17,9 @@ install_dependencies:
 # Deploy Stage
 deploy_to_ec2:
   stage: deploy
+  image: node:20
   only:
-    - develop
+    - feat-yml-script
   before_script:
     - 'which ssh-agent || (brew install openssh)'
     - eval $(ssh-agent -s)
