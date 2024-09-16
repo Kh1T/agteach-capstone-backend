@@ -6,6 +6,8 @@ stages:
 install_dependencies:
   stage: install
   image: node:20
+  only:
+    - develop
   script:
     - node -v   # Verify Node.js installation
     - echo "Installing dependencies"
