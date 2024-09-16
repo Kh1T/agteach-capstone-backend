@@ -25,8 +25,8 @@ deploy_to_ec2:
     - 'which ssh-agent || (brew install openssh)'
     - eval $(ssh-agent -s)
     - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - chmod 700 ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/agtech.pem   # Save private key
+    - chmod 600 ~/.ssh/agtech.pem   # Set appropriate permissions
     - ssh-keyscan -H $AWS_SSH_IP >> ~/.ssh/known_hosts
   script:
     - echo "Deploying application to EC2"
