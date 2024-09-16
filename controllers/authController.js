@@ -21,6 +21,7 @@ const createSendToken = (user, statusCode, res) => {
     ),
     // this will make the cookie can not be modify or anything from browser
     httpOnly: true,
+    sameSite: 'strict',
   };
 
   res.cookie("jwt", token, cookieOption);
