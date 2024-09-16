@@ -1,0 +1,44 @@
+stages:
+  - install
+  - deploy
+
+# Define Installing Stage
+install_dependencies:
+  stage: install
+  image: node:20
+  only:
+    - develop
+  script:
+    - node -v   # Verify Node.js installation
+    - echo "Installing dependencies"
+    - npm install   # Install dependencies
+  cache:
+    # key: ${CI_COMMIT_REF_SLUG}  # Cache based on branch
+    paths:
+      - node_modules/   # Cache node_modules for faster future runs
+
+# Deploy Stage
+deploy_to_ec2:
+  stage: deploy
+  image: node:20
+  only:
+    - develop 
+  before_script:
+    - 'which ssh-agent || (brew install openssh)'
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/agtech.pem   # Save private key
+    - chmod 600 ~/.ssh/agtech.pem   # Set appropriate permissions
+    - ssh-keyscan -H $AWS_SSH_IP >> ~/.ssh/known_hosts
+  script:
+    - echo "Deploying application to EC2"
+    - rsync -avz -e "ssh -i ~/.ssh/agtech.pem" ./* $AWS_SSH_USER@$AWS_SSH_IP:/home/ubuntu/app/backend/ # Sync files to Server
+    - ssh -i ~/.ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "cd /home/ubuntu/app/backend && npm install"  # SSH to EC2 and install dependencies
+    - ssh -i ~/.ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "pm2 restart all"  # Restart app using PM2
+  environment:
+    name: development
+    url: http://$AWS_SSH_IP
+  cache:
+    paths:
+      - node_modules/
+      
