@@ -128,7 +128,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (!token) {
     return next(
-      new AppError("You are not logged in! Please log in to get access", 401)
+      new AppError("You are not logged in! Please log in to get access", 401),
     );
   }
 
@@ -143,8 +143,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(
       new AppError(
         "The user belonging to this token does no longer exist.",
-        401
-      )
+        401,
+      ),
     );
   }
 
@@ -194,14 +194,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
     return next(
       new AppError("There was an error sending the email. Try again later!"),
-      500
+      500,
     );
   }
 });
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // DON"T FORGET TO CHANGE UPDATE TO req.params.token
-  console.log(req.params.resetToken);
+
   const hashedToken = crypto
     .createHash("sha256")
     .update(req.params.resetToken)
@@ -225,5 +225,4 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
   createSendToken(user, 200, res);
-
 });

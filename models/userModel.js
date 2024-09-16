@@ -135,8 +135,7 @@ UserAccount.prototype.createEmailVerifyCode = async function () {
 
 // Update passwordChangeAt of the password has been changed
 
-
 UserAccount.prototype.updatePasswordChangedAt = function () {
   if (this.changed("passwordChangedAt")) {
     this.passwordChangedAt = Date.now();
-  }}
+}}
