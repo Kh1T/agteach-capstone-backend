@@ -171,7 +171,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   user.updatePasswordChangedAt();
 
   // 3) Send it to user's email
-  const resetURL = `${req.protocol}://${req.get("host")}/api/users/resetPassword/${resetToken}`;
+  // http://localhost:3000/auth/reset-password
+  const resetURL = `${req.protocol}://localhost:3000/auth/reset-password/${resetToken}`;
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm`;
 
@@ -201,9 +202,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // DON"T FORGET TO CHANGE UPDATE TO req.params.token
+  console.log(req.params.resetToken);
   const hashedToken = crypto
     .createHash("sha256")
-    .update(req.body.token)
+    .update(req.params.resetToken)
     .digest("hex");
 
   const user = await UserAccount.findOne({
