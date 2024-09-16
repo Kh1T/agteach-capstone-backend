@@ -22,15 +22,16 @@ deploy_to_ec2:
   before_script:
     - 'which ssh-agent || (brew install openssh)'
     - eval $(ssh-agent -s)
-    - mkdir -p .ssh
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > .ssh/agtech.pem   # Save private key
-    - chmod 600 .ssh/agtech.pem   # Set appropriate permissions
-    - ssh-keyscan -H $AWS_SSH_IP >> .ssh/known_hosts
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/agtech.pem   # Save private key
+    - chmod 600 ~/.ssh/agtech.pem   # Set appropriate permissions
+    - ssh-keyscan -H $AWS_SSH_IP >> ~/.ssh/known_hosts
   script:
     - echo "Deploying application to EC2"
-    - scp -i .ssh/agtech.pem -r ./* $AWS_SSH_USER@$AWS_SSH_IP:/home/ubuntu/app/backend/  # Securely copy files to EC2
-    - ssh -i .ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "cd /home/ubuntu/app/backend && npm install"  # SSH to EC2 and install dependencies
-    - ssh -i .ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "pm2 restart all"  # Restart app using PM2
+    - rsync -avz -e "ssh -i ~/.ssh/agtech.pem" ./* $AWS_SSH_USER@$AWS_SSH_IP:/home/ubuntu/app/backend/
+    # - scp -i .ssh/agtech.pem -r ./* $AWS_SSH_USER@$AWS_SSH_IP:/home/ubuntu/app/backend/  # Securely copy files to EC2
+    - ssh -i ~/.ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "cd /home/ubuntu/app/backend && npm install"  # SSH to EC2 and install dependencies
+    - ssh -i ~/.ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "pm2 restart all"  # Restart app using PM2
   environment:
     name: development
     url: http://$AWS_SSH_IP
