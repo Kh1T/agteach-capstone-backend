@@ -19,6 +19,8 @@ install_dependencies:
 deploy_to_ec2:
   stage: deploy
   image: node:20
+  only:
+    - develop 
   before_script:
     - 'which ssh-agent || (brew install openssh)'
     - eval $(ssh-agent -s)
@@ -29,7 +31,6 @@ deploy_to_ec2:
   script:
     - echo "Deploying application to EC2"
     - rsync -avz -e "ssh -i ~/.ssh/agtech.pem" ./* $AWS_SSH_USER@$AWS_SSH_IP:/home/ubuntu/app/backend/
-    # - scp -i .ssh/agtech.pem -r ./* $AWS_SSH_USER@$AWS_SSH_IP:/home/ubuntu/app/backend/  # Securely copy files to EC2
     - ssh -i ~/.ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "cd /home/ubuntu/app/backend && npm install"  # SSH to EC2 and install dependencies
     - ssh -i ~/.ssh/agtech.pem $AWS_SSH_USER@$AWS_SSH_IP "pm2 restart all"  # Restart app using PM2
   environment:
