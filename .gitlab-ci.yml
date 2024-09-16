@@ -16,7 +16,7 @@ install_dependencies:
 
 deploy_to_ec2:
   stage: deploy
-  image: node:20 # Image with SSH and Node.js available
+  image: node:20 #Image with SSH and Node.js available
   only:
     - feat-yml-script # This job will only run on develop branch
   before_script:
