@@ -10,7 +10,7 @@ const sendEmail = ({ email, emailVerifyCode, username }, options) => {
     to: email,
     from: process.env.EMAIL_FROM,
     subject: options.subject,
-    templateId: process.env.VERIFY_EMAIL_TEMPLATE_ID,
+    templateId: process.env.FORGOT_PASSWORD_EMAIL_TEMPLATE_ID,
     dynamicTemplateData: {
       username: username,
       code,

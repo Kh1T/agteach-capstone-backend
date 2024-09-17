@@ -4,8 +4,10 @@ const crypto = require("crypto");
 const useBcrypt = require("sequelize-bcrypt");
 const AppError = require("../utils/appError");
 const sendEmail = require("../utils/sendEmail");
+const Customer = require('./customerModel')
 
 const sequelize = require("../config/db");
+const { STATUS_CODES } = require("http");
 
 const UserAccount = sequelize.define("user_account", {
   userUid: {
@@ -20,6 +22,11 @@ const UserAccount = sequelize.define("user_account", {
     allowNull: false,
     validate: {
       isEmail: true,
+    },
+    unique: {
+      name: "unique_email",
+      msg: "Email already exists.",
+      statusCode: 400,
     },
   },
   username: {
@@ -96,6 +103,8 @@ const UserAccount = sequelize.define("user_account", {
   },
 });
 
+
+
 module.exports = UserAccount;
 
 // Encrpty Password
@@ -135,8 +144,7 @@ UserAccount.prototype.createEmailVerifyCode = async function () {
 
 // Update passwordChangeAt of the password has been changed
 
-
 UserAccount.prototype.updatePasswordChangedAt = function () {
   if (this.changed("passwordChangedAt")) {
     this.passwordChangedAt = Date.now();
-  }}
+}}

@@ -1,4 +1,5 @@
 const AppError = require("../utils/appError");
+const UserAccount = require('./../models/userModel')
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
@@ -64,3 +65,13 @@ module.exports = (err, req, res, next) => {
     sendErrorProd(error, req, res);
   }
 };
+
+
+exports.customValidate = async (req,res,next) => {
+
+  const user = await UserAccount.findOne(req.body)
+
+  if(user) return next(AppError('User already exist', 400))
+
+  next()
+}
