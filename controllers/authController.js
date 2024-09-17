@@ -1,7 +1,7 @@
 const { promisify } = require("util");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const AppError = require("../utils/appError");
 const UserAccount = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
@@ -240,3 +240,20 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.customValidate = async (req,res,next) => {
+  const { email, username } = req.body;
+
+  const [userEmail, userName] = await Promise.all([
+    UserAccount.findOne({ where: { email } }),
+    UserAccount.findOne({ where: { username } })
+  ]);
+
+  console.log(userEmail);
+
+  if (userEmail || userName) {
+    return next(new AppError('User already exists', 400));
+  }
+
+  next()
+}

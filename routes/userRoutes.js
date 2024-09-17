@@ -1,17 +1,15 @@
 const express = require("express");
-
+const AppError = require('./../utils/appError');
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
 const customerController = require("../controllers/customerController");
+// const errorController = require('../controllers/errorController')
 
 const router = express.Router();
 
 //  User Authentication Routes
 
-router.post("/signup", authController.signup);
-
-
-
+router.post("/signup" , authController.customValidate, authController.signup);
 
 router.post("/login", authController.login);
 router.post("/forgotPassword", authController.forgotPassword);
