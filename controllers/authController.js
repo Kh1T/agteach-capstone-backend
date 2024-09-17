@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const AppError = require("../utils/appError");
 const UserAccount = require("../models/userModel");
-const Customer = require("../models/customerModel");
 const catchAsync = require("../utils/catchAsync");
 const sendEmail = require("../utils/sendEmail");
 
