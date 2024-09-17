@@ -33,6 +33,8 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
+// Handle Signup User
+
 exports.signup = catchAsync(async (req, res, next) => {
   // Create new user
   const newUser = await UserAccount.create({
@@ -48,51 +50,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, res);
 });
 
-exports.resendVerifyCode = catchAsync(async (req, res, next) => {
-  const { email } = req.body;
-  // Find the user by email
-  const user = await UserAccount.findOne({ where: { email } });
-
-  // check if the cool down is active
-  const lastSent = user.updatedAt;
-  const cooldownDuration = 1 * 60 * 1000; // 1 minute
-  const timeDifference = Date.now() - new Date(lastSent).getTime();
-  const isCooldownActive = timeDifference < cooldownDuration;
-
-  if (isCooldownActive) {
-    return res.status(429).json({
-      status: "fail",
-      message: "Your verification is in cooldown 1 minute.",
-    });
-  }
-
-  // Reset the verification code
-  const verificationCode = user.createEmailVerifyCode();
-
-  res.status(200).json({
-    status: "success",
-    message: `Verification code resent successfully: ${verificationCode}`,
-  });
-});
-
-exports.verifyEmail = catchAsync(async (req, res, next) => {
-  const { emailVerifyCode } = req.body;
-  // Find the user with the provided verification code
-  const user = await UserAccount.findOne({ where: { emailVerifyCode } });
-
-  if (!user) {
-    return next(new AppError("Invalid verification code", 400));
-  }
-  // Mark the user as verified
-  user.isVerify = true;
-  user.emailVerifyCode = null; // Clear the verification code
-  await user.save();
-
-  res.status(200).json({
-    status: "success",
-    message: "Email successfully verified",
-  });
-});
+// Handle Login User
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -114,46 +72,8 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-exports.protect = catchAsync(async (req, res, next) => {
-  let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
-  }
-
-  if (!token) {
-    return next(
-      new AppError("You are not logged in! Please log in to get access", 401),
-    );
-  }
-
-  // 2) Verification token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-  // console.log(token);
-
-  // 3) Check if user still exists
-  const currentUser = await UserAccount.findByPk(decoded.id);
-  if (!currentUser) {
-    return next(
-      new AppError(
-        "The user belonging to this token does no longer exist.",
-        401,
-      ),
-    );
-  }
-
-  // GRANT ACCESS TO PROTECTED ROUTE
-  req.user = currentUser;
-  res.locals.user = currentUser;
-
-  next();
-});
+// Handle Forget Password
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({ where: { email: req.body.email } });
@@ -218,11 +138,102 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError("Token is invalid or has expired", 400));
   }
 
-  // user.updatePasswordChangedAt()
+  user.updatePasswordChangedAt();
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
   createSendToken(user, 200, res);
+});
+
+// Handle Email Verification Code
+
+exports.resendVerifyCode = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  // Find the user by email
+  const user = await UserAccount.findOne({ where: { email } });
+
+  // check if the cool down is active
+  const lastSent = user.updatedAt;
+  const cooldownDuration = 1 * 60 * 1000; // 1 minute
+  const timeDifference = Date.now() - new Date(lastSent).getTime();
+  const isCooldownActive = timeDifference < cooldownDuration;
+
+  if (isCooldownActive) {
+    return res.status(429).json({
+      status: "fail",
+      message: "Your verification is in cooldown 1 minute.",
+    });
+  }
+
+  // Reset the verification code
+  const verificationCode = user.createEmailVerifyCode();
+
+  res.status(200).json({
+    status: "success",
+    message: `Verification code resent successfully: ${verificationCode}`,
+  });
+});
+
+exports.verifyEmail = catchAsync(async (req, res, next) => {
+  const { emailVerifyCode } = req.body;
+  // Find the user with the provided verification code
+  const user = await UserAccount.findOne({ where: { emailVerifyCode } });
+
+  if (!user) {
+    return next(new AppError("Invalid verification code", 400));
+  }
+  // Mark the user as verified
+  user.isVerify = true;
+  user.emailVerifyCode = null; // Clear the verification code
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Email successfully verified",
+  });
+});
+
+// Handle Protected Routes (Requires Authentication)
+
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  if (!token) {
+    return next(
+      new AppError("You are not logged in! Please log in to get access", 401),
+    );
+  }
+
+  // 2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // console.log(token);
+
+  // 3) Check if user still exists
+  const currentUser = await UserAccount.findByPk(decoded.id);
+  if (!currentUser) {
+    return next(
+      new AppError(
+        "The user belonging to this token does no longer exist.",
+        401,
+      ),
+    );
+  }
+
+  // GRANT ACCESS TO PROTECTED ROUTE
+  req.user = currentUser;
+  res.locals.user = currentUser;
+
+  next();
 });
