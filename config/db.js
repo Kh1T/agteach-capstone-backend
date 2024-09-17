@@ -12,7 +12,7 @@ const sequelize = new Sequelize(
       underscored: true,
       quoteIdentifiers: false,
     },
-  }
+  },
 );
 
 module.exports = sequelize;

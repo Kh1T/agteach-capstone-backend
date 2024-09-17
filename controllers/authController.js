@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const AppError = require("../utils/appError");
 const UserAccount = require("../models/userModel");
+const Customer = require("../models/customerModel");
 const catchAsync = require("../utils/catchAsync");
 const sendEmail = require("../utils/sendEmail");
 
@@ -50,6 +51,10 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, res);
 });
 
+exports.additionalInfo = catchAsync(async (req, res, next) => {
+
+})
+
 // Handle Login User
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -71,7 +76,6 @@ exports.login = catchAsync(async (req, res, next) => {
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
 });
-
 
 // Handle Forget Password
 

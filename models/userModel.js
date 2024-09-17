@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const useBcrypt = require("sequelize-bcrypt");
 const AppError = require("../utils/appError");
 const sendEmail = require("../utils/sendEmail");
+const Customer = require('./customerModel')
 
 const sequelize = require("../config/db");
 
@@ -95,6 +96,8 @@ const UserAccount = sequelize.define("user_account", {
     type: DataTypes.DATE,
   },
 });
+
+
 
 module.exports = UserAccount;
 

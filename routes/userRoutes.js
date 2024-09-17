@@ -1,13 +1,18 @@
 const express = require("express");
+
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
+const customerController = require("../controllers/customerController");
 
 const router = express.Router();
 
 //  User Authentication Routes
 
 router.post("/signup", authController.signup);
-router.post("/signup/addionalInfo", authController.signupVerifyCode);
+
+
+
+
 router.post("/login", authController.login);
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:resetToken", authController.resetPassword);
@@ -16,6 +21,7 @@ router.patch("/resetPassword/:resetToken", authController.resetPassword);
 
 router.use(authController.protect);
 
+router.post("/signup/additionalInfo", customerController.additionalInfo);
 router.post("/resendCode", authController.resendVerifyCode);
 router.post("/verifyEmail", authController.verifyEmail);
 
