@@ -23,7 +23,7 @@ const createSendToken = (user, statusCode, res) => {
     secure: true, // Add this line
     // domain: 'your-domain.com', // Uncomment and set if needed
   };
-  res.cookie("jwt", token, cookieOption);
+  res.cookie("Json Web Token", token, cookieOption);
   res.status(statusCode).json({
     status: "success",
     token,
@@ -75,6 +75,11 @@ exports.login = catchAsync(async (req, res, next) => {
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
 });
+
+exports.isLogin = catchAsync(async (req,res,next) => {
+
+})
+
 
 // Handle Forget Password
 
@@ -246,7 +251,7 @@ exports.customValidate = async (req,res,next) => {
 
   const [userEmail, userName] = await Promise.all([
     UserAccount.findOne({ where: { email } }),
-    UserAccount.findOne({ where: { username } })
+    UserAccount.findOne({ where: { username } }),
   ]);
 
   console.log(userEmail);
