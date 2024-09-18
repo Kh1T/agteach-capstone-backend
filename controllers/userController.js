@@ -3,6 +3,9 @@ const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
 const factory = require('./handlerFactory');
 
+const UserAccount = require('../models/userModel');
+const Customer = require('../models/customerModel');
+
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
   Object.keys(obj).forEach((el) => {
@@ -11,10 +14,21 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getMe = (req, res, next) => {
-  req.params.userUid = req.user.userUid;
-  next();
-};
+exports.getMe = factory.getOne(UserAccount, {
+  include: [
+    {
+      model: Customer,
+      attributes: [
+        'first_name',
+        'last_name',
+        'phone',
+        'email',
+        'location_id',
+        'address',
+      ],
+    },
+  ],
+});
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data

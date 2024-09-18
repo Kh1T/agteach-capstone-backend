@@ -16,5 +16,5 @@ try {
 console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
 app.listen(process.env.PORT, () => {
-  console.log('listen on port: ', 3001);
+  console.log('listen on port: ', process.env.PORT);
 });
