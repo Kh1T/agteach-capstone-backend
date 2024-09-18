@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize");
+const { DataTypes, ENUM } = require("sequelize");
 const { getDigitalCode } = require("node-verification-code");
 const crypto = require("crypto");
 const useBcrypt = require("sequelize-bcrypt");
@@ -71,6 +71,7 @@ const UserAccount = sequelize.define("user_account", {
     type: DataTypes.STRING(50),
     allowNull: false,
     defaultValue: "guest",
+    ENUM: ["user", "guest"],
   },
   lastLogin: {
     type: DataTypes.DATE,

@@ -23,7 +23,7 @@ const createSendToken = (user, statusCode, res) => {
     secure: true, // Add this line
     // domain: 'your-domain.com', // Uncomment and set if needed
   };
-  res.cookie("Json Web Token", token, cookieOption);
+  res.cookie("jwt", token, cookieOption);
   res.status(statusCode).json({
     status: "success",
     token,
@@ -79,6 +79,15 @@ exports.login = catchAsync(async (req, res, next) => {
 exports.isLogin = catchAsync(async (req,res,next) => {
 
 })
+
+exports.restrictTo = (...roles) => (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to perform this action", 403),
+      );
+    }
+    next();
+  };
 
 
 // Handle Forget Password
@@ -254,11 +263,29 @@ exports.customValidate = async (req,res,next) => {
     UserAccount.findOne({ where: { username } }),
   ]);
 
-  console.log(userEmail);
-
   if (userEmail || userName) {
     return next(new AppError('User already exists', 400));
   }
 
   next()
+}
+
+exports.isLoginedIn = async (req, res, next) => {
+
+  if (req.cookies.jwt) {
+
+  // 2) Verification token
+  const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET);
+
+  // 3) Check if user still exists
+  const currentUser = await UserAccount.findByPk(decoded.id);
+  if (!currentUser) {
+    return next();
+  }
+  // GRANT ACCESS TO PROTECTED ROUTE
+  // console.log(currentUser)
+  // console.log(currentUser)
+  res.locals.user = currentUser;
+}
+next();
 }

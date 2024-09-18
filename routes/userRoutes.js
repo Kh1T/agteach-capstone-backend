@@ -1,5 +1,4 @@
 const express = require("express");
-const AppError = require('./../utils/appError');
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
 const customerController = require("../controllers/customerController");
@@ -19,7 +18,7 @@ router.patch("/resetPassword/:resetToken", authController.resetPassword);
 
 router.use(authController.protect);
 
-router.post("/signup/additionalInfo", customerController.additionalInfo);
+router.post("/signup/additionalInfo", authController.isLoginedIn , customerController.additionalInfo);
 router.post("/resendCode", authController.resendVerifyCode);
 router.post("/verifyEmail", authController.verifyEmail);
 
