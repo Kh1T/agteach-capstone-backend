@@ -1,10 +1,10 @@
-const { DataTypes, ENUM } = require("sequelize");
-const { getDigitalCode } = require("node-verification-code");
-const crypto = require("crypto");
-const useBcrypt = require("sequelize-bcrypt");
-const AppError = require("../utils/appError");
-const sendEmail = require("../utils/sendEmail");
-const Customer = require('./customerModel')
+const { DataTypes } = require('sequelize');
+const { getDigitalCode } = require('node-verification-code');
+const crypto = require('crypto');
+const useBcrypt = require('sequelize-bcrypt');
+const AppError = require('../utils/appError');
+const sendEmail = require('../utils/sendEmail');
+const Customer = require('./customerModel');
 
 const sequelize = require('../config/db');
 const { STATUS_CODES } = require('http');
