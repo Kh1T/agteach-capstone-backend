@@ -24,7 +24,7 @@ router.post('/signup/additionalInfo', customerController.additionalInfo);
 router.post('/resendCode', authController.resendVerifyCode);
 router.post('/verifyEmail', authController.verifyEmail);
 
-router.get('/getMe', userController.getMe, userController.getUser);
+router.get('/getMe', userController.getMe);
 router.patch('/updateMe', userController.updateMe);
 
 module.exports = router;

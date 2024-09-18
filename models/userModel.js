@@ -1,15 +1,15 @@
-const { DataTypes } = require("sequelize");
-const { getDigitalCode } = require("node-verification-code");
-const crypto = require("crypto");
-const useBcrypt = require("sequelize-bcrypt");
-const AppError = require("../utils/appError");
-const sendEmail = require("../utils/sendEmail");
-const Customer = require('./customerModel')
+const { DataTypes } = require('sequelize');
+const { getDigitalCode } = require('node-verification-code');
+const crypto = require('crypto');
+const useBcrypt = require('sequelize-bcrypt');
+const AppError = require('../utils/appError');
+const sendEmail = require('../utils/sendEmail');
+const Customer = require('./customerModel');
 
-const sequelize = require("../config/db");
-const { STATUS_CODES } = require("http");
+const sequelize = require('../config/db');
+const { STATUS_CODES } = require('http');
 
-const UserAccount = sequelize.define("user_account", {
+const UserAccount = sequelize.define('user_account', {
   userUid: {
     type: DataTypes.UUID,
     unique: true,
@@ -24,8 +24,8 @@ const UserAccount = sequelize.define("user_account", {
       isEmail: true,
     },
     unique: {
-      name: "unique_email",
-      msg: "Email already exists.",
+      name: 'unique_email',
+      msg: 'Email already exists.',
       statusCode: 400,
     },
   },
@@ -34,13 +34,13 @@ const UserAccount = sequelize.define("user_account", {
     allowNull: false,
     validate: {
       notEmpty: {
-        name: "unique_username",
-        msg: "Username cannot be empty.",
+        name: 'unique_username',
+        msg: 'Username cannot be empty.',
       },
     },
     unique: {
-      name: "unique_username",
-      msg: "Username already exists.",
+      name: 'unique_username',
+      msg: 'Username already exists.',
     },
   },
   password: {
@@ -62,7 +62,7 @@ const UserAccount = sequelize.define("user_account", {
       notEmpty: true,
       isMatch(value) {
         if (value !== this.password) {
-          throw new AppError("Passwords do not match!", 400);
+          throw new AppError('Passwords do not match!', 400);
         }
       },
     },
@@ -70,7 +70,7 @@ const UserAccount = sequelize.define("user_account", {
   role: {
     type: DataTypes.STRING(50),
     allowNull: false,
-    defaultValue: "guest",
+    defaultValue: 'guest',
   },
   lastLogin: {
     type: DataTypes.DATE,
@@ -103,24 +103,22 @@ const UserAccount = sequelize.define("user_account", {
   },
 });
 
-
-
 module.exports = UserAccount;
 
 // Encrpty Password
 useBcrypt(UserAccount, {
-  field: "password", // secret field to hash, default: 'password'
+  field: 'password', // secret field to hash, default: 'password'
   rounds: 12, // used to generate bcrypt salt, default: 12
-  compare: "authenticate", // method used to compare secrets, default: 'authenticate'
+  compare: 'authenticate', // method used to compare secrets, default: 'authenticate'
 });
 
 UserAccount.prototype.createPasswordResetToken = function () {
-  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.passwordResetToken = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(resetToken)
-    .digest("hex");
+    .digest('hex');
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
@@ -129,11 +127,11 @@ UserAccount.prototype.createPasswordResetToken = function () {
 
 // Create email verify code & Send Email
 UserAccount.prototype.createEmailVerifyCode = async function () {
-  const verificationCode = getDigitalCode(6).toString("utf8");
+  const verificationCode = getDigitalCode(6).toString('utf8');
   this.emailVerifyCode = verificationCode;
 
   await sendEmail(this, {
-    subject: "Your account has been created",
+    subject: 'Your account has been created',
     text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
   });
 
@@ -145,6 +143,8 @@ UserAccount.prototype.createEmailVerifyCode = async function () {
 // Update passwordChangeAt of the password has been changed
 
 UserAccount.prototype.updatePasswordChangedAt = function () {
-  if (this.changed("passwordChangedAt")) {
+  if (this.changed('passwordChangedAt')) {
     this.passwordChangedAt = Date.now();
-}}
+  }
+};
+
