@@ -168,8 +168,6 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
       message: "Your verification is in cooldown 1 minute.",
     });
   }
-
-  // Reset the verification code
   const verificationCode = user.createEmailVerifyCode();
 
   res.status(200).json({
