@@ -285,7 +285,7 @@ exports.isLoginedIn = async (req, res, next) => {
   // GRANT ACCESS TO PROTECTED ROUTE
   // console.log(currentUser)
   // console.log(currentUser)
-  res.locals.user = currentUser;
+  res.user = currentUser;
 }
 next();
 }
