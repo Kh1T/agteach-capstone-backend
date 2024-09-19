@@ -11,10 +11,10 @@ const router = express.Router();
 
 router.post('/signup', authController.customValidate, authController.signup);
 
-router.post("/login", authController.login);
-router.post("/logout", authController.logout);
-router.post("/forgotPassword", authController.forgotPassword);
-router.patch("/resetPassword/:resetToken", authController.resetPassword);
+router.post('/login', authController.login);
+router.post('/logout', authController.logout);
+router.post('/forgotPassword', authController.forgotPassword);
+router.patch('/resetPassword/:resetToken', authController.resetPassword);
 
 //  Protected Routes (Requires Authentication)
 
@@ -25,7 +25,11 @@ router.post('/resendCode', authController.resendVerifyCode);
 router.post('/verifyEmail', authController.verifyEmail);
 
 router.get('/getMe', userController.getMe);
-router.get('/getMe/additionalInfo', userController.getMe , userController.getAdditionalInfo);
+router.get(
+  '/getMe/additionalInfo',
+  userController.getMe,
+  customerController.getAdditionalInfo,
+);
 router.patch('/updateMe', userController.updateMe);
 
 module.exports = router;
