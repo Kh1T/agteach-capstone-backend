@@ -30,6 +30,24 @@ exports.getMe = factory.getOne(UserAccount, {
   ],
 });
 
+exports.getAdditionalInfo = catchAsync(async (req, res, next) => {
+  const user = await UserAccount.findOne({
+    where: { userUid: req.user.userUid },
+    include: [
+      {
+        model: Customer,
+        attributes: [
+          'first_name',
+          'last_name',
+          'phone',
+          'email',
+          'location_id',
+          'address',
+        ],
+      },
+    ],
+  });
+
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
