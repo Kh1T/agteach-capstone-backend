@@ -8,10 +8,6 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.get(
-  '/getAdminInfo',
-  userController.getMe,
-  adminController.getAdditionalInfo,
-);
+router.get('/getAdminInfo', userController.getMe, adminController.getAdminInfo);
 
 module.exports = router;
