@@ -1,11 +1,11 @@
-const { promisify } = require("util");
-const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
-const { Op, where } = require("sequelize");
-const AppError = require("../utils/appError");
-const UserAccount = require("../models/userModel");
-const catchAsync = require("../utils/catchAsync");
-const sendEmail = require("../utils/sendEmail");
+const { promisify } = require('util');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
+const AppError = require('../utils/appError');
+const UserAccount = require('../models/userModel');
+const catchAsync = require('../utils/catchAsync');
+const sendEmail = require('../utils/sendEmail');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -19,13 +19,13 @@ const createSendToken = (user, statusCode, res) => {
       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
     ),
     httpOnly: true,
-    sameSite: "None",
+    sameSite: 'None',
     secure: true, // Add this line
     // domain: 'your-domain.com', // Uncomment and set if needed
   };
-  res.cookie("jwt", token, cookieOption);
+  res.cookie('jwt', token, cookieOption);
   res.status(statusCode).json({
-    status: "success",
+    status: 'success',
     token,
     data: {
       user,
@@ -50,9 +50,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, res);
 });
 
-exports.additionalInfo = catchAsync(async (req, res, next) => {
-
-})
+exports.additionalInfo = catchAsync(async (req, res, next) => {});
 
 // Handle Login User
 
@@ -61,7 +59,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 1) Check if email and password exist
   if (!email || !password) {
-    return next(new AppError("Please provide email and password!", 400));
+    return next(new AppError('Please provide email and password!', 400));
   }
 
   // 2) Check if user exists && password is correct
@@ -70,7 +68,7 @@ exports.login = catchAsync(async (req, res, next) => {
   // Check if password is correct
 
   if (!user.authenticate(password)) {
-    return next(new AppError("Incorrect email or password", 401));
+    return next(new AppError('Incorrect email or password', 401));
   }
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
@@ -82,7 +80,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({ where: { email: req.body.email } });
 
   if (!user) {
-    return next(new AppError("There is no user with email address.", 404));
+    return next(new AppError('There is no user with email address.', 404));
   }
 
   const resetToken = user.createPasswordResetToken();
@@ -100,15 +98,15 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   try {
     await sendEmail(user, {
-      subject: "Forgot password",
+      subject: 'Forgot password',
       text: message,
       code: resetURL,
     });
 
     res.status(200).json({
-      status: "success",
+      status: 'success',
       resetToken,
-      message: "Token sent to email!",
+      message: 'Token sent to email!',
     });
   } catch (err) {
     user.passwordResetToken = undefined;
@@ -116,7 +114,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     return next(
-      new AppError("There was an error sending the email. Try again later!"),
+      new AppError('There was an error sending the email. Try again later!'),
       500,
     );
   }
@@ -126,9 +124,9 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // DON"T FORGET TO CHANGE UPDATE TO req.params.token
 
   const hashedToken = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(req.params.resetToken)
-    .digest("hex");
+    .digest('hex');
 
   const user = await UserAccount.findOne({
     where: {
@@ -138,7 +136,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   });
 
   if (!user) {
-    return next(new AppError("Token is invalid or has expired", 400));
+    return next(new AppError('Token is invalid or has expired', 400));
   }
 
   user.updatePasswordChangedAt();
@@ -165,8 +163,8 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
 
   if (isCooldownActive) {
     return res.status(429).json({
-      status: "fail",
-      message: "Your verification is in cooldown 1 minute.",
+      status: 'fail',
+      message: 'Your verification is in cooldown 1 minute.',
     });
   }
 
@@ -174,7 +172,7 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const verificationCode = user.createEmailVerifyCode();
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     message: `Verification code resent successfully: ${verificationCode}`,
   });
 });
@@ -185,7 +183,7 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({ where: { emailVerifyCode } });
 
   if (!user) {
-    return next(new AppError("Invalid verification code", 400));
+    return next(new AppError('Invalid verification code', 400));
   }
   // Mark the user as verified
   user.isVerify = true;
@@ -193,8 +191,8 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
   await user.save();
 
   res.status(200).json({
-    status: "success",
-    message: "Email successfully verified",
+    status: 'success',
+    message: 'Email successfully verified',
   });
 });
 
@@ -205,16 +203,16 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
+    req.headers.authorization.startsWith('Bearer')
   ) {
-    token = req.headers.authorization.split(" ")[1];
+    token = req.headers.authorization.split(' ')[1];
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
   }
 
   if (!token) {
     return next(
-      new AppError("You are not logged in! Please log in to get access", 401),
+      new AppError('You are not logged in! Please log in to get access', 401),
     );
   }
 
@@ -228,7 +226,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   if (!currentUser) {
     return next(
       new AppError(
-        "The user belonging to this token does no longer exist.",
+        'The user belonging to this token does no longer exist.',
         401,
       ),
     );
@@ -241,19 +239,17 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.customValidate = async (req,res,next) => {
+exports.customValidate = async (req, res, next) => {
   const { email, username } = req.body;
 
   const [userEmail, userName] = await Promise.all([
     UserAccount.findOne({ where: { email } }),
-    UserAccount.findOne({ where: { username } })
+    UserAccount.findOne({ where: { username } }),
   ]);
-
-  console.log(userEmail);
 
   if (userEmail || userName) {
     return next(new AppError('User already exists', 400));
   }
 
-  next()
-}
+  next();
+};
