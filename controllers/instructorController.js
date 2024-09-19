@@ -1,6 +1,6 @@
 const UserAccount = require('../models/userModel');
 const Instructor = require('../models/instructorModel');
-const Location = require('../models/locationModel');
+
 const factory = require('./handlerFactory');
 
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
@@ -23,5 +23,3 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
 
 exports.addAdditionalInfo = factory.additionalInfo(Instructor);
 exports.updateMe = factory.updateMe(Instructor);
-
-exports.getLocation = factory.getAll(Location);

@@ -7,8 +7,6 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.get('/getLocation', instructorController.getLocation);
-
 router.get(
   '/getInstructor/additionalInfo',
   userController.getMe,
