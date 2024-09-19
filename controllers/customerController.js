@@ -2,17 +2,7 @@ const Customer = require('../models/customerModel');
 const factory = require('./handlerFactory');
 const UserAccount = require('../models/userModel');
 
-exports.additionalInfo = async (req, res, next) => {
-  const data = req.body;
-  data.userUid = req.user.userUid;
-  data.email = req.user.email;
-  const customers = await Customer.create(data);
-
-  res.json({
-    status: 'success',
-    data: customers,
-  });
-};
+exports.addAdditionalInfo = factory.additionalInfo(Customer);
 
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [

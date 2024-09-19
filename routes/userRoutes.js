@@ -21,7 +21,7 @@ router.get('/isLoginedIn', authController.isLoginedIn);
 
 router.use(authController.protect);
 
-router.post('/signup/additionalInfo', customerController.additionalInfo);
+router.post('/signup/additionalInfo', customerController.addAdditionalInfo);
 router.post('/resendCode', authController.resendVerifyCode);
 router.post('/verifyEmail', authController.verifyEmail);
 
