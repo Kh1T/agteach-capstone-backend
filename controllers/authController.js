@@ -50,8 +50,6 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, res);
 });
 
-exports.additionalInfo = catchAsync(async (req, res, next) => {});
-
 // Handle Login User
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -157,6 +155,26 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
+  createSendToken(user, 200, res);
+});
+
+// Update Current User Password
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // Get Current User
+  const { password, passwordConfirm } = req.body;
+
+  const user = await UserAccount.findByPk(req.user.userUid);
+
+  if (user.authenticate(password)) {
+    return next(new AppError('Incorrect Password', 401));
+  }
+
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+
+  await user.save();
+
   createSendToken(user, 200, res);
 });
 

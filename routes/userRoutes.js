@@ -20,6 +20,7 @@ router.get('/isLoginedIn', authController.isLoginedIn);
 //  Protected Routes (Requires Authentication)
 
 router.use(authController.protect);
+router.patch('/updatePassword', authController.updatePassword);
 
 router.post('/signup/additionalInfo', customerController.addAdditionalInfo);
 router.post('/resendCode', authController.resendVerifyCode);
