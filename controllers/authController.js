@@ -286,9 +286,16 @@ exports.isLoginedIn = async (req, res, next) => {
       return next();
     }
     // GRANT ACCESS TO PROTECTED ROUTE
-    // console.log(currentUser)
-    // console.log(currentUser)
-    res.user = currentUser;
+
+    res.json({
+      status: 'success',
+      message: 'You are logged in',
+      IsAuthenticated: true,
+    });
   }
-  next();
+  res.json({
+    status: 'fail',
+    message: 'You are not logged in',
+    IsAuthenticated: false,
+  });
 };
