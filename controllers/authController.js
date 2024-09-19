@@ -283,7 +283,7 @@ exports.isLoginedIn = async (req, res, next) => {
     // 3) Check if user still exists
     const currentUser = await UserAccount.findByPk(decoded.id);
     if (!currentUser) {
-      return next();
+      return next(new AppError('User do not exists', 400));
     }
     // GRANT ACCESS TO PROTECTED ROUTE
 
