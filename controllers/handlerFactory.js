@@ -2,7 +2,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
 const Customer = require('../models/customerModel');
-const { options } = require('../routes/userRoutes');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
