@@ -1,10 +1,12 @@
 const sharp = require('sharp');
-const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 
-const resizeAndUpload = catchAsync(async (req, res, next) => {
+// Upload Profile Image
+// Need User role from protected route
+const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   if (!req.file) {
     return next();
   }
@@ -17,13 +19,32 @@ const resizeAndUpload = catchAsync(async (req, res, next) => {
     .toBuffer();
 
   const input = {
-    Bucket: process.env.AWS_BUCKET_NAME,
+    Bucket: process.env.AWS_S3_ASSET_BUCKET,
     Key: req.file.filename,
     Body: buffer,
-    ContentType: "image/jpeg",
+    ContentType: 'image/jpeg',
   };
   await s3Client.send(new PutObjectCommand(input));
   req.file.filename = process.env.AWS_S3_BUCKET_URL + req.file.filename;
   next();
 });
-exports.resizeAndUpload = resizeAndUpload
+
+// Upload Product Image
+// If there is no file uploaded, It will go to next middleware
+const resizeUploadProductImages = catchAsync(async (req, res, next) => {
+  if (!req.files) return next();
+
+  // Upload Product Cover Image
+  const input = {
+    Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
+    Key: req.files.productCover[0].filename,
+    Body: req.files.productCover[0].buffer,
+    ContentType: 'image/jpeg',
+  };
+
+  await s3Client.send(new PutObjectCommand(input));
+
+  // const files = req.files;
+});
+
+module.exports = { resizeUploadProfileImage, resizeUploadProductImages };
