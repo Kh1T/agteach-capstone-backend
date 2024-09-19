@@ -4,9 +4,10 @@ const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 
+
 // Upload Profile Image
 // Need User role from protected route
-const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
+const resizeUploadProfileImage = catchAsync(async (req, res, next) => {  
   if (!req.file) {
     return next();
   }

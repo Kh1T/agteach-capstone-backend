@@ -10,11 +10,16 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get(
-  '/getInstructor/additionalInfo',  
-  userController.getMe,  
+  '/getInstructor/additionalInfo',
+  userController.getMe,
   customerController.getAdditionalInfo,
 );
 
 router.post('/addAdditionalInfo', instructorController.addAdditionalInfo);
-
+router.patch(
+  '/updateMe',
+  instructorController.uploadProfile,
+  instructorController.resizeProfile,
+  instructorController.updateMe,
+);
 module.exports = router;
