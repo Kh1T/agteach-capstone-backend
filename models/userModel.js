@@ -70,8 +70,7 @@ const UserAccount = sequelize.define('user_account', {
   role: {
     type: DataTypes.STRING(50),
     allowNull: false,
-    defaultValue: "guest",
-    ENUM: ["user", "guest"],
+    defaultValue: 'guest',
   },
   lastLogin: {
     type: DataTypes.DATE,
