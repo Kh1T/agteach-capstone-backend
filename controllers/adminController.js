@@ -10,22 +10,24 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
         'Access denied. You are not authorized to view this information.',
     });
   }
-  const Admin = await UserAccount.findOne({
+
+  const admin = await UserAccount.findOne({
     where: {
       userUid: req.user.userUid,
       role: 'admin',
     },
   });
-    if (!Admin) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'Admin not found.',
-      });
-    }
-  const data = req.body;
-  const admin = await Admin.create(data);
+
+  if (!admin) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Admin not found.',
+    });
+  }
+
   res.status(200).json({
     status: 'success',
     data: admin,
   });
 });
+
