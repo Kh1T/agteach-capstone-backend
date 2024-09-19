@@ -1,16 +1,36 @@
 const Customer = require('../models/customerModel');
+const factory = require('./handlerFactory');
+const UserAccount = require('../models/userModel');
+const { options } = require('../routes/userRoutes');
 
+UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
+Customer.belongsTo(UserAccount, { foreignKey: 'userUid' });
 exports.additionalInfo = async (req, res, next) => {
-  const { email, userUid } = req.user;
-  // console.log(email, password)
   const data = req.body;
-  data.userUid = userUid;
-  data.email = email;
+  data.userUid = req.user.userUid;
+  data.email = req.user.email;
   const customers = await Customer.create(data);
 
   res.json({
     status: 'success',
     data: customers,
-    isAuthenticated: !!req.isAuthenticated,
   });
 };
+
+exports.getAdditionalInfo = factory.getOne(UserAccount, {
+  include: [
+    {
+      model: Customer, // Include related UserAccount model
+      attributes: [
+        'email',
+        'phone',
+        'address',
+        'firstName',
+        'lastName',
+        'location_id',
+        'dateOfBirth',
+        'imageUrl',
+      ],
+    },
+  ],
+});

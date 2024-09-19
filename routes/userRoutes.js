@@ -26,7 +26,11 @@ router.post('/resendCode', authController.resendVerifyCode);
 router.post('/verifyEmail', authController.verifyEmail);
 
 router.get('/getMe', userController.getMe);
-router.get('/getMe/additionalInfo', userController.getMe , userController.getAdditionalInfo);
+router.get(
+  '/getMe/additionalInfo',
+  userController.getMe,
+  customerController.getAdditionalInfo,
+);
 router.patch('/updateMe', userController.updateMe);
 
 module.exports = router;
