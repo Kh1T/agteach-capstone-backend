@@ -77,7 +77,6 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 // Handle Forget Password
-
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({ where: { email: req.body.email } });
 
@@ -169,8 +168,6 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
       message: "Your verification is in cooldown 1 minute.",
     });
   }
-
-  // Reset the verification code
   const verificationCode = user.createEmailVerifyCode();
 
   res.status(200).json({
@@ -197,6 +194,14 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
     message: "Email successfully verified",
   });
 });
+
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000), // make the cookie expire in 10 seconds
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success' });
+};
 
 // Handle Protected Routes (Requires Authentication)
 
