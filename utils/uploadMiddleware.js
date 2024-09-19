@@ -29,6 +29,7 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   next();
 });
 
+
 // Upload Product Image
 // If there is no file uploaded, It will go to next middleware
 const resizeUploadProductImages = catchAsync(async (req, res, next) => {
@@ -43,6 +44,26 @@ const resizeUploadProductImages = catchAsync(async (req, res, next) => {
   };
 
   await s3Client.send(new PutObjectCommand(input));
+
+  // Upload Product Images
+  req.body.images =[];
+
+  await Promise.all(req.files.productImages.map(async (file, id) => {
+    const filename = `products/${req.body.productUid}/product-images-${id + 1}.jpeg`;
+
+    const inputProducts = {
+      Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
+      Key: filename,
+      Body: file.buffer,
+      ContentType: 'image/jpeg',
+    };
+    await s3Client.send(new PutObjectCommand(inputProducts));
+    // When get image back from s3, it will need BUCKET_URL or CloudFront URL
+    // For monitor image in CloudFront and cache for easy access
+    // filename: products/p001/product-images-1.jpeg
+    req.body.images.push(filename);
+  }));
+
 
   // const files = req.files;
 });
