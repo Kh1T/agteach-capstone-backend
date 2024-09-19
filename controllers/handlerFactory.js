@@ -2,6 +2,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
 const Customer = require('../models/customerModel');
+const Instructor = require('../models/instructorModel');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -14,8 +15,12 @@ const filterObj = (obj, ...allowedFields) => {
 // Factory function for getting one document by primary key
 exports.getOne = (Model, options = {}) =>
   catchAsync(async (req, res, next) => {
-    UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
+
+    UserAccount.hasMany(Customer, { foreignKey: 'userUid' });
+    UserAccount.hasMany(Instructor, { foreignKey: 'userUid' });
     Customer.belongsTo(UserAccount);
+    Instructor.belongsTo(UserAccount);
+    
     // Fetch the document by primary key (UID) with optional inclusion
     const data = await Model.findByPk(
       req.params.userUid || req.user.userUid || req.params.id,

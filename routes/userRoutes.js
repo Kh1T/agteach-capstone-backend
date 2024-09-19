@@ -1,9 +1,7 @@
 const express = require('express');
-const AppError = require('./../utils/appError');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const customerController = require('../controllers/customerController');
-// const errorController = require('../controllers/errorController')
 
 const router = express.Router();
 
@@ -26,11 +24,6 @@ router.post('/resendCode', authController.resendVerifyCode);
 router.post('/verifyEmail', authController.verifyEmail);
 
 router.get('/getMe', userController.getMe);
-router.get(
-  '/getMe/additionalInfo',
-  userController.getMe,
-  customerController.getAdditionalInfo,
-);
 router.patch('/updateMe', userController.updateMe);
 
 module.exports = router;
