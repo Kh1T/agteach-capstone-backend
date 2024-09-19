@@ -10,8 +10,8 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get(
-  '/getInstructor/additionalInfo',
-  userController.getMe,
+  '/getInstructor/additionalInfo',  
+  userController.getMe,  
   customerController.getAdditionalInfo,
 );
 
