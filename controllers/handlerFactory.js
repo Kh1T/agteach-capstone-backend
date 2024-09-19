@@ -20,9 +20,6 @@ exports.getOne = (Model, options = {}) =>
 
     res.status(200).json({
       status: 'success',
-      data: {
-        data: doc,
-        message: 'success, on get one',
-      },
+      data: doc,
     });
   });
