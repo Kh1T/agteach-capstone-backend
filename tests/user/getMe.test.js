@@ -4,7 +4,7 @@ const express = require('express');
 const request = require('supertest');
 
 const app = express();
-const userController = require('../controllers/userController');
+const userController = require('../../controllers/userController');
 
 // Mock the userController methods
 jest.mock('../controllers/userController.js');
@@ -103,5 +103,4 @@ describe('GET /getMe', () => {
     expect(response.body.status).toBe('fail');
     expect(response.body.message).toBe('User not found');
   });
-
 });

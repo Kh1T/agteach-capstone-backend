@@ -28,5 +28,4 @@ exports.uploadProfile = uploadProfileImage.single('photo');
 exports.resizeProfile = resizeUploadProfileImage;
 
 exports.addAdditionalInfo = factory.additionalInfo(Instructor);
-exports.updateMe = factory.additionalInfo(Instructor);
-
+exports.updateMe = factory.updateMe(Instructor);
