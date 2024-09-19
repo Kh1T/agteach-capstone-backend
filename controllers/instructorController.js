@@ -5,7 +5,7 @@ const factory = require('./handlerFactory');
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [
     {
-      model: Instructor, // Include related UserAccount model
+      model: Instructor,
       attributes: [
         'email',
         'phone',

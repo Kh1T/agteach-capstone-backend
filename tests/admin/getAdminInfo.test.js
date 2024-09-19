@@ -1,6 +1,5 @@
 const { getAdminInfo } = require('../../controllers/adminController');
 const UserAccount = require('../../models/userModel');
-const catchAsync = require('../../utils/catchAsync');
 const httpMocks = require('node-mocks-http'); // Useful for mocking HTTP requests and responses
 
 jest.mock('../../models/userModel'); // Mock UserAccount model
@@ -10,7 +9,9 @@ describe('getAdminInfo', () => {
 
   beforeEach(() => {
     req = httpMocks.createRequest();
-    res = httpMocks.createResponse();
+    res = res = httpMocks.createResponse({
+      eventEmitter: require('events').EventEmitter,
+    });
     next = jest.fn();
   });
 
@@ -20,7 +21,8 @@ describe('getAdminInfo', () => {
     await getAdminInfo(req, res, next);
 
     expect(res.statusCode).toBe(403);
-    expect(res._getData()).toEqual({
+    // Ensure _getData is parsed as an object
+    expect(JSON.parse(res._getData())).toEqual({
       status: 'fail',
       message:
         'Access denied. You are not authorized to view this information.',
@@ -35,7 +37,8 @@ describe('getAdminInfo', () => {
     await getAdminInfo(req, res, next);
 
     expect(res.statusCode).toBe(404);
-    expect(res._getData()).toEqual({
+    // Ensure _getData is parsed as an object
+    expect(JSON.parse(res._getData())).toEqual({
       status: 'fail',
       message: 'Admin not found.',
     });
@@ -54,7 +57,9 @@ describe('getAdminInfo', () => {
     await getAdminInfo(req, res, next);
 
     expect(res.statusCode).toBe(200);
-    expect(res._getData()).toEqual({
+    // Ensure _getData is parsed as an object
+    console.log(JSON.parse(res._getData()));
+    expect(JSON.parse(res._getData())).toEqual({
       status: 'success',
       data: { id: 1, name: 'Admin' },
     });
