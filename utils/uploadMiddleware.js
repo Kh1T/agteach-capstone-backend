@@ -23,5 +23,7 @@ const resizeAndUpload = catchAsync(async (req, res, next) => {
     ContentType: "image/jpeg",
   };
   await s3Client.send(new PutObjectCommand(input));
-
+  req.file.filename = process.env.AWS_S3_BUCKET_URL + req.file.filename;
+  next();
 });
+exports.resizeAndUpload = resizeAndUpload
