@@ -7,5 +7,4 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.updateMe = factory.updateMe(User);
-
 exports.getUser = factory.getOne(User);
