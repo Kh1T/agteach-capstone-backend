@@ -1,10 +1,7 @@
 const Customer = require('../models/customerModel');
 const factory = require('./handlerFactory');
 const UserAccount = require('../models/userModel');
-const { options } = require('../routes/userRoutes');
 
-UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
-Customer.belongsTo(UserAccount, { foreignKey: 'userUid' });
 exports.additionalInfo = async (req, res, next) => {
   const data = req.body;
   data.userUid = req.user.userUid;

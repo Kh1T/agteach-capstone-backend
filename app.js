@@ -14,7 +14,8 @@ if (process.env.NODE_ENV === 'development') {
 
 // Routes
 
-const userRouter = require('./routes/userRoutes');
+const userRouter = require("./routes/userRoutes");
+const instructorRouter = require("./routes/instructorRoutes");
 
 // app.use(authController.isLoginedIn);
 app.use(express.json());
@@ -23,7 +24,9 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 
 // Routes
-app.use('/api/users', userRouter);
+app.use("/api/users", userRouter);
+app.use('/api/instructor', instructorRouter);
+
 
 app.use(globalErrorHandler);
 
