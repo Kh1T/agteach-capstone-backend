@@ -21,4 +21,4 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
 });
 
 exports.addAdditionalInfo = factory.additionalInfo(Instructor);
-exports.updateMe = factory.additionalInfo(Instructor);
+exports.updateMe = factory.updateMe(Instructor);

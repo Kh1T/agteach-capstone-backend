@@ -14,5 +14,6 @@ router.get(
 );
 
 router.post('/addAdditionalInfo', instructorController.addAdditionalInfo);
+router.patch('/updateMe', instructorController.updateMe);
 
 module.exports = router;
