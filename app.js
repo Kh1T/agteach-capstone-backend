@@ -2,7 +2,6 @@ const morgan = require('morgan');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const authController = require('./controllers/authController');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
