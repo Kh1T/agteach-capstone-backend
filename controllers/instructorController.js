@@ -1,13 +1,11 @@
-const Customer = require('../models/customerModel');
-const factory = require('./handlerFactory');
 const UserAccount = require('../models/userModel');
-
-exports.addAdditionalInfo = factory.additionalInfo(Customer);
+const Instructor = require('../models/instructorModel');
+const factory = require('./handlerFactory');
 
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [
     {
-      model: Customer, // Include related UserAccount model
+      model: Instructor, // Include related UserAccount model
       attributes: [
         'email',
         'phone',
@@ -21,3 +19,6 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
     },
   ],
 });
+
+exports.addAdditionalInfo = factory.additionalInfo(Instructor);
+exports.updateMe = factory.additionalInfo(Instructor);
