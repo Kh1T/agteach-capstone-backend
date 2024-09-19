@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 const request = require('supertest');
-const app = require('../app');
+const app = require('../../app');
 
 console.log(app);
 jest.setTimeout(10000);
