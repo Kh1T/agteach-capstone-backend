@@ -1,9 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const UserAccount = require('./userModel');
 
-const Customer = sequelize.define('customer', {
-  customerId: {
+const Instructor = sequelize.define('instructor', {
+  instructorId: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
@@ -49,6 +48,4 @@ const Customer = sequelize.define('customer', {
   },
 });
 
-
-module.exports = Customer;
-
+module.exports = Instructor;
