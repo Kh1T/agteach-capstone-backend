@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const userRouter = require('./routes/userRoutes');
 
-app.use(authController.isLoginedIn);
+// app.use(authController.isLoginedIn);
 app.use(express.json());
 app.use(cookieParser());
 

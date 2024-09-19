@@ -6,6 +6,7 @@ const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/sendEmail');
+const { error } = require('console');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -273,29 +274,34 @@ exports.customValidate = async (req, res, next) => {
 };
 
 exports.isLoginedIn = async (req, res, next) => {
-  if (req.cookies.jwt) {
-    // 2) Verification token
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET,
-    );
+  try {
+    if (req.cookies.jwt) {
+      // 2) Verification token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET,
+      );
 
-    // 3) Check if user still exists
-    const currentUser = await UserAccount.findByPk(decoded.id);
-    if (!currentUser) {
-      return next(new AppError('User do not exists', 400));
+      // 3) Check if user still exists
+      const currentUser = await UserAccount.findByPk(decoded.id);
+      if (!currentUser) {
+        throw Error();
+      }
+      // GRANT ACCESS TO PROTECTED ROUTE
+
+      res.json({
+        status: 'success',
+        message: 'You are logged in',
+        IsAuthenticated: true,
+      });
+    } else {
+      throw Error();
     }
-    // GRANT ACCESS TO PROTECTED ROUTE
-
+  } catch (err) {
     res.json({
-      status: 'success',
-      message: 'You are logged in',
-      IsAuthenticated: true,
+      status: 'fail',
+      message: 'You are not logged in.',
+      IsAuthenticated: false,
     });
   }
-  res.json({
-    status: 'fail',
-    message: 'You are not logged in',
-    IsAuthenticated: false,
-  });
 };

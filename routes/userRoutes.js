@@ -14,7 +14,6 @@ router.post('/login', authController.login);
 router.post('/logout', authController.logout);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
-
 router.get('/isLoginedIn', authController.isLoginedIn);
 
 //  Protected Routes (Requires Authentication)
