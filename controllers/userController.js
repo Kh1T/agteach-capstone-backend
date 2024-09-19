@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const factory = require('./handlerFactory');
 
+// Request userUid 
+// Then pass it to the next middleware
 exports.getMe = (req, res, next) => {
   req.params.userUid = req.user.userUid;
   next();
