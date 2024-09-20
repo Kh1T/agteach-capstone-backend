@@ -103,5 +103,4 @@ describe('GET /getMe', () => {
     expect(response.body.status).toBe('fail');
     expect(response.body.message).toBe('User not found');
   });
-
 });

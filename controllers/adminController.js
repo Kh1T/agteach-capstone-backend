@@ -30,4 +30,3 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
     data: admin,
   });
 });
-

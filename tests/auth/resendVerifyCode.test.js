@@ -1,5 +1,5 @@
-const { resendVerifyCode } = require('../controllers/authController');
-const { UserAccount } = require('../models/userModel');
+const { resendVerifyCode } = require('../../controllers/authController');
+const { UserAccount } = require('../../models/userModel');
 // Mock necessary modules
 jest.mock('../models/userModel', () => {
     findOne: jest.fn(),
