@@ -14,6 +14,10 @@ router.get(
 );
 
 router.post('/addAdditionalInfo', instructorController.addAdditionalInfo);
-router.patch('/updateMe', instructorController.updateMe);
-
+router.patch(
+  '/updateMe',
+  instructorController.uploadProfile,
+  instructorController.resizeProfile,
+  instructorController.updateMe,
+);
 module.exports = router;
