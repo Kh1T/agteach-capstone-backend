@@ -6,7 +6,12 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
-const allowedOrigins = ['https://example.com', 'https://another-example.com']; // List of allowed origins
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://agteach.site/',
+  'https://teach.agteach.site/',
+  'https://admin.agteach.site/',
+]; // List of allowed origins
 
 const corsOptions = {
   origin: function (origin, callback) {
