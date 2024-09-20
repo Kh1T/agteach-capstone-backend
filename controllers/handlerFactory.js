@@ -51,13 +51,16 @@ exports.updateMe = (Model) =>
       );
     }
     // // 2) Filtered out unwanted fields names that are not allowed to be updated
+    req.body.imageUrl = req.file ? req.file.filename : null;
     const filteredBody = filterObj(
       req.body,
       'username',
       'email',
-      'image_url',
-      'first_name',
-      'last_name',
+      'imageUrl',
+      'firstName',
+      'lastName',
+      'phone',
+      'dateOfBirth',
     );
 
     // // 3) Update user document
@@ -66,7 +69,6 @@ exports.updateMe = (Model) =>
       returning: true,
       individualHooks: true, // to run validators
     });
-
     res.status(200).json({
       status: 'success',
       data: {
@@ -78,8 +80,7 @@ exports.updateMe = (Model) =>
 exports.additionalInfo = (Model) => async (req, res, next) => {
   const data = req.body;
   data.userUid = req.user.userUid;
-  data.email = req.user.email;
-  data.imageUrl = req.file ? req.file.filename : null;
+  data.email = req.user.email;  
   const userData = await Model.create(data);
 
   res.json({
