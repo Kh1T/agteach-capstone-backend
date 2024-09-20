@@ -6,7 +6,18 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
-const corsOptions = { credentials: true, origin: '*' };
+const allowedOrigins = ['https://example.com', 'https://another-example.com']; // List of allowed origins
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true); // Allow the request
+    } else {
+      callback(new Error('Not allowed by CORS')); // Reject the request
+    }
+  },
+  credentials: true, // Allow credentials
+};
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
