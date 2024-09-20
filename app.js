@@ -6,11 +6,16 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
-const allowedOrigins = ['https://example.com', 'https://another-example.com']; // List of allowed origins
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://agteach.site',
+  'https://teach.agteach.site',
+  'https://admin.agteach.site',
+]; // List of allowed origins
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true); // Allow the request
     } else {
       callback(new Error('Not allowed by CORS')); // Reject the request
