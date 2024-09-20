@@ -71,6 +71,7 @@ exports.updateMe = (Model) =>
       'lastName',
       'phone',
       'dateOfBirth',
+      'locationId',
     );
 
     // // 3) Update user document
