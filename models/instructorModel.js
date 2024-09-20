@@ -46,6 +46,13 @@ const Instructor = sequelize.define('instructor', {
       key: 'user_uid', // Key in the referenced model
     },
   },
+  locationId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'location', // Name of the referenced model
+      key: 'locationId', // Key in the referenced model
+    },
+  },
 });
 
 module.exports = Instructor;
