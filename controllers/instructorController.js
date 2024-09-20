@@ -1,5 +1,6 @@
 const UserAccount = require('../models/userModel');
 const Instructor = require('../models/instructorModel');
+
 const factory = require('./handlerFactory');
 const { uploadProfileImage } = require('../utils/multerConfig');
 const { resizeUploadProfileImage } = require('../utils/uploadMiddleware');

@@ -13,4 +13,6 @@ router.get(
   customerController.getAdditionalInfo,
 );
 
+router.patch('/updateMe', customerController.updateMe);
+
 module.exports = router;

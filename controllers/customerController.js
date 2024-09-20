@@ -21,3 +21,5 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
     },
   ],
 });
+
+exports.updateMe = factory.updateMe(Customer);

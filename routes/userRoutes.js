@@ -7,16 +7,16 @@ const router = express.Router();
 
 //  User Authentication Routes
 
-router.post('/signup', authController.customValidate, authController.signup);
+router.get('/getLocation', userController.getLocation);
+router.get('/isLoginedIn', authController.isLoginedIn);
 
+router.post('/signup', authController.customValidate, authController.signup);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
-router.get('/isLoginedIn', authController.isLoginedIn);
 
 //  Protected Routes (Requires Authentication)
-
 router.use(authController.protect);
 router.patch('/updatePassword', authController.updatePassword);
 
