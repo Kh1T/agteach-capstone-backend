@@ -4,13 +4,12 @@ const { get, all } = require('../routes/userRoutes');
 
 const allProduct = allProduct.get('name', 'price', 'instructor', 'image');
 
-exports.getAll = async(req, res, next) => {
-    
-    const allProduct = await Product.findAll()
+exports.getAll = async (req, res, next) => {
+  const allProduct = await Product.findAll();
 
-    res.status(200).json({
-        status: 'success',
-        results: allProduct.length,
-        allProduct
-    })
-}
+  res.status(200).json({
+    status: 'success',
+    results: allProduct.length,
+    allProduct,
+  });
+};
