@@ -14,13 +14,7 @@ const allowedOrigins = [
 ]; // List of allowed origins
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // Allow the request
-    } else {
-      callback(new Error('Not allowed by CORS')); // Reject the request
-    }
-  },
+  origin: 'http://localhost:3000',
   credentials: true, // Allow credentials
 };
 

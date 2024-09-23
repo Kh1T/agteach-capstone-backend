@@ -1,11 +1,11 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
-const Product = sequelize.define('product', {
-  productId: {
+const Course = sequelize.define('course', {
+  courseId: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
     autoIncrement: true,
+    primaryKey: true,
   },
   instructorId: {
     type: DataTypes.INTEGER,
@@ -14,30 +14,36 @@ const Product = sequelize.define('product', {
       key: 'instructor_id',
     },
   },
-  categoryId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'product_categories', // Name of the referenced table
-      key: 'category_id',
-    },
-  },
   name: {
     type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  price: {
-    type: DataTypes.DECIMAL,
     allowNull: false,
   },
   description: {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  imageUrl: {
+  previewVideoUrl: {
     type: DataTypes.TEXT,
+    allowNull: false,
   },
-  quantity: {
+  thumbnailUrl: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  duration: {
+    type: DataTypes.STRING, // Sequelize doesn't support INTERVAL, use STRING or INTEGER
+    allowNull: false,
+  },
+  numberOfVideo: {
     type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  courseObjective: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  price: {
+    type: DataTypes.DECIMAL,
     allowNull: false,
   },
   createdAt: {
@@ -50,4 +56,4 @@ const Product = sequelize.define('product', {
   },
 });
 
-module.exports = Product;
+module.exports = Course;
