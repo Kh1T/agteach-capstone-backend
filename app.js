@@ -11,12 +11,15 @@ const allowedOrigins = [
   'https://agteach.site',
   'https://teach.agteach.site',
   'https://admin.agteach.site',
-]; // List of allowed origins
+];
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: allowedOrigins,
   credentials: true, // Allow credentials
 };
+
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -32,8 +35,6 @@ const customerRouter = require('./routes/customerRoutes');
 // app.use(authController.isLoginedIn);
 app.use(express.json());
 app.use(cookieParser());
-
-app.use(cors(corsOptions));
 
 // Routes
 app.use('/api/users', userRouter);
