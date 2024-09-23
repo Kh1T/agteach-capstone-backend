@@ -39,6 +39,7 @@ const adminRouter = require('./routes/adminRoutes');
 const customerRouter = require('./routes/customerRoutes');
 const productRouter = require('./routes/productRoutes');
 const courseRouter = require('./routes/courseRoutes');
+const viewRouter = require('./routes/viewRoutes');
 
 UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
 UserAccount.hasOne(Instructor, { foreignKey: 'userUid' });
@@ -54,6 +55,7 @@ app.use('/api/users', userRouter);
 app.use('/api/customer', customerRouter);
 app.use('/api/instructor', instructorRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/view', viewRouter);
 app.use('/api/product', productRouter);
 app.use('/api/course', courseRouter);
 
