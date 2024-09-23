@@ -1,8 +1,8 @@
 const catchAsync = require('../utils/catchAsync');
 const Product = require('../models/productModel');
-const { get, all } = require('../routes/userRoutes');
+// const { get, all } = require('../routes/userRoutes');
 
-const allProduct = allProduct.get('name', 'price', 'instructor', 'image');
+// const allProduct = allProduct.get('name', 'price', 'instructor', 'image');
 
 exports.getAll = async (req, res, next) => {
   const allProduct = await Product.findAll();
