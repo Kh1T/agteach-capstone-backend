@@ -91,7 +91,7 @@ exports.updateMe = (Model) =>
 exports.additionalInfo = (Model) => async (req, res, next) => {
   const data = req.body;
   data.userUid = req.user.userUid;
-  data.email = req.user.email;  
+  data.email = req.user.email;
   const userData = await Model.create(data);
 
   res.json({
@@ -99,3 +99,13 @@ exports.additionalInfo = (Model) => async (req, res, next) => {
     userData,
   });
 };
+
+exports.deleteOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const data = await Model.findByPk(req.params.id);
+    await data.destroy();
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  });

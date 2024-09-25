@@ -4,11 +4,10 @@ const productController = require('../controllers/productController');
 
 const router = express.Router();
 
-// router.use(authController.protect);
+router.use(authController.protect);
 
-router.get(
-  '/getAllProduct',
-  productController.getAll,
-);
+router.get('/getAllProduct', productController.getAll);
+
+router.delete('/deleteOneProduct/:id', productController.deleteOne);
 
 module.exports = router;
