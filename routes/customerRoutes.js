@@ -13,7 +13,11 @@ router.get(
   customerController.getAdditionalInfo,
 );
 
-router.patch('/updateMe',  customerController.uploadProfile,
-  customerController.resizeProfile, customerController.updateMe);
+router.patch(
+  '/updateMe',
+  customerController.uploadProfile,
+  customerController.resizeProfile,
+  customerController.updateMe,
+);
 
 module.exports = router;
