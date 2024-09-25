@@ -10,4 +10,6 @@ router.get('/getAllProduct', productController.getAll);
 
 router.delete('/deleteOneProduct/:id', productController.deleteOne);
 
+router.get('/searchData', productController.searchData);
+
 module.exports = router;

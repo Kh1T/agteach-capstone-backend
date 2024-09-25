@@ -1,9 +1,9 @@
 const catchAsync = require('../utils/catchAsync');
+const { Op } = require('sequelize');
 const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
 const Customer = require('../models/customerModel');
 const Instructor = require('../models/instructorModel');
-const { Model } = require('sequelize');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -107,5 +107,17 @@ exports.deleteOne = (Model) =>
     res.status(204).json({
       status: 'success',
       data: null,
+    });
+  });
+
+exports.SearchData = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const data = await Model.findAll({
+      where: { name: { [Op.iLike]: `%${req.query.name}%` } },
+    });
+    res.status(200).json({
+      status: 'success',
+      results: data.length,
+      data,
     });
   });
