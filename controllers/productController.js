@@ -1,13 +1,10 @@
 const Product = require('../models/productModel');
 const handleFactory = require('./handlerFactory');
+const catchAsync = require('../utils/catchAsync');
 
 exports.getAll = handleFactory.getAll(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
 exports.searchData = handleFactory.SearchData(Product);
-
-const productModel = require('../models/productModel');
-const catchAsync = require('../utils/catchAsync');
-const factory = require('./handlerFactory');
 
 exports.getProducts = catchAsync(async (req, res, next) => {
     const products = await productModel.findAll();

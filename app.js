@@ -32,7 +32,6 @@ const userRouter = require('./routes/userRoutes');
 const instructorRouter = require('./routes/instructorRoutes');
 const adminRouter = require('./routes/adminRoutes');
 const customerRouter = require('./routes/customerRoutes');
-const productRouter = require('./routes/productRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const productRouter = require('./routes/productRoutes');
 
@@ -46,7 +45,7 @@ app.use('/api/customer', customerRouter);
 app.use('/api/instructor', instructorRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/view', viewRouter);
-app.use('/api/product', productRouter);
+app.use('/api/product', productRouter)
 
 app.use(globalErrorHandler);
 
