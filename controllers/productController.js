@@ -3,4 +3,4 @@ const handleFactory = require('./handlerFactory');
 
 exports.getAll = handleFactory.getAll(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
-exports.searchData = handleFactory.SearchData(Product, 'name');
+exports.searchData = handleFactory.SearchData(Product);
