@@ -3,7 +3,6 @@ const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
 const Customer = require('../models/customerModel');
 const Instructor = require('../models/instructorModel');
-const { Model } = require('sequelize');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
