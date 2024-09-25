@@ -4,7 +4,7 @@ const Product = require('../models/productModel');
 
 // const allProduct = allProduct.get('name', 'price', 'instructor', 'image');
 
-exports.getAll = async (req, res, next) => {
+exports.getAll = catchAsync(async (req, res, next) => {
   const allProduct = await Product.findAll();
 
   res.status(200).json({
@@ -12,4 +12,4 @@ exports.getAll = async (req, res, next) => {
     results: allProduct.length,
     allProduct,
   });
-};
+});
