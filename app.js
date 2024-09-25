@@ -34,6 +34,7 @@ const adminRouter = require('./routes/adminRoutes');
 const customerRouter = require('./routes/customerRoutes');
 const productRouter = require('./routes/productRoutes');
 const viewRouter = require('./routes/viewRoutes');
+const productRouter = require('./routes/productRoutes');
 
 // app.use(authController.isLoginedIn);
 app.use(express.json());
