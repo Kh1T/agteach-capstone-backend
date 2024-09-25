@@ -20,4 +20,6 @@ router.post('/createProduct', uploadProductImages ,productController.createProdu
 
 
 
+
+
 module.exports = router;
