@@ -20,6 +20,9 @@ router.post('/createProduct', uploadProductImages ,productController.createProdu
 
 
 
+router.use(authController.protect);
+
+router.post('/createProduct', uploadProductImages ,productController.createProduct);
 
 
 module.exports = router;
