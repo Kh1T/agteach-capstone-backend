@@ -12,4 +12,6 @@ router.delete('/deleteOneProduct/:id', productController.deleteOne);
 router.get('/searchData', productController.searchData);
 router.get('/sortData', productController.sortData);
 
+
+
 module.exports = router;

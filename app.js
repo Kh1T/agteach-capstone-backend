@@ -40,6 +40,7 @@ const customerRouter = require('./routes/customerRoutes');
 const productRouter = require('./routes/productRoutes');
 const courseRouter = require('./routes/courseRoutes');
 const viewRouter = require('./routes/viewRoutes');
+const productRouter = require('./routes/productRoutes');
 
 UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
 UserAccount.hasOne(Instructor, { foreignKey: 'userUid' });
