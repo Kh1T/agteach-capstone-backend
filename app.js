@@ -12,7 +12,6 @@ const allowedOrigins = [
   'https://teach.agteach.site',
   'https://admin.agteach.site',
   'https://sendgrid.api-docs.io',
-  'https://agteach.site/auth/signup/info',
 ];
 
 const corsOptions = {
