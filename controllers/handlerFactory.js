@@ -90,8 +90,8 @@ exports.updateMe = (Model) =>
 
 exports.additionalInfo = (Model) => async (req, res, next) => {
   const data = req.body;
-  data.userUid = req.user.userUid;
-  data.email = req.user.email;  
+  // data.userUid = req.user.userUid;
+  // data.email = req.user.email;
   const userData = await Model.create(data);
 
   res.json({

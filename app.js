@@ -16,6 +16,7 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: allowedOrigins,
+  method: '',
   credentials: true, // Allow credentials
 };
 
