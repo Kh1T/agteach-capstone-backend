@@ -17,7 +17,7 @@ router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
 
 //  Protected Routes (Requires Authentication)
-// router.use(authController.protect);
+router.use(authController.protect);
 router.patch('/updatePassword', authController.updatePassword);
 router.post('/signup/additionalInfo', customerController.addAdditionalInfo);
 
