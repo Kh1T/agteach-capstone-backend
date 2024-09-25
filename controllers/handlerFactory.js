@@ -87,7 +87,7 @@ exports.updateMe = (Model) =>
     });
   });
 
-exports.additionalInfo = (Model) => async (req, res, next) => {
+exports.additionalInfo = catchAsync((Model) => async (req, res, next) => {
   const data = req.body;
   data.userUid = req.user.userUid;
   data.email = req.user.email;
@@ -97,4 +97,4 @@ exports.additionalInfo = (Model) => async (req, res, next) => {
     status: 'success',
     userData,
   });
-};
+});
