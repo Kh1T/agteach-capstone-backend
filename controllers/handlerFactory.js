@@ -1,5 +1,5 @@
-const catchAsync = require('../utils/catchAsync');
 const { Op } = require('sequelize');
+const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
 const Customer = require('../models/customerModel');
