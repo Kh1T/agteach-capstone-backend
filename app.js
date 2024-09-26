@@ -43,6 +43,7 @@ app.use('/api/customer', customerRouter);
 app.use('/api/instructor', instructorRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/product', productRouter);
+app.use('/api/course');
 
 app.use(globalErrorHandler);
 

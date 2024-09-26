@@ -115,7 +115,7 @@ exports.SearchData = (Model) =>
     const data = await Model.findAll({
       where: { name: { [Op.iLike]: `%${req.query.name}%` } },
     });
-    res.status(204).json({
+    res.status(200).json({
       status: 'success',
       results: data.length,
       data,
