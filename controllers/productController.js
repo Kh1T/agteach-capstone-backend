@@ -12,7 +12,7 @@ exports.searchData = handleFactory.SearchData(Product);
 exports.createProduct = catchAsync(async (req, res, next) => {
   try {
     // Step 1: Validate required fields
-    console.log(req.body);
+    console.log(req.user);
     console.log(req.files)
     const { categoryId, name, description, quantity, price } = req.body;
     if (!req.files.productCover || req.files.productCover.length === 0) {

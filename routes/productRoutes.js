@@ -5,7 +5,7 @@ const { uploadProductImages } = require('../utils/multerConfig');
 
 const router = express.Router();
 
-// router.use(authController.protect);
+router.use(authController.protect);
 
 router.get('/getAllProduct', productController.getAll);
 
