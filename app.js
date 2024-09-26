@@ -11,10 +11,12 @@ const allowedOrigins = [
   'https://agteach.site',
   'https://teach.agteach.site',
   'https://admin.agteach.site',
+  'https://sendgrid.api-docs.io',
 ];
 
 const corsOptions = {
   origin: allowedOrigins,
+  method: '',
   credentials: true, // Allow credentials
 };
 
