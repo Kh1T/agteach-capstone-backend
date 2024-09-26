@@ -4,6 +4,10 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const globalErrorHandler = require('./controllers/errorController');
 
+const UserAccount = require('./models/userModel');
+const Customer = require('./models/customerModel');
+const Instructor = require('./models/instructorModel');
+
 const app = express();
 
 const allowedOrigins = [
@@ -35,6 +39,11 @@ const adminRouter = require('./routes/adminRoutes');
 const customerRouter = require('./routes/customerRoutes');
 const productRouter = require('./routes/productRoutes');
 const courseRouter = require('./routes/courseRoutes');
+
+UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
+UserAccount.hasOne(Instructor, { foreignKey: 'userUid' });
+Customer.belongsTo(UserAccount, { foreignKey: 'userUid' });
+Instructor.belongsTo(UserAccount, { foreignKey: 'userUid' });
 
 // app.use(authController.isLoginedIn);
 app.use(express.json());
