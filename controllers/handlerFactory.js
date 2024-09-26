@@ -16,10 +16,10 @@ const filterObj = (obj, ...allowedFields) => {
 // Factory function for getting one document by primary key
 exports.getOne = (Model, options = {}) =>
   catchAsync(async (req, res, next) => {
-    UserAccount.hasMany(Customer, { foreignKey: 'userUid' });
-    UserAccount.hasMany(Instructor, { foreignKey: 'userUid' });
-    Customer.belongsTo(UserAccount);
-    Instructor.belongsTo(UserAccount);
+    UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
+    UserAccount.hasOne(Instructor, { foreignKey: 'userUid' });
+    Customer.belongsTo(UserAccount, { foreignKey: 'userUid' });
+    Instructor.belongsTo(UserAccount, { foreignKey: 'userUid' });
 
     // Fetch the document by primary key (UID) with optional inclusion
     const data = await Model.findByPk(
