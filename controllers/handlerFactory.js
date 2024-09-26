@@ -110,17 +110,17 @@ exports.deleteOne = (Model) =>
     });
   });
 
-exports.SearchData = (Model) =>
-  catchAsync(async (req, res, next) => {
-    const data = await Model.findAll({
-      where: { name: { [Op.iLike]: `%${req.query.name}%` } },
-    });
-    res.status(200).json({
-      status: 'success',
-      results: data.length,
-      data,
-    });
-  });
+// exports.SearchData = (Model) =>
+//   catchAsync(async (req, res, next) => {
+//     const data = await Model.findAll({
+//       where: { name: { [Op.iLike]: `%${req.query.name}%` } },
+//     });
+//     res.status(200).json({
+//       status: 'success',
+//       results: data.length,
+//       data,
+//     });
+//   });
 
 exports.sortData = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -128,6 +128,33 @@ exports.sortData = (Model) =>
     const data = await Model.findAll({
       order: [['createdAt', sortOrder]],
     });
+
+    res.status(200).json({
+      status: 'success',
+      results: data.length,
+      data,
+    });
+  });
+
+exports.SearchData = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const { name, order } = req.query;
+
+    // Initialize options object for the query
+    let options = {};
+
+    // Add search condition if "name" query exists
+    if (name) {
+      options.where = { name: { [Op.iLike]: `%${name}%` } };
+    }
+
+    // Add sorting condition if "order" query exists
+    if (order) {
+      options.order = [['createdAt', order]];
+    }
+
+    // Fetch data from the Model based on options
+    const data = await Model.findAll(options);
 
     res.status(200).json({
       status: 'success',
