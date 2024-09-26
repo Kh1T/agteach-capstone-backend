@@ -95,11 +95,6 @@ exports.additionalInfo = (Model) =>
       data.userUid = req.user.userUid;
       data.email = req.user.email;
       const userData = await Model.create(data);
-exports.additionalInfo = (Model) => async (req, res, next) => {
-  const data = req.body;
-  data.userUid = req.user.userUid;
-  data.email = req.user.email;
-  const userData = await Model.create(data);
 
       res.json({
         status: 'success',
@@ -109,11 +104,6 @@ exports.additionalInfo = (Model) => async (req, res, next) => {
       next(error);
     }
   });
-  res.json({
-    status: 'success',
-    userData,
-  });
-};
 
 exports.deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
