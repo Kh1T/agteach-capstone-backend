@@ -4,10 +4,9 @@ const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 
-
 // Upload Profile Image
 // Need User role from protected route
-const resizeUploadProfileImage = catchAsync(async (req, res, next) => {  
+const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   if (!req.file) {
     return next();
   }
@@ -30,7 +29,6 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   next();
 });
 
-
 // Upload Product Image
 // If there is no file uploaded, It will go to next middleware
 const resizeUploadProductImages = catchAsync(async (req, res, next) => {
@@ -47,26 +45,43 @@ const resizeUploadProductImages = catchAsync(async (req, res, next) => {
   await s3Client.send(new PutObjectCommand(input));
 
   // Upload Product Images
-  req.body.images =[];
+  req.body.images = [];
 
-  await Promise.all(req.files.productImages.map(async (file, id) => {
-    const filename = `products/${req.body.productUid}/product-images-${id + 1}.jpeg`;
+  await Promise.all(
+    req.files.productImages.map(async (file, id) => {
+      const filename = `products/${req.body.productUid}/product-images-${id + 1}.jpeg`;
 
-    const inputProducts = {
-      Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
-      Key: filename,
-      Body: file.buffer,
-      ContentType: 'image/jpeg',
-    };
-    await s3Client.send(new PutObjectCommand(inputProducts));
-    // When get image back from s3, it will need BUCKET_URL or CloudFront URL
-    // For monitor image in CloudFront and cache for easy access
-    // filename: products/p001/product-images-1.jpeg
-    req.body.images.push(filename);
-  }));
-
+      const inputProducts = {
+        Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
+        Key: filename,
+        Body: file.buffer,
+        ContentType: 'image/jpeg',
+      };
+      await s3Client.send(new PutObjectCommand(inputProducts));
+      // When get image back from s3, it will need BUCKET_URL or CloudFront URL
+      // For monitor image in CloudFront and cache for easy access
+      // filename: products/p001/product-images-1.jpeg
+      req.body.images.push(filename);
+    }),
+  );
 
   // const files = req.files;
 });
+const uploadCourseVideosFile = catchAsync(async (req, res, next) => {
+  if (!req.file) next();
+  
+  req.file.filename = `courses/${req.body.courseId}/section_${req.body.sectionId}/lecture-${req.body.orderId}`;
 
-module.exports = { resizeUploadProfileImage, resizeUploadProductImages };
+  const input = {
+    Bucket: process.env.AWS_S3_COURSE_ASSET_BUCKET,
+    Key: req.file.filename,
+    Body: req.file.buffer,
+    ContentType: 'video/mp4',
+  }
+
+  await s3Client.send(new PutObjectCommand(input));
+
+  next();
+
+});
+module.exports = { resizeUploadProfileImage, resizeUploadProductImages,uploadCourseVideosFile };
