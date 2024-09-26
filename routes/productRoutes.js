@@ -1,5 +1,4 @@
 const express = require('express');
-const authController = require('../controllers/authController');
 const productController = require('../controllers/productController');
 const { uploadProductImages } = require('../utils/multerConfig');
 
@@ -14,6 +13,13 @@ router.get('/searchData', productController.searchData);
 router.get('/sortData', productController.sortData);
 router.post('/createProduct', uploadProductImages ,productController.createProduct);
 
+
+
+router.post(
+  '/createProduct',
+  uploadProductImages,
+  productController.createProduct,
+);
 
 
 module.exports = router;
