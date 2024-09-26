@@ -122,9 +122,13 @@ exports.SearchData = (Model) =>
     });
   });
 
-exports.filter = (Model) =>
+exports.sortData = (Model) =>
   catchAsync(async (req, res, next) => {
-    const data = await Model.findAll();
+    const sortOrder = req.query.order || 'ASC';
+    const data = await Model.findAll({
+      order: [['createdAt', sortOrder]],
+    });
+
     res.status(200).json({
       status: 'success',
       results: data.length,
