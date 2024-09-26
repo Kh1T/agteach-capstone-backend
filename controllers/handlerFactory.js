@@ -121,3 +121,13 @@ exports.SearchData = (Model) =>
       data,
     });
   });
+
+exports.filter = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const data = await Model.findAll();
+    res.status(200).json({
+      status: 'success',
+      results: data.length,
+      data,
+    });
+  });
