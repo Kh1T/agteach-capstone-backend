@@ -10,5 +10,6 @@ router.get('/getAllProduct', productController.getAll);
 router.get('/getOneProduct/:id', productController.getOne);
 router.delete('/deleteOneProduct/:id', productController.deleteOne);
 router.get('/searchData', productController.searchData);
+router.get('/sortData', productController.sortData);
 
 module.exports = router;
