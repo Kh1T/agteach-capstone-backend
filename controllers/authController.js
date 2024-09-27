@@ -79,11 +79,14 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
     },
   });
 
-  const url = req.url;
+  const url = req.headers['x-frontend-url'];
 
-  if (url.includes('http://localhost/')) return next();
+  if (!role) return next();
+
+  if (url.includes('localhost')) return next();
   else if (url.includes('teach') && role === 'instructor') return next();
   else if (url.includes('admin') && role === 'admin') return next();
+  else if (url.includes('agteach')) return next();
 
   return next(
     new AppError('You do not have permission to perform this action', 403),
