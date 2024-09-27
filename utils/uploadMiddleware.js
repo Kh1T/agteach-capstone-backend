@@ -12,6 +12,7 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   if (!req.file) {
     return next();
   }
+
   req.file.filename = `${req.user.role}s/${req.user.userUid}/profile-image.jpeg`;
 
   const buffer = await sharp(req.file.buffer)

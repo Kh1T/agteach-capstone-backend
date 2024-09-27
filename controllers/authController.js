@@ -72,7 +72,23 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-exports.isLogin = catchAsync(async (req, res, next) => {});
+exports.roleRestrict = catchAsync(async (req, res, next) => {
+  const { role } = await UserAccount.findOne({
+    where: {
+      email: req.body.email,
+    },
+  });
+
+  const url = req.url;
+
+  if (url.includes('http://localhost/')) return next();
+  else if (url.includes('teach') && role === 'instructor') return next();
+  else if (url.includes('admin') && role === 'admin') return next();
+
+  return next(
+    new AppError('You do not have permission to perform this action', 403),
+  );
+});
 
 exports.restrictTo =
   (...roles) =>

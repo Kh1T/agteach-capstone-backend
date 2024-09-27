@@ -33,6 +33,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     instructorId,
   });
+  console.log(req.file);
 
   const newSection = await Section.create({
     name: sectionName,

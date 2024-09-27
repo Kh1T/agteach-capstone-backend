@@ -11,7 +11,8 @@ router.get('/getLocation', userController.getLocation);
 router.get('/isLoginedIn', authController.isLoginedIn);
 
 router.post('/signup', authController.customValidate, authController.signup);
-router.post('/login', authController.login);
+
+router.post('/login', authController.roleRestrict, authController.login);
 router.post('/logout', authController.logout);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);

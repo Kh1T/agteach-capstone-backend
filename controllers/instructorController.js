@@ -25,6 +25,7 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
 });
 
 exports.uploadProfile = uploadProfileImage.single('photo');
+
 exports.resizeProfile = resizeUploadProfileImage;
 
 exports.addAdditionalInfo = factory.additionalInfo(Instructor);
