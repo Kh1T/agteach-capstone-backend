@@ -1,6 +1,9 @@
 const { Op } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const UserAccount = require('../models/userModel');
+const Customer = require('../models/customerModel');
+const Instructor = require('../models/instructorModel');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -159,3 +162,12 @@ exports.SearchData = (Model) =>
       data,
     });
   });
+
+exports.createOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const data = await Model.create(req.body);
+    res.status(201).json({
+      status: 'success',
+      data,
+    });
+  })

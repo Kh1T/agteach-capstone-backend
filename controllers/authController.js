@@ -77,6 +77,7 @@ exports.isLogin = catchAsync(async (req, res, next) => {});
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
+    console.log(req.user.role);
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError('You do not have permission to perform this action', 403),
@@ -102,7 +103,12 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   // 3) Send it to user's email
   // http://localhost:3000/auth/reset-password
-  const resetURL = `${req.protocol}://agteach.site/auth/reset-password/${resetToken}`;
+
+  let resetURL = `${req.protocol}://agteach.site/auth/reset-password/${resetToken}`;
+
+  if (user.role === 'instructor') {
+    resetURL = resetURL.replace('agteach', 'teach.agteach');
+  }
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm`;
 
@@ -236,7 +242,7 @@ exports.logout = (req, res) => {
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
-
+  console.log(req.headers.authorization);
   if (req.cookies.jwt) {
     token = req.cookies.jwt;
   } else if (
@@ -321,5 +327,28 @@ exports.isLoginedIn = async (req, res, next) => {
       message: 'You are not logged in.',
       IsAuthenticated: false,
     });
+  }
+};
+
+exports.authenticateUser = (req, res, next) => {
+  console.log('Request headers:', req.headers.cookie);
+  console.log('Cookies:', req.cookies);
+
+  // Get the token from headers or cookies
+  const token = req.headers.authorization?.split(' ')[1] || req.cookies.jwt; // Assuming JWT in cookies
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use your secret key
+    // Attach the decoded user info (e.g., user_uid) to the request
+    req.user = decoded; // Assuming `decoded` contains `id=user_uid`
+
+    next(); // Pass control to the next middleware or route handler
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid token' });
   }
 };

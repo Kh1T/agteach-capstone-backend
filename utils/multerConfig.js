@@ -3,8 +3,6 @@ const AppError = require('./appError');
 
 const multerStorage = multer.memoryStorage();
 const imageFilter = (req, file, cb) => {
-  
-  
   if (!req.file && file.mimetype.startsWith('image')) {
     cb(null, true);
   } else {
@@ -15,7 +13,7 @@ const imageFilter = (req, file, cb) => {
 // using req.files.productCover[0].buffer to get the buffer
 // This one was send to Resize Upload
 const uploadProductImages = multer({
-  sotrage: multerStorage,
+  storage: multerStorage,
   fileFilter: imageFilter,
 }).fields([
   { name: 'productCover', maxCount: 1 },
