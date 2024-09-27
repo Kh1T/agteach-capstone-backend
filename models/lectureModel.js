@@ -40,3 +40,11 @@ const Lecture = sequelize.define('lecture', {
 });
 
 module.exports = Lecture;
+
+
+// Lecture.afterCreate(async (user, option) => {
+//   // uploadCourseVideosFile.single('video');
+//   console.log(user);
+//   user.videoUrl = '';
+//   // console.log(user);
+// });

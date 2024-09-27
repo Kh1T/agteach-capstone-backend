@@ -5,7 +5,7 @@ const Instructor = require('../models/instructorModel');
 const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
-const { uploadCourseVideosFile } = require('../utils/uploadMiddleware');
+const { uploadCourseVideos } = require('../utils/multerConfig');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -39,25 +39,29 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     name: sectionName,
     instructorId,
   });
-
+  console.log(req.file);
   const newLecture = await Lecture.create({
     name: lectureName,
     instructorId,
   });
 
-  const newSectionLecture = await SectionLecture.create({
-    lectureId: newLecture.lectureId,
-    courseId: newCourse.courseId,
-    sectionId: newSection.sectionId,
-    instructorId,
-  });
-  
+  const newSectionLecture = await SectionLecture.create(
+    {
+      lectureId: newLecture.lectureId,
+      courseId: newCourse.courseId,
+      sectionId: newSection.sectionId,
+      instructorId,
+    },
+    {
+      // Pass the file in options
+      file: req.file, // Passing req.file in options
+    },
+  );
+
   res.status(201).json({
     status: 'success',
     data: newLecture,
   });
 });
 
-// exports.uploadCourseVideo = uploadCourseVideosFile.single('video');
-
-
+exports.uploadCourseVideo = uploadCourseVideos.single('video');

@@ -5,7 +5,7 @@ const Product = require('../models/productModel');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
-
+const Lecture = require('../models/lectureModel');
 
 // Upload Profile Image
 // Need User role from protected route
@@ -31,7 +31,6 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   req.file.filename = process.env.AWS_S3_BUCKET_URL + req.file.filename;
   next();
 });
-
 
 // Upload Product Image
 // If there is no file uploaded, It will go to next middleware
@@ -76,38 +75,33 @@ const resizeUploadProductImages = catchAsync(async (req, res, next) => {
 
   next();
 });
-// const uploadCourseVideosFile = catchAsync(async (req, res, next) => {
-//   if (!req.file) next();
-  
-//   req.file.filename = `courses/${req.body.courseId}/section_${req.body.sectionId}/lecture-${req.body.orderId}`;
 
-//   const input = {
-//     Bucket: process.env.AWS_S3_COURSE_ASSET_BUCKET,
-//     Key: req.file.filename,
-//     Body: req.file.buffer,
-//     ContentType: 'video/mp4',
-//   }
-
-//   await s3Client.send(new PutObjectCommand(input));
-
-//   next();
-
-// });
-const uploadCourseVideosFile = catchAsync(async (req, res, next) => {
-  if (!req.file) next();
-  
-  req.file.filename = `courses/${req.body.courseId}/section_${req.body.sectionId}/lecture-${req.body.orderId}`;
+const uploadCourseVideosFile = catchAsync(async (user, options) => {
+  if (!options.file) return;
+  const url = process.env.AWS_CLOUD_FRONT;
+  const filename = `courses/${user.courseId}/section_${user.sectionId}/lecture-${user.lectureId}`;
 
   const input = {
-    Bucket: process.env.AWS_S3_COURSE_ASSET_BUCKET,
-    Key: req.file.filename,
-    Body: req.file.buffer,
+    Bucket: process.env.AWS_S3_ASSET_BUCKET,
+    Key: filename,
+    Body: options.file.buffer,
     ContentType: 'video/mp4',
+  };
+
+  // await s3Client.send(new PutObjectCommand(input));
+
+  const lecture = await Lecture.findByPk(user.lectureId);
+
+  console.log('Lecture found:', lecture);
+  console.log(filename);
+  if (lecture) {
+    lecture.videoUrl = url + filename;
+    await lecture.save();
+    console.log('Lecture updated with video URL');
   }
-
-  await s3Client.send(new PutObjectCommand(input));
-
-  next();
-
 });
-module.exports = { resizeUploadProfileImage, resizeUploadProductImages,uploadCourseVideosFile };
+module.exports = {
+  resizeUploadProfileImage,
+  resizeUploadProductImages,
+  uploadCourseVideosFile,
+};
