@@ -76,6 +76,23 @@ const resizeUploadProductImages = catchAsync(async (req, res, next) => {
 
   next();
 });
+// const uploadCourseVideosFile = catchAsync(async (req, res, next) => {
+//   if (!req.file) next();
+  
+//   req.file.filename = `courses/${req.body.courseId}/section_${req.body.sectionId}/lecture-${req.body.orderId}`;
+
+//   const input = {
+//     Bucket: process.env.AWS_S3_COURSE_ASSET_BUCKET,
+//     Key: req.file.filename,
+//     Body: req.file.buffer,
+//     ContentType: 'video/mp4',
+//   }
+
+//   await s3Client.send(new PutObjectCommand(input));
+
+//   next();
+
+// });
 const uploadCourseVideosFile = catchAsync(async (req, res, next) => {
   if (!req.file) next();
   
