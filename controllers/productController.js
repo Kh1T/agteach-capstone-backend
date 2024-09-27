@@ -6,7 +6,6 @@ const ProductImage = require('../models/productImageModel');
 const Instructor = require('../models/instructorModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
-const { where } = require('sequelize');
 
 exports.getAll = handleFactory.getAll(Product);
 exports.getOne = handleFactory.getOne(Product);
