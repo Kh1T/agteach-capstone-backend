@@ -5,6 +5,7 @@ const Instructor = require('../models/instructorModel');
 const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
+const { uploadCourseVideosFile } = require('../utils/uploadMiddleware');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -51,9 +52,13 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     sectionId: newSection.sectionId,
     instructorId,
   });
-
+  
   res.status(201).json({
     status: 'success',
     data: newLecture,
   });
 });
+
+// exports.uploadCourseVideo = uploadCourseVideosFile.single('video');
+
+

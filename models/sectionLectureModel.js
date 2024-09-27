@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const { uploadCourseVideosFile } = require('../utils/uploadMiddleware');
 
 const SectionLecture = sequelize.define('section_lecture', {
   sectionLectureId: {
@@ -46,3 +47,9 @@ const SectionLecture = sequelize.define('section_lecture', {
 });
 
 module.exports = SectionLecture;
+// uploadProfileImage.single('photo');
+SectionLecture.afterCreate(async (user, option) => {
+  // uploadCourseVideosFile.single('video');
+
+  console.log(user);
+});
