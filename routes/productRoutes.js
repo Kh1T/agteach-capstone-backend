@@ -22,6 +22,7 @@ router.post(
   productController.createProduct,
 );
 
+router.patch('/updateProduct/:id', uploadProductImages, productController.updateProduct);
 router.get('/getProductImages/:id', productController.getProductImages);
 
 module.exports = router;
