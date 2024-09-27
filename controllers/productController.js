@@ -12,6 +12,7 @@ exports.getOne = handleFactory.getOne(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
 exports.sortData = handleFactory.sortData(Product);
 exports.searchData = handleFactory.SearchData(Product);
+
 exports.createProduct = catchAsync(async (req, res, next) => {
   try {
     // Step 1: Validate required fields
