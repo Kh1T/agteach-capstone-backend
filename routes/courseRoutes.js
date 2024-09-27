@@ -2,6 +2,7 @@ const express = require('express');
 const courseController = require('../controllers/courseController');
 const authController = require('../controllers/authController');
 const instructorController = require('../controllers/instructorController');
+// const { uploadCourseVideosFile } = require('../utils/uploadMiddleware');
 
 const router = express.Router();
 
