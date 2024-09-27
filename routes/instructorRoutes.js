@@ -20,4 +20,7 @@ router.patch(
   instructorController.resizeProfile,
   instructorController.updateMe,
 );
+
+router.get('/getInstructor/data', instructorController.getInstructorData);
+
 module.exports = router;
