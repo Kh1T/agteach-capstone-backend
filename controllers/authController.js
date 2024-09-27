@@ -102,7 +102,12 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   // 3) Send it to user's email
   // http://localhost:3000/auth/reset-password
-  const resetURL = `${req.protocol}://agteach.site/auth/reset-password/${resetToken}`;
+
+  let resetURL = `${req.protocol}://agteach.site/auth/reset-password/${resetToken}`;
+
+  if (user.role === 'instructor') {
+    resetURL = resetURL.replace('agteach', 'teach.agteach');
+  }
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm`;
 
