@@ -2,37 +2,44 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const SectionLecture = sequelize.define('section_lecture', {
-  section_lecture_id: {
+  sectionLectureId: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  lecture_id: {
+  lectureId: {
     type: DataTypes.INTEGER,
     references: {
       model: 'lectures', // name of the target table
       key: 'lecture_id',
     },
   },
-  course_id: {
+  courseId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'courses', // name of the target table
-      key: 'course_id',
+      model: 'course', // name of the target table
+      key: 'courseId',
     },
   },
-  instructor_id: {
+  instructorId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'instructors', // name of the target table
-      key: 'instructor_id',
+      model: 'instructor', // name of the target table
+      key: 'instructorId',
     },
   },
-  created_at: {
+  sectionId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'section',
+      key: 'sectionId',
+    },
+  },
+  createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
-  updated_at: {
+  updatedAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },

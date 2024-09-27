@@ -19,10 +19,4 @@ router.post(
   productController.createProduct,
 );
 
-router.post(
-  '/createProduct',
-  uploadProductImages,
-  productController.createProduct,
-);
-
 module.exports = router;
