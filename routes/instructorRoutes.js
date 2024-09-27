@@ -21,7 +21,6 @@ router.patch(
   instructorController.updateMe,
 );
 
-router.get(
-  '/getInstructor/data',  instructorController.getInstructorData)
+router.get('/getInstructor/data', instructorController.getInstructorData);
 
 module.exports = router;

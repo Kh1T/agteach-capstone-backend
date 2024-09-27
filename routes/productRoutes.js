@@ -6,7 +6,7 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.use(authController.protect);
+router.use(authController.protect, authController.restrictTo('instructor'));
 
 router.get('/getAllProduct', productController.getAll);
 router.get('/getOneProduct/:id', productController.getOne);
