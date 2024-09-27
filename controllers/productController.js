@@ -6,13 +6,13 @@ const ProductImage = require('../models/productImageModel');
 const Instructor = require('../models/instructorModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
-const { where } = require('sequelize');
 
 exports.getAll = handleFactory.getAll(Product);
 exports.getOne = handleFactory.getOne(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
 exports.sortData = handleFactory.sortData(Product);
 exports.searchData = handleFactory.SearchData(Product);
+
 exports.createProduct = catchAsync(async (req, res, next) => {
   try {
     // Step 1: Validate required fields

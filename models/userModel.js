@@ -7,7 +7,6 @@ const sendEmail = require('../utils/sendEmail');
 const Customer = require('./customerModel');
 
 const sequelize = require('../config/db');
-const { STATUS_CODES } = require('http');
 
 const UserAccount = sequelize.define('user_account', {
   userUid: {
@@ -147,4 +146,3 @@ UserAccount.prototype.updatePasswordChangedAt = function () {
     this.passwordChangedAt = Date.now();
   }
 };
-
