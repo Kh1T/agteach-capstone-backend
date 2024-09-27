@@ -8,13 +8,15 @@ const {
   UserAccount,
   Customer,
   Instructor,
-  SectionLecture,
+  // SectionLecture,
   Lecture,
   Section,
   Course,
 } = require('./config/association');
 
 const globalErrorHandler = require('./controllers/errorController');
+
+const SectionLecture = require('./models/sectionLectureModel');
 
 const app = express();
 
@@ -51,6 +53,12 @@ const viewRouter = require('./routes/viewRoutes');
 // app.use(authController.isLoginedIn);
 app.use(express.json());
 app.use(cookieParser());
+
+app.get('/', async (req, res) => {
+  const all = await SectionLecture.findAll();
+
+  res.status(200).json({ all });
+});
 
 // Routes
 app.use('/api/users', userRouter);
