@@ -2,35 +2,38 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const Lecture = sequelize.define('lecture', {
-  lecture_id: {
+  lectureId: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  instructor_id: {
+  instructorId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'instructors', // name of the referenced table
-      key: 'instructor_id',
+      model: 'instructor', // name of the referenced table
+      key: 'instructorId',
     },
   },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  video_url: {
+  videoUrl: {
     type: DataTypes.STRING,
     allowNull: false,
+    defaultValue:
+      'https://northatlanticaviationmuseum.com/wp-content/uploads/2020/10/Lorem-ipsum-video-Dummy-video-for-your-website.mp4?_=2',
   },
   duration: {
     type: DataTypes.STRING,
     allowNull: false,
+    defaultValue: '00:00:00',
   },
-  created_at: {
+  createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
-  updated_at: {
+  updatedAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },

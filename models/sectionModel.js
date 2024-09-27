@@ -2,12 +2,12 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const Section = sequelize.define('section', {
-  section_id: {
+  sectionId: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  instructor_id: {
+  instructorId: {
     type: DataTypes.INTEGER,
     references: {
       model: 'instructors', // name of the referenced table
