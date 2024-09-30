@@ -83,10 +83,10 @@ const resizeUploadProductImages = catchAsync(async (req, res, next) => {
   // const files = req.files;
 });
 
-const uploadCourseVideosFile = catchAsync(async (user, options) => {
+const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
   if (!options.file) return;
   const url = process.env.AWS_CLOUD_FRONT;
-  const filename = `courses/${user.courseId}/section_${user.sectionId}/lecture-${user.lectureId}`;
+  const filename = `courses/${sectionLecture.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}`;
 
   const input = {
     Bucket: process.env.AWS_S3_ASSET_BUCKET,
@@ -97,7 +97,7 @@ const uploadCourseVideosFile = catchAsync(async (user, options) => {
 
   // await s3Client.send(new PutObjectCommand(input));
 
-  const lecture = await Lecture.findByPk(user.lectureId);
+  const lecture = await Lecture.findByPk(sectionLecture.lectureId);
 
   console.log('Lecture found:', lecture);
   console.log(filename);
