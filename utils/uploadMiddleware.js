@@ -84,9 +84,10 @@ const resizeUploadProductImages = catchAsync(async (req, res, next) => {
 });
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
+  console.log('Uploading course video file',options.file);
   if (!options.file) return;
   const url = process.env.AWS_CLOUD_FRONT;
-  const filename = `courses/${sectionLecture.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}`;
+  const filename = `courses/${sectionLecture.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}.mp4`;
 
   const input = {
     Bucket: process.env.AWS_S3_ASSET_BUCKET,
@@ -95,6 +96,7 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
     ContentType: 'video/mp4',
   };
 
+  console.log(options.file, 'file')
   // await s3Client.send(new PutObjectCommand(input));
 
   const lecture = await Lecture.findByPk(sectionLecture.lectureId);
