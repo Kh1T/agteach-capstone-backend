@@ -1,11 +1,15 @@
 const sharp = require('sharp');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const path = require('path');
+const { getVideoDurationInSeconds } = require('get-video-duration');
+const fs = require('fs');
 
 const Product = require('../models/productModel');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const Lecture = require('../models/lectureModel');
+const AppError = require('./appError');
 
 // Upload Profile Image
 // Need User role from protected route
@@ -52,40 +56,80 @@ const resizeUploadProductImages = catchAsync(async (req, res, next) => {
   const product = await Product.findByPk(req.body.productId);
   product.imageUrl = req.body.imageUrl;
   await product.save();
-  console.log(product.imageUrl);
   next();
   req.body.images = [];
 
-  // await Promise.all(req.files.productImages.map(async (file, id) => {
-  //   const filename = `products/${req.body.productUid}/product-images-${id + 1}.jpeg`;
+  await Promise.all(req.files.productImages.map(async (file, id) => {
+    const filename = `products/${req.body.productUid}/product-images-${id + 1}.jpeg`;
 
-  // Upload Product Images
-  req.body.images = [];
+    const inputProducts = {
+      Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
+      Key: filename,
+      Body: file.buffer,
+      ContentType: 'image/jpeg',
+    };
+    await s3Client.send(new PutObjectCommand(inputProducts));
+    // When get image back from s3, it will need BUCKET_URL or CloudFront URL
+    // For monitor image in CloudFront and cache for easy access
+    // filename: products/p001/product-images-1.jpeg
+    req.body.images.push(filename);
+  }));
 
-  await Promise.all(
-    req.files.productImages.map(async (file, id) => {
-      const filename = `products/${req.body.productUid}/product-images-${id + 1}.jpeg`;
-
-      const inputProducts = {
-        Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
-        Key: filename,
-        Body: file.buffer,
-        ContentType: 'image/jpeg',
-      };
-      await s3Client.send(new PutObjectCommand(inputProducts));
-      // When get image back from s3, it will need BUCKET_URL or CloudFront URL
-      // For monitor image in CloudFront and cache for easy access
-      // filename: products/p001/product-images-1.jpeg
-      req.body.images.push(filename);
-    }),
-  );
-
-  // const files = req.files;
+  next();
 });
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
-  console.log('Uploading course video file',options.file);
   if (!options.file) return;
+
+  // Write buffer to temp file
+  // Path to the temporary directory
+  const tempDir = path.join('temp');
+
+  // Create the directory if it doesn't exist
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir);
+  }
+  const tempFilePath = path.join('temp', `${options.file.originalname}`);
+  let videoDuration;
+  fs.mkdir(tempDir, { recursive: true }, (err) => {
+    if (err) return new AppError('Error creating directory', 500);
+
+    // Write the file asynchronously
+    fs.writeFile(tempFilePath, options.file.buffer, () => {
+      if (err) {
+        return new AppError('Error writing file', 500);
+      }
+
+      // Get the video duration after writing the file
+      getVideoDurationInSeconds(tempFilePath)
+        .then((duration) => {
+          videoDuration = duration;
+
+          // Optional: Clean up the temporary file if needed
+          fs.unlink(tempFilePath, () => {
+            if (err) console.error('Error deleting temp file:', err);
+          });
+        })
+        .catch(() => {
+          console.error('Error getting video duration:', err);
+        });
+    });
+  });
+
+  fs.writeFileSync(tempFilePath, options.file.buffer);
+
+  // Get video duration from the temp file
+  getVideoDurationInSeconds(tempFilePath)
+    .then((duration) => {
+      console.log('Duration:', duration);
+
+      // Clean up by deleting the temporary file
+      // fs.unlinkSync(tempFilePath);
+    })
+    .catch((error) => {
+      console.error('Error getting video duration:', error);
+    });
+
   const url = process.env.AWS_CLOUD_FRONT;
   const filename = `courses/${sectionLecture.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}.mp4`;
 
@@ -96,17 +140,17 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
     ContentType: 'video/mp4',
   };
 
-  console.log(options.file, 'file')
   // await s3Client.send(new PutObjectCommand(input));
 
   const lecture = await Lecture.findByPk(sectionLecture.lectureId);
 
   console.log('Lecture found:', lecture);
   console.log(filename);
-  if (lecture) {
+  if (lecture && videoDuration) {
     lecture.videoUrl = url + filename;
-    await lecture.save();
-    console.log('Lecture updated with video URL');
+    lecture.duration = videoDuration;
+    const updateLecture = await lecture.save();
+    console.log('Lecture updated with video URL', updateLecture);
   }
 });
 module.exports = {
