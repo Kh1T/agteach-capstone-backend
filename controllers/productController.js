@@ -84,7 +84,6 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   const { categoryId, name, description, quantity, price, removedImages } =
     req.body;
 
-  console.log(req.body);
   const product = await Product.findByPk(productId);
   if (!product) {
     return res.status(404).json({ error: 'Product not found' });
@@ -96,7 +95,20 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   if (quantity) product.quantity = quantity;
   if (price) product.price = price;
 
-  // Step 3: Check if a new product cover image is uploaded
+  // Step 1: Handle removed images if provided (delete first)
+  if (removedImages && removedImages.length > 0) {
+    const parsedRemovedImages = JSON.parse(removedImages);
+
+    // Remove the images that match the URLs provided in 'removedImages'
+    await ProductImage.destroy({
+      where: {
+        productId: product.productId,
+        imageUrl: parsedRemovedImages,
+      },
+    });
+  }
+
+  // Step 2: Check if a new product cover image is uploaded
   if (req.files && req.files.productCover) {
     const productCoverBuffer = req.files.productCover[0].buffer;
     const productCoverUrl = await uploadCoverImage(
@@ -106,8 +118,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
     product.imageUrl = productCoverUrl; // Update with new cover URL
   }
 
-  // Step 4: Handle additional images if provided
-  // Step 5: Filter out URLs that already exist to prevent duplicates'
+  // Step 3: Handle additional images if provided (after deletion)
   const existingImages = await ProductImage.findAll({
     where: { productId },
     attributes: ['imageUrl'],
@@ -121,14 +132,14 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
     additionalImagesUrls = await uploadAdditionalImages(
       product.productId,
       req.files.productImages,
-      existingImageUrls,
+      existingImages,
     );
 
     const uniqueAdditionalImages = additionalImagesUrls.filter(
       (url) => !existingImageUrls.has(url), // Only add new URLs
     );
 
-    // Save new images to the database without removing old ones
+    // Save new images to the database
     await Promise.all(
       uniqueAdditionalImages.map((imageUrl) =>
         ProductImage.create({
@@ -138,19 +149,6 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
         }),
       ),
     );
-  }
-
-  // Step 5: Handle removed images if provided
-  if (removedImages && removedImages.length > 0) {
-    // Parse the removedImages string into an array
-    const parsedRemovedImages = JSON.parse(removedImages);
-    // Remove the images that match the URLs provided in 'removedImages'
-    await ProductImage.destroy({
-      where: {
-        productId: product.productId,
-        imageUrl: parsedRemovedImages,
-      },
-    });
   }
 
   await product.save();
@@ -164,7 +162,6 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
     ...new Set(allProductImages.map((img) => img.imageUrl)),
   ];
 
-  console.log(req.body, uniqueImages);
   res.status(200).json({
     status: 'success',
     data: {
