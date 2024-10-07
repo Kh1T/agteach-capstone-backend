@@ -15,41 +15,39 @@ exports.sortData = handleFactory.sortData(Product);
 exports.searchData = handleFactory.SearchData(Product);
 
 exports.createProduct = catchAsync(async (req, res, next) => {
-  const instructor = await Instructor.findOne({
-    where: { userUid: req.user.dataValues.userUid },
-  });
+  const { userUid } = req.user.dataValues;
+  // Validate cover and additional images
+  const validateImages = (files, name) => {
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: `${name} is required` });
+    }
+  };
+  validateImages(req.files.productCover, 'Product cover image');
+  validateImages(req.files.productImages, 'Product images');
 
-  if (!req.files.productCover || req.files.productCover.length === 0) {
-    return res.status(400).json({ error: 'Product cover image is required' });
-  }
+  const instructor = await Instructor.findOne({ where: { userUid } });
 
-  if (!req.files.productImages || req.files.productImages.length === 0) {
-    return res.status(400).json({ error: 'Product images are required' });
-  }
-
-  // Step 2: Create the product without the image URL first
+  // Create the product without the image URL initially
   const newProduct = await Product.create({
     ...req.body,
     instructorId: instructor.instructorId,
-    imageUrl: '', // Will be updated after image upload
+    imageUrl: '', // Placeholder for the cover image URL
   });
 
-  // Upload product cover image
+  // Upload product cover image and update product record
   const productCoverBuffer = req.files.productCover[0].buffer;
-  const productCoverUrl = await uploadCoverImage(
+  newProduct.imageUrl = await uploadCoverImage(
     newProduct.productId,
     productCoverBuffer,
   );
-  newProduct.imageUrl = productCoverUrl;
   await newProduct.save();
 
-  // Upload additional product images
+  // Upload additional images and save to the database
   const additionalImagesUrls = await uploadAdditionalImages(
     newProduct.productId,
     req.files.productImages,
   );
 
-  // Save additional images to the database
   await Promise.all(
     additionalImagesUrls.map((imageUrl) =>
       ProductImage.create({
@@ -80,45 +78,31 @@ exports.getProductImages = catchAsync(async (req, res, next) => {
 });
 
 exports.updateProduct = catchAsync(async (req, res, next) => {
-  const productId = req.params.id; // Product ID from the URL parameters
+  const { id: productId } = req.params;
   const { categoryId, name, description, quantity, price, removedImages } =
     req.body;
-
   const product = await Product.findByPk(productId);
-  if (!product) {
-    return res.status(404).json({ error: 'Product not found' });
-  }
-
-  if (categoryId) product.categoryId = categoryId;
-  if (name) product.name = name;
-  if (description) product.description = description;
-  if (quantity) product.quantity = quantity;
-  if (price) product.price = price;
-
-  // Step 1: Handle removed images if provided (delete first)
-  if (removedImages && removedImages.length > 0) {
-    const parsedRemovedImages = JSON.parse(removedImages);
-
-    // Remove the images that match the URLs provided in 'removedImages'
+  if (!product) return res.status(404).json({ error: 'Product not found' });
+  // Update product properties
+  Object.assign(product, { categoryId, name, description, quantity, price });
+  // Remove specified images
+  if (removedImages) {
     await ProductImage.destroy({
       where: {
         productId: product.productId,
-        imageUrl: parsedRemovedImages,
+        imageUrl: JSON.parse(removedImages),
       },
     });
   }
-
-  // Step 2: Check if a new product cover image is uploaded
-  if (req.files && req.files.productCover) {
-    const productCoverBuffer = req.files.productCover[0].buffer;
+  // Upload new cover image if provided
+  if (req.files?.productCover) {
     const productCoverUrl = await uploadCoverImage(
       product.productId,
-      productCoverBuffer,
+      req.files.productCover[0].buffer,
     );
-    product.imageUrl = productCoverUrl; // Update with new cover URL
+    product.imageUrl = productCoverUrl;
   }
-
-  // Step 3: Handle additional images if provided (after deletion)
+  // Handle additional images
   const existingImages = await ProductImage.findAll({
     where: { productId },
     attributes: ['imageUrl'],
@@ -126,20 +110,16 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   const existingImageUrls = new Set(
     existingImages.map(({ imageUrl }) => imageUrl),
   );
-
-  let additionalImagesUrls = [];
-  if (req.files && req.files.productImages) {
-    additionalImagesUrls = await uploadAdditionalImages(
+  if (req.files?.productImages) {
+    const additionalImagesUrls = await uploadAdditionalImages(
       product.productId,
       req.files.productImages,
       existingImages,
     );
-
     const uniqueAdditionalImages = additionalImagesUrls.filter(
-      (url) => !existingImageUrls.has(url), // Only add new URLs
+      (url) => !existingImageUrls.has(url),
     );
-
-    // Save new images to the database
+    // Save unique new images to the database
     await Promise.all(
       uniqueAdditionalImages.map((imageUrl) =>
         ProductImage.create({
@@ -150,18 +130,14 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
       ),
     );
   }
-
   await product.save();
-
   // Fetch all images for the product to send in the response
   const allProductImages = await ProductImage.findAll({
     where: { productId: product.productId },
   });
-
   const uniqueImages = [
     ...new Set(allProductImages.map((img) => img.imageUrl)),
   ];
-
   res.status(200).json({
     status: 'success',
     data: {
