@@ -79,10 +79,9 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
     },
   });
 
-  const url = req.headers['x-frontend-url'].split('/') || req.url;
+  const url = req.url || req.headers['x-frontend-url'].split('/');
 
   if (!role) return next();
-
   if (url[2].startsWith('localhost') || url.includes('/login')) return next();
   else if (url[2].startsWith('teach') && role === 'instructor') return next();
   else if (url[2].startsWith('admin') && role === 'admin') return next();
