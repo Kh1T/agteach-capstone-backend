@@ -6,6 +6,7 @@ const SectionLecture = require('../models/sectionLectureModel');
 const Lecture = require('../models/lectureModel');
 const Section = require('../models/sectionModel');
 const Instructor = require('../models/instructorModel');
+const ProductImage = require('../models/productImageModel');
 
 // Account Associations
 
@@ -17,6 +18,9 @@ Instructor.belongsTo(UserAccount, { foreignKey: 'userUid' });
 // Product
 Instructor.hasMany(Product, { foreignKey: 'instructorId' });
 Product.belongsTo(Instructor, { foreignKey: 'instructorId' });
+
+Product.hasMany(ProductImage, { foreignKey: 'productId' });
+ProductImage.belongsTo(Product, { foreignKey: 'productId' });
 
 // Course
 

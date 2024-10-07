@@ -46,11 +46,3 @@ const SectionLecture = sequelize.define('section_lecture', {
 });
 
 module.exports = SectionLecture;
-
-// SectionLecture.afterCreate(async (user, option) => {
-//   console.log(user);
-// });
-
-SectionLecture.beforeCreate((user, option) => {
-  console.log(user, 'USER DATA');
-});
