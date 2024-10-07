@@ -1,3 +1,4 @@
+const Product = require('../models/productModel');
 const UserAccount = require('../models/userModel');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
@@ -12,6 +13,10 @@ UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
 UserAccount.hasOne(Instructor, { foreignKey: 'userUid' });
 Customer.belongsTo(UserAccount, { foreignKey: 'userUid' });
 Instructor.belongsTo(UserAccount, { foreignKey: 'userUid' });
+
+// Product
+Instructor.hasMany(Product, { foreignKey: 'instructorId' });
+Product.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
 // Course
 
@@ -55,4 +60,5 @@ module.exports = {
   Lecture,
   Section,
   Course,
+  Product,
 };
