@@ -50,6 +50,7 @@ const customerRouter = require('./routes/customerRoutes');
 const productRouter = require('./routes/productRoutes');
 const courseRouter = require('./routes/courseRoutes');
 const viewRouter = require('./routes/viewRoutes');
+const enrollmentRouter = require('./routes/enrollmentRoutes');
 
 // app.use(authController.isLoginedIn);
 app.use(express.json());
@@ -69,6 +70,7 @@ app.use('/api/admin', adminRouter);
 app.use('/api/view', viewRouter);
 app.use('/api/product', productRouter);
 app.use('/api/course', courseRouter);
+app.use('/api/enrollment', enrollmentRouter);
 
 app.use(globalErrorHandler);
 
