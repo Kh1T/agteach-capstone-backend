@@ -32,13 +32,11 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
 exports.createProduct = catchAsync(async (req, res, next) => {
   try {
     // Step 1: Validate required fields
-    console.log(req.user.dataValues.userUid);
+
     const instructor = await Instructor.findOne({
       where: { userUid: req.user.dataValues.userUid },
     });
 
-    console.log(instructor);
-    // console.log(req.files)
     const { categoryId, name, description, quantity, price } = req.body;
     if (!req.files.productCover || req.files.productCover.length === 0) {
       return res.status(400).json({ error: 'Product cover image is required' });
