@@ -94,7 +94,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     });
 
     // Create lectures associated with this section
-    const lecturePromises = section.lectureAllName.map(async (lecture) => {
+    const lecturePromises = section.allLecture.map(async (lecture) => {
       const newLecture = await Lecture.create({
         name: lecture.lectureName,
         instructorId,
