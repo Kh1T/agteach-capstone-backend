@@ -1,6 +1,3 @@
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const s3Client = require('../config/s3Connection');
-
 const Product = require('../models/productModel');
 const ProductImage = require('../models/productImageModel');
 const Instructor = require('../models/instructorModel');
@@ -110,16 +107,30 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   }
 
   // Step 4: Handle additional images if provided
+  // Step 5: Filter out URLs that already exist to prevent duplicates'
+  const existingImages = await ProductImage.findAll({
+    where: { productId },
+    attributes: ['imageUrl'],
+  });
+  const existingImageUrls = new Set(
+    existingImages.map(({ imageUrl }) => imageUrl),
+  );
+
   let additionalImagesUrls = [];
   if (req.files && req.files.productImages) {
     additionalImagesUrls = await uploadAdditionalImages(
       product.productId,
       req.files.productImages,
+      existingImageUrls,
+    );
+
+    const uniqueAdditionalImages = additionalImagesUrls.filter(
+      (url) => !existingImageUrls.has(url), // Only add new URLs
     );
 
     // Save new images to the database without removing old ones
     await Promise.all(
-      additionalImagesUrls.map((imageUrl) =>
+      uniqueAdditionalImages.map((imageUrl) =>
         ProductImage.create({
           productId: product.productId,
           imageUrl,
@@ -153,7 +164,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
     ...new Set(allProductImages.map((img) => img.imageUrl)),
   ];
 
-  // console.log(product, uniqueImages);
+  console.log(req.body, uniqueImages);
   res.status(200).json({
     status: 'success',
     data: {

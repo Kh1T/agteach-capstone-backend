@@ -14,7 +14,7 @@ const uploadCoverImage = async (productId, productCoverBuffer) => {
 
   await s3Client.send(new PutObjectCommand(input));
 
-  const imageUrl = `http://${process.env.CLOUDFRONT_URL}/${productCoverName}`;
+  const imageUrl = `http://${process.env.AWS_S3_URL}/${productCoverName}`;
   return imageUrl;
 };
 
@@ -34,7 +34,7 @@ const uploadAdditionalImages = async (productId, productImages) => {
       };
 
       await s3Client.send(new PutObjectCommand(input));
-      const imageUrl = `http://${process.env.CLOUDFRONT_URL}/${filename}`;
+      const imageUrl = `http://${process.env.AWS_S3_URL}/${filename}`;
       imageUrls.push(imageUrl);
     }),
   );
