@@ -11,7 +11,7 @@ router.get('/getAllProduct', productController.getAll);
 
 router.use(authController.protect, authController.restrictTo('instructor'));
 
-router.get('/getOneProduct/:id', productController.getProductDetail);
+router.get('/getProductDetail/:id', productController.getProductDetail);
 router.delete('/deleteOneProduct/:id', productController.deleteOne);
 router.post(
   '/createProduct',

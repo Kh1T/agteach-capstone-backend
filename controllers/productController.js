@@ -16,7 +16,7 @@ exports.searchData = handleFactory.SearchData(Product);
 exports.getProductDetail = catchAsync(async (req, res, next) => {
   const product = await Product.findOne({
     where: { productId: req.params.id },
-    include: [{ model: ProductImage }],
+    include: [{ model: ProductImage }, { model: Instructor }],
   });
 
   if (!product) {
