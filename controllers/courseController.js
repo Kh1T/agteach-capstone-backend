@@ -74,7 +74,8 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 
   // Destructure the course details and sections from the request body
-  const { courseName, description, price, courseObjective, data } = req.body;
+  const { courseName, description, price, courseObjective, allSection } =
+    req.body;
 
   // Insert the course and retrieve its ID
   const newCourse = await Course.create({
@@ -86,7 +87,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 
   // Insert sections and lectures in parallel
-  const sectionLectureDataPromises = data.map(async (section) => {
+  const sectionLectureDataPromises = allSection.map(async (section) => {
     // Create the section and retrieve its ID
     const newSection = await Section.create({
       name: section.sectionName,
