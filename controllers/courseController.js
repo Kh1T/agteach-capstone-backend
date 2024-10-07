@@ -17,43 +17,52 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     where: { userUid: req.user.userUid },
     attributes: ['instructorId'],
   });
-  const {
-    sectionName,
-    lectureName,
-    courseName,
-    description,
-    price,
-    courseObjective,
-  } = req.body;
 
-  const newCourse = await Course.create({
-    name: courseName,
-    description,
-    price,
-    courseObjective,
+  const bulkData = req.body;
+
+  // Prepare arrays for each table's data
+  const courseData = bulkData.map((item) => ({
+    name: item.courseName,
+    description: item.description,
+    price: item.price,
+    courseObjective: item.courseObjective,
     instructorId,
+  }));
+
+  const sectionData = bulkData.map((item) => ({
+    name: item.sectionName,
+    instructorId,
+  }));
+
+  const lectureData = bulkData.map((item) => ({
+    name: item.lectureName,
+    instructorId,
+  }));
+
+  // Insert into Course, Section, and Lecture tables
+  const newCourses = await Course.bulkCreate(courseData, { returning: true });
+  const newSections = await Section.bulkCreate(sectionData, {
+    returning: true,
   });
-  console.log(req.file);
-
-  const newSection = await Section.create({
-    name: sectionName,
-    instructorId,
-  });
-
-  const newLecture = await Lecture.create({
-    name: lectureName,
-    instructorId,
-  });
-
-  const newSectionLecture = await SectionLecture.create({
-    lectureId: newLecture.lectureId,
-    courseId: newCourse.courseId,
-    sectionId: newSection.sectionId,
-    instructorId,
+  const newLectures = await Lecture.bulkCreate(lectureData, {
+    returning: true,
   });
 
+  // Create SectionLecture relationships based on inserted records
+  const sectionLectureData = newCourses.map((course, index) => ({
+    lectureId: newLectures[index].lectureId,
+    courseId: course.courseId,
+    sectionId: newSections[index].sectionId,
+    instructorId,
+  }));
+
+  // Insert into SectionLecture table
+  const newSectionLectures =
+    await SectionLecture.bulkCreate(sectionLectureData);
+
+  // Send the response with inserted data
   res.status(201).json({
     status: 'success',
-    data: newLecture,
+    data: newSectionLectures,
   });
 });
