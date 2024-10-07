@@ -3,6 +3,7 @@ const UserAccount = require('../models/userModel');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
 const SectionLecture = require('../models/sectionLectureModel');
+const Location = require('../models/locationModel');
 const Lecture = require('../models/lectureModel');
 const Section = require('../models/sectionModel');
 const Instructor = require('../models/instructorModel');
@@ -21,6 +22,9 @@ Product.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
 Product.hasMany(ProductImage, { foreignKey: 'productId' });
 ProductImage.belongsTo(Product, { foreignKey: 'productId' });
+
+// Location
+Instructor.hasOne(Location, { foreignKey: 'instructorId' });
 
 // Course
 

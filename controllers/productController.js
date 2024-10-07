@@ -3,6 +3,7 @@ const s3Client = require('../config/s3Connection');
 
 const Product = require('../models/productModel');
 const ProductImage = require('../models/productImageModel');
+const Location = require('../models/locationModel');
 const Instructor = require('../models/instructorModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
@@ -16,7 +17,10 @@ exports.searchData = handleFactory.SearchData(Product);
 exports.getProductDetail = catchAsync(async (req, res, next) => {
   const product = await Product.findOne({
     where: { productId: req.params.id },
-    include: [{ model: ProductImage }, { model: Instructor }],
+    include: [
+      { model: ProductImage },
+      { model: Instructor, include: [{ model: Location }] },
+    ],
   });
 
   if (!product) {
