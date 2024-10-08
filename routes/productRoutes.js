@@ -9,6 +9,7 @@ const router = express.Router();
 router.get('/searchData', productController.searchData);
 router.get('/getAllProduct', productController.getAll);
 router.get('/getProductDetail/:id', productController.getProductDetail);
+router.get('/getRecommendProduct/:id', productController.recommendProduct);
 
 router.use(authController.protect, authController.restrictTo('instructor'));
 
