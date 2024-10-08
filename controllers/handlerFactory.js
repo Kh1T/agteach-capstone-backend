@@ -169,3 +169,33 @@ exports.createOne = (Model) =>
       data,
     });
   });
+
+exports.recommendItems = (Model, idField, categoryField, attributes) =>
+  catchAsync(async (req, res, next) => {
+    const itemId = req.params.id;
+    
+    // Find the item (e.g., product or course) by its ID
+    const item = await Model.findOne({
+      where: { [idField]: itemId },
+    });
+
+    if (!item) {
+      return next(new AppError('No item found with that ID', 404));
+    }
+
+    // Find recommended items in the same category
+    const recommendItems = await Model.findAll({
+      where: {
+
+        [categoryField]: item[categoryField],
+        [idField]: { [Op.ne]: itemId },
+      },
+      attributes: attributes, // Fields to return
+    });
+
+    // Send the response with recommended items
+    res.status(200).json({
+      status: 'success',
+      data: recommendItems,
+    });
+  });
