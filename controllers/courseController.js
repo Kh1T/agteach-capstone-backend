@@ -12,6 +12,13 @@ exports.getAll = handleFactory.getAll(Course);
 exports.getOne = handleFactory.getOne(Course);
 exports.deleteOne = handleFactory.deleteOne(Course);
 
+exports.recommendCourse = handleFactory.recommendItems(
+  Course,
+  'courseId',
+  'price',
+  ['instructorId', 'name', 'price', 'thumbnailUrl'],
+);
+
 exports.uploadCourse = catchAsync(async (req, res, next) => {
   const { instructorId } = await Instructor.findOne({
     where: { userUid: req.user.userUid },
