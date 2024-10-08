@@ -15,7 +15,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { name, price, thumbnailUrl } = course;
 
   //TODO: Will Change to req.user.email
-  const userEmail = 'mifima8598@adambra.com';
+  // const userEmail = 'mifima8598@adambra.com';
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
