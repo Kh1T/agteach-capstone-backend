@@ -3,6 +3,6 @@ const enrollmentController = require('../controllers/enrollmentController');
 
 const router = express.Router();
 
-router.get('/checkout-session', enrollmentController);
+router.get('/checkout-session', enrollmentController.getCheckoutSession);
 
 module.exports = router;
