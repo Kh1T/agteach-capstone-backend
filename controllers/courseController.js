@@ -19,14 +19,14 @@ exports.recommendCourse = handleFactory.recommendItems(
 );
 
 exports.getOne = catchAsync(async (req, res, next) => {
-  const { course, section, lecture } = await SectionLecture.findOne({
+  const course = await SectionLecture.findAll({
     where: { courseId: req.params.id },
     include: [{ model: Course }, { model: Section }, { model: Lecture }],
   });
 
   res.status(200).json({
     status: 'success',
-    data: { course, section, lecture },
+    data: course,
   });
 });
 
