@@ -36,7 +36,7 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   // Validate cover and additional images
   const validateImages = (files, name) => {
     if (!files || files.length === 0) {
-      return res.status(400).json({ error: `${name} is required` });
+      return next(new AppError(`${name} is required`, 400));
     }
   };
   validateImages(req.files.productCover, 'Product cover image');
@@ -137,14 +137,9 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
       (url) => !existingImageUrls.has(url),
     );
     // Save unique new images to the database
-    await Promise.all(
-      uniqueAdditionalImages.map((imageUrl) =>
-        ProductImage.create({
-          productId: product.productId,
-          imageUrl,
-          isPrimary: false,
-        }),
-      ),
+    await Product.saveAdditionalImages(
+      product.productId,
+      uniqueAdditionalImages,
     );
   }
   await product.save();
