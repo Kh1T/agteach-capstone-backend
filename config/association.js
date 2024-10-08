@@ -1,3 +1,4 @@
+const Product = require('../models/productModel');
 const UserAccount = require('../models/userModel');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
@@ -5,6 +6,7 @@ const SectionLecture = require('../models/sectionLectureModel');
 const Lecture = require('../models/lectureModel');
 const Section = require('../models/sectionModel');
 const Instructor = require('../models/instructorModel');
+const ProductImage = require('../models/productImageModel');
 
 // Account Associations
 
@@ -12,6 +14,13 @@ UserAccount.hasOne(Customer, { foreignKey: 'userUid' });
 UserAccount.hasOne(Instructor, { foreignKey: 'userUid' });
 Customer.belongsTo(UserAccount, { foreignKey: 'userUid' });
 Instructor.belongsTo(UserAccount, { foreignKey: 'userUid' });
+
+// Product
+Instructor.hasMany(Product, { foreignKey: 'instructorId' });
+Product.belongsTo(Instructor, { foreignKey: 'instructorId' });
+
+Product.hasMany(ProductImage, { foreignKey: 'productId' });
+ProductImage.belongsTo(Product, { foreignKey: 'productId' });
 
 // Course
 
@@ -55,4 +64,5 @@ module.exports = {
   Lecture,
   Section,
   Course,
+  Product,
 };

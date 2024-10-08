@@ -32,12 +32,10 @@ exports.addAdditionalInfo = factory.additionalInfo(Instructor);
 exports.updateMe = factory.updateMe(Instructor);
 
 exports.getInstructorData = catchAsync(async (req, res, next) => {
-  console.log(req.user.userUid);
   // Fetch instructor data
   const instructor = await Instructor.findOne({
     where: { user_uid: req.user.userUid },
   });
-  console.log(req.user.id);
 
   if (!instructor) {
     return res.status(404).json({ message: 'Instructor not found' });

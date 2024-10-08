@@ -3,16 +3,33 @@ const ProductImage = require('../models/productImageModel');
 const Instructor = require('../models/instructorModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
+const AppError = require('../utils/appError');
+
 const {
   uploadCoverImage,
   uploadAdditionalImages,
 } = require('../utils/s3ImageUpload');
 
 exports.getAll = handleFactory.getAll(Product);
-exports.getOne = handleFactory.getOne(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
 exports.sortData = handleFactory.sortData(Product);
 exports.searchData = handleFactory.SearchData(Product);
+
+exports.getProductDetail = catchAsync(async (req, res, next) => {
+  const product = await Product.findOne({
+    where: { productId: req.params.id },
+    include: [{ model: ProductImage }, { model: Instructor }],
+  });
+
+  if (!product) {
+    return next(new AppError('No product found with that ID', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: product,
+  });
+});
 
 exports.createProduct = catchAsync(async (req, res, next) => {
   const { userUid } = req.user.dataValues;

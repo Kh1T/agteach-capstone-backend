@@ -12,6 +12,7 @@ const {
   Lecture,
   Section,
   Course,
+  Product,
 } = require('./config/association');
 
 const globalErrorHandler = require('./controllers/errorController');

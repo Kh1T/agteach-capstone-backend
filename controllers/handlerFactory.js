@@ -17,12 +17,9 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getOne = (Model, options = {}) =>
   catchAsync(async (req, res, next) => {
     // Fetch the document by primary key (UID) with optional inclusion
-    const data = await Model.findByPk(
-      req.params.userUid || req.user.userUid || req.params.id,
-      {
-        ...options,
-      },
-    );
+    const data = await Model.findByPk(req.params.id || req.user.userUid, {
+      ...options,
+    });
 
     if (!data) {
       return next(new AppError('No document found with that ID', 404));

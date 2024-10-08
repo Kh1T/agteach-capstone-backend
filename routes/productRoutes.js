@@ -7,10 +7,10 @@ const router = express.Router();
 
 router.get('/searchData', productController.searchData);
 router.get('/getAllProduct', productController.getAll);
+router.get('/getProductDetail/:id', productController.getProductDetail);
 
 router.use(authController.protect, authController.restrictTo('instructor'));
 
-router.get('/getOneProduct/:id', productController.getOne);
 router.delete('/deleteOneProduct/:id', productController.deleteOne);
 router.get('/searchData', productController.searchData);
 router.get('/sortData', productController.sortData);
