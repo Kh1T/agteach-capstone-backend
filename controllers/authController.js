@@ -134,6 +134,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       subject: 'Forgot password',
       text: message,
       code: resetURL,
+      templateId: process.env.FORGOT_PASSWORD_TEMPLATE_ID,
     });
 
     res.status(200).json({
