@@ -173,7 +173,7 @@ exports.createOne = (Model) =>
 exports.recommendItems = (Model, idField, categoryField, attributes) =>
   catchAsync(async (req, res, next) => {
     const itemId = req.params.id;
-
+    
     // Find the item (e.g., product or course) by its ID
     const item = await Model.findOne({
       where: { [idField]: itemId },
@@ -186,6 +186,7 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
     // Find recommended items in the same category
     const recommendItems = await Model.findAll({
       where: {
+
         [categoryField]: item[categoryField],
         [idField]: { [Op.ne]: itemId },
       },
