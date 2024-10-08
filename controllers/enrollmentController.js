@@ -1,23 +1,26 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const catchAsync = require('../utils/catchAsync');
 
-const YOUR_DOMAIN = 'https://agteach.site';
-
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
+  const { courseId, amount } = req.body;
 
   const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
     line_items: [
       {
-        price: 10 * 100,
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: `Course ID: ${courseId}`,
+          },
+          unit_amount: amount * 100, // amount in cents
+        },
         quantity: 1,
       },
     ],
     mode: 'payment',
-    success_url: `${YOUR_DOMAIN}?success=true`,
-    cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+    success_url: 'http://localhost:3000/success',
+    cancel_url: 'http://localhost:3000/cancel',  
   });
-
-  res.redirect(303, session.url);
-
+  res.status(200).json({ id: session.id });
 });
-
