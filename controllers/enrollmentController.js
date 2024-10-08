@@ -2,6 +2,8 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const catchAsync = require('../utils/catchAsync');
 const Course = require('../models/courseModel');
 
+const REDIRECT_DOMAIN = 'http://localhost:3000';
+
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
   const course = await Course.findByPk(courseId);
@@ -40,8 +42,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     metadata: {
       course_id: courseId,
     },
-    success_url: 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
-    cancel_url: 'http://localhost:3000/cancel',
+    success_url: `${REDIRECT_DOMAIN}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${REDIRECT_DOMAIN}/cancel`,
   });
   res.status(200).json({ id: session.id });
 });
