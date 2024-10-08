@@ -96,13 +96,12 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     });
 
     // Create lectures associated with this section
-    const lecturePromises = section.allLecture.map(async (lecture) => {
-      console.log(req.file)
-      console.log(req.body)
+    const lecturePromises = section.allLecture.map(async (lecture) => { 
       const newLecture = await Lecture.create({
         name: lecture.lectureName,
         instructorId,
       });
+      
 
       // Return SectionLecture data for bulk insertion later
       return {
@@ -120,11 +119,11 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   // Resolve all section/lecture creation promises and flatten the resulting array
   const sectionLectureData = (
     await Promise.all(sectionLectureDataPromises)
-  ).flat();
-  console.log('req.file:',req.body);
+  ).flat(); 
   // Bulk insert all SectionLecture relationships at once
   const newSectionLectures =
-    await SectionLecture.bulkCreate(sectionLectureData);
+    await SectionLecture.bulkCreate(sectionLectureData, req.files);
+
 
   // Send the response with inserted data
   res.status(201).json({
@@ -133,4 +132,4 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.uploadCourseVideo = uploadCourseVideos.single('video');
+// exports.uploadCourseVideo = uploadCourseVideos;
