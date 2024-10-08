@@ -89,6 +89,10 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
   if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir);
   }
+
+  // Loop to show all files
+  
+
   const tempFilePath = path.join('temp', `${options.file.originalname}`);
   let videoDuration;
   fs.mkdir(tempDir, { recursive: true }, (err) => {

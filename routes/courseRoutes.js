@@ -2,6 +2,7 @@ const express = require('express');
 const courseController = require('../controllers/courseController');
 const authController = require('../controllers/authController');
 const instructorController = require('../controllers/instructorController');
+const { uploadCourseVideos } = require('../utils/multerConfig');
 // const { uploadCourseVideosFile } = require('../utils/uploadMiddleware');
 
 const router = express.Router();
@@ -14,12 +15,14 @@ router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 router.use(authController.protect);
 router.post(
   '/uploadCourse',
-  instructorController.uploadProfile,
-  instructorController.resizeProfile,
+  // instructorController.uploadProfile,
+  // instructorController.resizeProfile,
+  // courseController.uploadCourseVideo,
+  uploadCourseVideos,
   courseController.uploadCourse,
 );
 
-router.post('/uploadCourse', courseController.uploadCourse);
+// router.post('/uploadCourse', courseController.uploadCourse);
 // router.get('/sortData', courseController.sortData);
 
 module.exports = router;

@@ -77,7 +77,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   // Destructure the course details and sections from the request body
   const { courseName, description, price, courseObjective, allSection } =
     req.body;
-
+  const parseAllSection = JSON.parse(allSection);
   // Insert the course and retrieve its ID
   const newCourse = await Course.create({
     name: courseName,
@@ -88,7 +88,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 
   // Insert sections and lectures in parallel
-  const sectionLectureDataPromises = allSection.map(async (section) => {
+  const sectionLectureDataPromises = parseAllSection.map(async (section) => {
     // Create the section and retrieve its ID
     const newSection = await Section.create({
       name: section.sectionName,
@@ -96,11 +96,12 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     });
 
     // Create lectures associated with this section
-    const lecturePromises = section.allLecture.map(async (lecture) => {
+    const lecturePromises = section.allLecture.map(async (lecture) => { 
       const newLecture = await Lecture.create({
         name: lecture.lectureName,
         instructorId,
       });
+      
 
       // Return SectionLecture data for bulk insertion later
       return {
@@ -118,11 +119,11 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   // Resolve all section/lecture creation promises and flatten the resulting array
   const sectionLectureData = (
     await Promise.all(sectionLectureDataPromises)
-  ).flat();
-
+  ).flat(); 
   // Bulk insert all SectionLecture relationships at once
   const newSectionLectures =
-    await SectionLecture.bulkCreate(sectionLectureData);
+    await SectionLecture.bulkCreate(sectionLectureData, req.files);
+
 
   // Send the response with inserted data
   res.status(201).json({
@@ -131,4 +132,4 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.uploadCourseVideo = uploadCourseVideos.single('video');
+// exports.uploadCourseVideo = uploadCourseVideos;
