@@ -6,6 +6,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
   const course = await Course.findByPk(courseId);
 
+  //Check if the course exists
   if (!course) {
     return res.status(404).json({
       error: 'Course Not Found',
@@ -14,8 +15,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
   const { name, price, thumbnailUrl } = course;
 
-  //TODO: Will Change to req.user.email
-  // const userEmail = 'mifima8598@adambra.com';
+  // Get user email from req.user (set by authController.protect)
+  const userEmail = req.user.email;
+  const userId = req.user.userUid;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -32,8 +34,13 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         quantity: 1,
       },
     ],
+    customer_email: userEmail,
+    client_reference_id: userId,
     mode: 'payment',
-    success_url: 'http://localhost:3000/success',
+    metadata: {
+      course_id: courseId,
+    },
+    success_url: 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
     cancel_url: 'http://localhost:3000/cancel',
   });
   res.status(200).json({ id: session.id });
