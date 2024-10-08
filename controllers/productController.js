@@ -82,7 +82,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   const { categoryId, name, description, quantity, price, removedImages } =
     req.body;
   const product = await Product.findByPk(productId);
-  if (!product) return res.status(404).json({ error: 'Product not found' });
+  if (!product) return next(new AppError('No product found with that ID', 404));
   // Update product properties
   Object.assign(product, { categoryId, name, description, quantity, price });
   // Remove specified images
