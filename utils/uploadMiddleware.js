@@ -81,110 +81,68 @@ const resizeUploadProductImages = catchAsync(async (req, res, next) => {
 });
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
-  if (!options) return;
-  console.log('otions', options.videos);
-  // Write buffer to temp file
-  // Path to the temporary directory
-  const tempDir = path.join('temp');
-
-  // Create the directory if it doesn't exist
-  if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir);
-  }
-
-  // Loop to show all files
-  // sectionLecture.map((section) => ({
-  //   sectionName: section.sectionName || 'untitled section',
-  //   allLecture: section.allLecture.map((lecture) => console.log('lecture',lecture)),
-  // }));
+  if (!options) return; 
   const url = process.env.AWS_CLOUD_FRONT;
 
   const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
     const filename = `courses/${section.courseId}/section_${section.sectionId}/lecture-${section.lectureId}.mp4`;
-    console.log(filename);
-    console.log(
-      'lectureId',
-      section.courseId,
-      section.sectionId,
-      section.lectureId,
-      idx,
-      options.videos[idx],
-    );
     const input = {
       Bucket: process.env.AWS_S3_ASSET_BUCKET,
       Key: filename,
       Body: options.videos[idx].buffer,
       ContentType: 'video/mp4',
     };
+    // Write buffer to temp file
+    // Path to the temporary directory
+    const tempDir = path.join('temp');
+
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+    const tempFilePath = path.join(
+      'temp',
+      `${options.videos[idx].originalname}`,
+    );
+    let videoDuration;
+    fs.mkdir(tempDir, { recursive: true }, (err) => {
+      if (err) return new AppError('Error creating directory', 500);
+
+      // Write the file asynchronously
+      fs.writeFile(tempFilePath, options.videos[idx].buffer, () => {
+        if (err) {
+          return console.log('error write file', err);
+        }
+
+        // Get the video duration after writing the file
+        getVideoDurationInSeconds(tempFilePath)
+          .then((duration) => {
+            videoDuration = duration;
+
+            // Optional: Clean up the temporary file if needed
+            fs.unlink(tempFilePath, () => {
+              if (err) console.error('Error deleting temp file:', err);
+            });
+          })
+          .catch(() => {
+            console.error('Error getting video duration:', err);
+          });
+      });
+    });
 
     const lecture = await Lecture.findByPk(section.lectureId);
     if (lecture) {
       lecture.videoUrl = url + filename;
-      // lecture.duration = videoDuration;
-      const updateLecture = await lecture.save();
-      console.log('Lecture updated with video URL', updateLecture);
+      lecture.duration = videoDuration;
+      await lecture.save();
     }
 
     // await s3Client.send(new PutObjectCommand(input));
   });
   await Promise.all(promiseSectionLecture);
-
-  // const lecture = await Lecture.findByPk(sectionLecture.lectureId);
-
-  // console.log('Lecture found:', lecture);
-  // console.log(filename);
-  // if (lecture && videoDuration) {
-  //   lecture.videoUrl = url + filename;
-  //   lecture.duration = videoDuration;
-  //   const updateLecture = await lecture.save();
-  //   console.log('Lecture updated with video URL', updateLecture);
-  // }
 });
 module.exports = {
   resizeUploadProfileImage,
   resizeUploadProductImages,
   uploadCourseVideosFile,
 };
-
-function getVideoDuration(options) {
-  const tempFilePath = path.join('temp', `${options.file.originalname}`);
-  let videoDuration;
-  fs.mkdir(tempDir, { recursive: true }, (err) => {
-    if (err) return new AppError('Error creating directory', 500);
-
-    // Write the file asynchronously
-    fs.writeFile(tempFilePath, options.file.buffer, () => {
-      if (err) {
-        return new AppError('Error writing file', 500);
-      }
-
-      // Get the video duration after writing the file
-      getVideoDurationInSeconds(tempFilePath)
-        .then((duration) => {
-          videoDuration = duration;
-
-          // Optional: Clean up the temporary file if needed
-          fs.unlink(tempFilePath, () => {
-            if (err) console.error('Error deleting temp file:', err);
-          });
-        })
-        .catch(() => {
-          console.error('Error getting video duration:', err);
-        });
-    });
-  });
-
-  fs.writeFileSync(tempFilePath, options.file.buffer);
-
-  // Get video duration from the temp file
-  getVideoDurationInSeconds(tempFilePath)
-    .then((duration) => {
-      console.log('Duration:', duration);
-
-      // Clean up by deleting the temporary file
-      // fs.unlinkSync(tempFilePath);
-    })
-    .catch((error) => {
-      console.error('Error getting video duration:', error);
-    });
-}
