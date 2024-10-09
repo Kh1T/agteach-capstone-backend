@@ -44,9 +44,8 @@ const Customer = sequelize.define('customer', {
     type: DataTypes.UUID,
     references: {
       model: 'user_account', // Name of the referenced model
-      key: 'user_uid', // Key in the referenced model
+      key: 'userUid', // Key in the referenced model
     },
-
   },
   locationId: {
     type: DataTypes.INTEGER,
@@ -57,6 +56,4 @@ const Customer = sequelize.define('customer', {
   },
 });
 
-
 module.exports = Customer;
-

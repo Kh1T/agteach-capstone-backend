@@ -1,4 +1,5 @@
 const Course = require('../models/courseModel');
+const ProductSuggestion = require('../models/productSuggestionModel');
 const Section = require('../models/sectionModel');
 const SectionLecture = require('../models/sectionLectureModel');
 const Instructor = require('../models/instructorModel');
@@ -10,63 +11,26 @@ const { uploadCourseVideos } = require('../utils/multerConfig');
 exports.searchData = handleFactory.SearchData(Course);
 
 exports.getAll = handleFactory.getAll(Course);
-exports.getOne = handleFactory.getOne(Course);
 exports.deleteOne = handleFactory.deleteOne(Course);
 
-// exports.uploadCourse = catchAsync(async (req, res, next) => {
-//   const { instructorId } = await Instructor.findOne({
-//     where: { userUid: req.user.userUid },
-//     attributes: ['instructorId'],
-//   });
+exports.recommendCourse = handleFactory.recommendItems(
+  Course,
+  'courseId',
+  'price',
+  ['instructorId', 'name', 'price', 'thumbnailUrl'],
+);
 
-//   const bulkData = req.body;
+exports.getOne = catchAsync(async (req, res, next) => {
+  const course = await SectionLecture.findAll({
+    where: { courseId: req.params.id },
+    include: [{ model: Course }, { model: Section }, { model: Lecture }],
+  });
 
-//   // Prepare arrays for each table's data
-//   const courseData = bulkData.map((item) => ({
-//     name: item.courseName,
-//     description: item.description,
-//     price: item.price,
-//     courseObjective: item.courseObjective,
-//     instructorId,
-//   }));
-
-//   const sectionData = bulkData.map((item) => ({
-//     name: item.sectionName,
-//     instructorId,
-//   }));
-
-//   const lectureData = bulkData.map((item) => ({
-//     name: item.lectureName,
-//     instructorId,
-//   }));
-
-//   // Insert into Course, Section, and Lecture tables
-//   const newCourses = await Course.bulkCreate(courseData, { returning: true });
-//   const newSections = await Section.bulkCreate(sectionData, {
-//     returning: true,
-//   });
-//   const newLectures = await Lecture.bulkCreate(lectureData, {
-//     returning: true,
-//   });
-
-//   // Create SectionLecture relationships based on inserted records
-//   const sectionLectureData = newCourses.map((course, index) => ({
-//     lectureId: newLectures[index].lectureId,
-//     courseId: course.courseId,
-//     sectionId: newSections[index].sectionId,
-//     instructorId,
-//   }));
-
-//   // Insert into SectionLecture table
-//   const newSectionLectures =
-//     await SectionLecture.bulkCreate(sectionLectureData);
-
-//   // Send the response with inserted data
-//   res.status(201).json({
-//     status: 'success',
-//     data: newSectionLectures,
-//   });
-// });
+  res.status(200).json({
+    status: 'success',
+    data: course,
+  });
+});
 
 exports.uploadCourse = catchAsync(async (req, res, next) => {
   const { instructorId } = await Instructor.findOne({
@@ -75,8 +39,15 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 
   // Destructure the course details and sections from the request body
-  const { courseName, description, price, courseObjective, allSection } =
-    req.body;
+  const {
+    courseName,
+    description,
+    price,
+    courseObjective,
+    allSection,
+    thumbnailUrl,
+  } = req.body;
+
   const parseAllSection = JSON.parse(allSection);
   // Insert the course and retrieve its ID
   const newCourse = await Course.create({
@@ -85,6 +56,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     price,
     courseObjective,
     instructorId,
+    thumbnailUrl,
   });
 
   // Insert sections and lectures in parallel
@@ -96,12 +68,11 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     });
 
     // Create lectures associated with this section
-    const lecturePromises = section.allLecture.map(async (lecture) => { 
+    const lecturePromises = section.allLecture.map(async (lecture) => {
       const newLecture = await Lecture.create({
         name: lecture.lectureName,
         instructorId,
       });
-      
 
       // Return SectionLecture data for bulk insertion later
       return {
@@ -119,11 +90,12 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   // Resolve all section/lecture creation promises and flatten the resulting array
   const sectionLectureData = (
     await Promise.all(sectionLectureDataPromises)
-  ).flat(); 
+  ).flat();
   // Bulk insert all SectionLecture relationships at once
-  const newSectionLectures =
-    await SectionLecture.bulkCreate(sectionLectureData, req.files);
-
+  const newSectionLectures = await SectionLecture.bulkCreate(
+    sectionLectureData,
+    req.files,
+  );
 
   // Send the response with inserted data
   res.status(201).json({
