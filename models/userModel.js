@@ -130,6 +130,7 @@ UserAccount.prototype.createEmailVerifyCode = async function () {
   this.emailVerifyCode = verificationCode;
 
   await sendEmail(this, {
+    templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
     subject: 'Your account has been created',
     text: `Your verification code is ${verificationCode}. Please enter this code on the verification page to complete your registration.`,
   });

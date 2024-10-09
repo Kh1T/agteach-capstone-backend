@@ -1,5 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const { uploadCourseVideosFile } = require('../utils/uploadMiddleware');
+
+const Lecture = require('./lectureModel');
 
 const SectionLecture = sequelize.define('section_lecture', {
   sectionLectureId: {
@@ -46,3 +49,8 @@ const SectionLecture = sequelize.define('section_lecture', {
 });
 
 module.exports = SectionLecture;
+
+SectionLecture.afterBulkCreate(async (sectionLecture, options) => {
+
+  await uploadCourseVideosFile(sectionLecture, options);
+});
