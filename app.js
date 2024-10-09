@@ -19,8 +19,6 @@ const {
 
 const globalErrorHandler = require('./controllers/errorController');
 
-// const SectionLecture = require('./models/sectionLectureModel');
-
 const app = express();
 
 const allowedOrigins = [

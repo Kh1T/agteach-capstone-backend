@@ -11,7 +11,7 @@ const Course = sequelize.define('course', {
     type: DataTypes.INTEGER,
     references: {
       model: 'instructor', // Name of the referenced table
-      key: 'instructor_id',
+      key: 'instructorId',
     },
   },
   name: {

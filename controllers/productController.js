@@ -3,6 +3,7 @@ const s3Client = require('../config/s3Connection');
 
 const Product = require('../models/productModel');
 const ProductImage = require('../models/productImageModel');
+const Location = require('../models/locationModel');
 const Instructor = require('../models/instructorModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
@@ -23,7 +24,10 @@ exports.recommendProduct = handleFactory.recommendItems(
 exports.getProductDetail = catchAsync(async (req, res, next) => {
   const product = await Product.findOne({
     where: { productId: req.params.id },
-    include: [{ model: ProductImage }, { model: Instructor }],
+    include: [
+      { model: ProductImage },
+      { model: Instructor, include: [{ model: Location }] },
+    ],
   });
 
   if (!product) {
@@ -39,13 +43,11 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
 exports.createProduct = catchAsync(async (req, res, next) => {
   try {
     // Step 1: Validate required fields
-    console.log(req.user.dataValues.userUid);
+
     const instructor = await Instructor.findOne({
       where: { userUid: req.user.dataValues.userUid },
     });
 
-    console.log(instructor);
-    // console.log(req.files)
     const { categoryId, name, description, quantity, price } = req.body;
     if (!req.files.productCover || req.files.productCover.length === 0) {
       return res.status(400).json({ error: 'Product cover image is required' });
@@ -121,3 +123,5 @@ exports.createProduct = catchAsync(async (req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor);
