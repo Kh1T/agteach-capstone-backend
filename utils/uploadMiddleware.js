@@ -4,8 +4,6 @@ const path = require('path');
 const { getVideoDurationInSeconds } = require('get-video-duration');
 const fs = require('fs');
 
-const Product = require('../models/productModel');
-
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const Lecture = require('../models/lectureModel');
@@ -37,57 +35,15 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   next();
 });
 
-// Upload Product Image
-// If there is no file uploaded, It will go to next middleware
-const resizeUploadProductImages = catchAsync(async (req, res, next) => {
-  if (!req.files) return next();
-
-  const productCoverName = `${process.env.CLOUDFRONT_URL}/products/${req.body.productId}/product-cover-image.jpeg`;
-  // Upload Product Cover Image
-  const input = {
-    Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
-    Key: productCoverName,
-    Body: req.files.productCover[0].buffer,
-    ContentType: 'image/jpeg',
-  };
-
-  await s3Client.send(new PutObjectCommand(input));
-  req.body.imageUrl = productCoverName;
-  const product = await Product.findByPk(req.body.productId);
-  product.imageUrl = req.body.imageUrl;
-  await product.save();
-  next();
-  req.body.images = [];
-
-  await Promise.all(
-    req.files.productImages.map(async (file, id) => {
-      const filename = `products/${req.body.productUid}/product-images-${id + 1}.jpeg`;
-
-      const inputProducts = {
-        Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
-        Key: filename,
-        Body: file.buffer,
-        ContentType: 'image/jpeg',
-      };
-      await s3Client.send(new PutObjectCommand(inputProducts));
-      // When get image back from s3, it will need BUCKET_URL or CloudFront URL
-      // For monitor image in CloudFront and cache for easy access
-      // filename: products/p001/product-images-1.jpeg
-      req.body.images.push(filename);
-    }),
-  );
-
-  next();
-});
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
   if (!options) return; 
-  const url = process.env.AWS_CLOUD_FRONT;
+  const url = process.env.AWS_S3_BUCKET_URL;
 
   const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
     const filename = `courses/${section.courseId}/section_${section.sectionId}/lecture-${section.lectureId}.mp4`;
     const input = {
-      Bucket: process.env.AWS_S3_ASSET_BUCKET,
+      Bucket: process.env.AWS_S3_BUCKET_URL,
       Key: filename,
       Body: options.videos[idx].buffer,
       ContentType: 'video/mp4',
@@ -110,10 +66,6 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
 
       // Write the file asynchronously
       fs.writeFile(tempFilePath, options.videos[idx].buffer, () => {
-        if (err) {
-          return console.log('error write file', err);
-        }
-
         // Get the video duration after writing the file
         getVideoDurationInSeconds(tempFilePath)
           .then((duration) => {
@@ -121,11 +73,11 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
 
             // Optional: Clean up the temporary file if needed
             fs.unlink(tempFilePath, () => {
-              if (err) console.error('Error deleting temp file:', err);
+              if (err) throw err;
             });
           })
           .catch(() => {
-            console.error('Error getting video duration:', err);
+            throw err;
           });
       });
     });
@@ -143,6 +95,5 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
 });
 module.exports = {
   resizeUploadProfileImage,
-  resizeUploadProductImages,
   uploadCourseVideosFile,
 };
