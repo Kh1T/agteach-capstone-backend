@@ -1,10 +1,13 @@
 const sharp = require('sharp');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-
-const Product = require('../models/productModel');
+const path = require('path');
+const { getVideoDurationInSeconds } = require('get-video-duration');
+const fs = require('fs');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
+const Lecture = require('../models/lectureModel');
+const AppError = require('./appError');
 
 // Upload Profile Image
 // Need User role from protected route
@@ -32,48 +35,65 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   next();
 });
 
-// Upload Product Image
-// If there is no file uploaded, It will go to next middleware
-const resizeUploadProductImages = catchAsync(async (req, res, next) => {
-  if (!req.files) return next();
 
-  const productCoverName = `${process.env.CLOUDFRONT_URL}/products/${req.body.productId}/product-cover-image.jpeg`;
-  // Upload Product Cover Image
-  const input = {
-    Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
-    Key: productCoverName,
-    Body: req.files.productCover[0].buffer,
-    ContentType: 'image/jpeg',
-  };
+const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
+  if (!options.videos) return; 
+  const url = process.env.AWS_S3_BUCKET_URL;
 
-  await s3Client.send(new PutObjectCommand(input));
-  req.body.imageUrl = productCoverName;
-  const product = await Product.findByPk(req.body.productId);
-  product.imageUrl = req.body.imageUrl;
-  await product.save();
-  console.log(product.imageUrl);
-  next();
-  req.body.images = [];
+  const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
+    const filename = `courses/${section.courseId}/section_${section.sectionId}/lecture-${section.lectureId}.mp4`;
+    const input = {
+      Bucket: process.env.AWS_S3_BUCKET_URL,
+      Key: filename,
+      Body: options.videos[idx].buffer,
+      ContentType: 'video/mp4',
+    };
+    // Write buffer to temp file
+    // Path to the temporary directory
+    const tempDir = path.join('temp');
 
-  // await Promise.all(req.files.productImages.map(async (file, id) => {
-  //   const filename = `products/${req.body.productUid}/product-images-${id + 1}.jpeg`;
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+    const tempFilePath = path.join(
+      'temp',
+      `${options.videos[idx].originalname}`,
+    );
+    let videoDuration;
+    fs.mkdir(tempDir, { recursive: true }, (err) => {
+      if (err) return new AppError('Error creating directory', 500);
 
-  //   const inputProducts = {
-  //     Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
-  //     Key: filename,
-  //     Body: file.buffer,
-  //     ContentType: 'image/jpeg',
-  //   };
-  //   console.log(inputProducts);
-  //   await s3Client.send(new PutObjectCommand(inputProducts));
-  //   // When get image back from s3, it will need BUCKET_URL or CloudFront URL
-  //   // For monitor image in CloudFront and cache for easy access
-  //   // filename: products/p001/product-images-1.jpeg
-  //   req.body.images.push(filename);
-  //   console.log(req.body.images);
-  // }));
+      // Write the file asynchronously
+      fs.writeFile(tempFilePath, options.videos[idx].buffer, () => {
+        // Get the video duration after writing the file
+        getVideoDurationInSeconds(tempFilePath)
+          .then((duration) => {
+            videoDuration = duration;
 
-  next();
+            // Optional: Clean up the temporary file if needed
+            fs.unlink(tempFilePath, () => {
+              if (err) throw err;
+            });
+          })
+          .catch(() => {
+            throw err;
+          });
+      });
+    });
+
+    const lecture = await Lecture.findByPk(section.lectureId);
+    if (lecture) {
+      lecture.videoUrl = url + filename;
+      lecture.duration = videoDuration;
+      await lecture.save();
+    }
+
+    // await s3Client.send(new PutObjectCommand(input));
+  });
+  await Promise.all(promiseSectionLecture);
 });
-
-module.exports = { resizeUploadProfileImage, resizeUploadProductImages };
+module.exports = {
+  resizeUploadProfileImage,
+  uploadCourseVideosFile,
+};

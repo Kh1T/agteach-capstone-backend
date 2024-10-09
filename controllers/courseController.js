@@ -6,6 +6,7 @@ const Instructor = require('../models/instructorModel');
 const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
+const { uploadCourseVideos } = require('../utils/multerConfig');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -49,6 +50,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     thumbnailUrl,
   } = req.body;
 
+  const parseAllSection = JSON.parse(allSection);
   // Insert the course and retrieve its ID
   const newCourse = await Course.create({
     name: courseName,
@@ -60,7 +62,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 
   // Insert sections and lectures in parallel
-  const sectionLectureDataPromises = allSection.map(async (section) => {
+  const sectionLectureDataPromises = parseAllSection.map(async (section) => {
     // Create the section and retrieve its ID
     const newSection = await Section.create({
       name: section.sectionName,
@@ -91,10 +93,11 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   const sectionLectureData = (
     await Promise.all(sectionLectureDataPromises)
   ).flat();
-
   // Bulk insert all SectionLecture relationships at once
-  const newSectionLectures =
-    await SectionLecture.bulkCreate(sectionLectureData);
+  const newSectionLectures = await SectionLecture.bulkCreate(
+    sectionLectureData,
+    req.files,
+  );
 
   // Send the response with inserted data
   res.status(201).json({
@@ -102,3 +105,4 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     data: newSectionLectures,
   });
 });
+

@@ -40,3 +40,4 @@ const Lecture = sequelize.define('lecture', {
 });
 
 module.exports = Lecture;
+
