@@ -8,16 +8,18 @@ const {
   UserAccount,
   Customer,
   Instructor,
-  // SectionLecture,
+  SectionLecture,
   Lecture,
   Section,
   Course,
   Product,
+  CourseSaleHistory,
+  Enroll,
 } = require('./config/association');
 
 const globalErrorHandler = require('./controllers/errorController');
 
-const SectionLecture = require('./models/sectionLectureModel');
+// const SectionLecture = require('./models/sectionLectureModel');
 
 const app = express();
 

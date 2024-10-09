@@ -11,21 +11,21 @@ const CourseSaleHistory = sequelize.define('course_sale_history', {
     type: DataTypes.INTEGER,
     references: {
       model: 'course', // Name of the referenced table
-      key: 'course_id',
+      key: 'courseId',
     },
   },
   instructorId: {
     type: DataTypes.INTEGER,
     references: {
       model: 'instructor', // Name of the referenced table
-      key: 'instructor_id',
+      key: 'instructorId',
     },
   },
   customerId: {
     type: DataTypes.INTEGER,
     references: {
       model: 'customer',
-      key: 'customer_id',
+      key: 'customerId',
     },
   },
   createdAt: {

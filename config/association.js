@@ -59,21 +59,21 @@ Instructor.hasMany(SectionLecture, { foreignKey: 'instructor_id' });
 SectionLecture.belongsTo(Instructor, { foreignKey: 'instructor_id' });
 
 //Course Sales History Association
-Course.hasMany(CourseSaleHistory, { foreignKey: 'course_id' });
-CourseSaleHistory.belongsTo(Course, { foreignKey: 'course_id' });
+Course.hasMany(CourseSaleHistory, { foreignKey: 'courseId' });
+CourseSaleHistory.belongsTo(Course, { foreignKey: 'courseId' });
 
-Customer.hasMany(CourseSaleHistory, { foreignKey: 'customer_id' });
-CourseSaleHistory.belongsTo(Customer, { foreignKey: 'customer_id' });
+Customer.hasMany(CourseSaleHistory, { foreignKey: 'customerId' });
+CourseSaleHistory.belongsTo(Customer, { foreignKey: 'customerId' });
 
-Instructor.hasMany(CourseSaleHistory, { foreignKey: 'instructor_id' });
-CourseSaleHistory.belongsTo(Instructor, { foreignKey: 'instructor_id' });
+Instructor.hasMany(CourseSaleHistory, { foreignKey: 'instructorId' });
+CourseSaleHistory.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
 //Enroll Association
-Course.hasMany(Enroll, { foreignKey: 'course_id' });
-Enroll.belongsTo(Course, { foreignKey: 'course_id' });
+Course.hasMany(Enroll, { foreignKey: 'courseId' });
+Enroll.belongsTo(Course, { foreignKey: 'courseId' });
 
-Customer.hasMany(Enroll, { foreignKey: 'customer_id' });
-Enroll.belongsTo(Customer, { foreignKey: 'customer_id' });
+Customer.hasMany(Enroll, { foreignKey: 'customerId' });
+Enroll.belongsTo(Customer, { foreignKey: 'customerId' });
 
 module.exports = {
   UserAccount,

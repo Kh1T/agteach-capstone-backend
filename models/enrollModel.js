@@ -11,14 +11,14 @@ const Enroll = sequelize.define('enroll', {
     type: DataTypes.INTEGER,
     references: {
       model: 'course', // Name of the referenced table
-      key: 'course_id',
+      key: 'courseId',
     },
   },
   customerId: {
     type: DataTypes.INTEGER,
     references: {
       model: 'customer',
-      key: 'customer_id',
+      key: 'customerId',
     },
   },
   progress: {
