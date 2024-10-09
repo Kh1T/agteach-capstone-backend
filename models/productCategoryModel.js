@@ -17,11 +17,11 @@ const ProductCategory = sequelize.define('product_category', {
   },
   createdAt: {
     type: DataTypes.DATE,
-    defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+    defaultValue: DataTypes.NOW,
   },
   updatedAt: {
     type: DataTypes.DATE,
-    defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+    defaultValue: DataTypes.NOW,
   },
 });
 
