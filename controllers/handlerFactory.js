@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, or } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
@@ -138,7 +138,7 @@ exports.SearchData = (Model) =>
 
     // Fetch data from the Model based on options
     const data = await Model.findAll(options);
-
+    console.log(options);
     res.status(200).json({
       status: 'success',
       results: data.length,
@@ -188,8 +188,11 @@ exports.getUserItems = (Model1, Model2) =>
   catchAsync(async (req, res, next) => {
     // Model 1 : Model For Finding Data
     // Model 2 : Model embedded ID  For Finding Model 1
+    const { name, order } = req.query;
 
     const item = await Model1.findAll({
+      where: { name: { [Op.iLike]: `%${name}%` } },
+      order: [['createdAt', order || 'DESC']],
       include: {
         model: Model2,
         where: {
@@ -202,6 +205,7 @@ exports.getUserItems = (Model1, Model2) =>
       return next(new AppError("This User doesn't have any items", 404));
 
     res.status(200).json({
+      status: 'success',
       item,
     });
   });
