@@ -1,12 +1,10 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-const createCourseSaleHistory = () =>{
-
-}
-
-const createEnrollment = () =>{
+const createCourseSaleHistory = () => {
     
-}
+};
+
+const createEnrollment = () => {};
 
 exports.webhookEnrollmentCheckout = (req, res, next) => {
   const sig = req.headers['stripe-signature'];
