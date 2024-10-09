@@ -9,7 +9,6 @@ const router = express.Router();
 router.get('/getAllCourse', courseController.getAll);
 router.get('/getOneCourse/:id', courseController.getOne);
 router.get('/searchData', courseController.searchData);
-// router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 

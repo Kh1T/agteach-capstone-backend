@@ -6,6 +6,7 @@ const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/sendEmail');
+const cooldownRespond = require('../utils/cooldownRespond');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -73,25 +74,39 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.roleRestrict = catchAsync(async (req, res, next) => {
-  const { role } = await UserAccount.findOne({
-    where: {
-      email: req.body.email,
-    },
+  const userAccount = await UserAccount.findOne({
+    where: { email: req.body.email },
+    attributes: ['role'], // Select only the role attribute
   });
 
-  const url = req.url || req.headers['x-frontend-url'].split('/');
+  const role = userAccount ? userAccount.role : null; // Get role or set to null
+  const frontendUrl = req.headers['x-frontend-url'];
+  const urlPath = frontendUrl ? frontendUrl.split('/') : req.url.split('/');
 
+  // Check role permissions
   if (!role) return next();
-  if (url[2].startsWith('localhost') || url.includes('/login')) return next();
-  else if (url[2].startsWith('teach') && role === 'instructor') return next();
-  else if (url[2].startsWith('admin') && role === 'admin') return next();
-  else if (url[2].startsWith('agteach') && role) return next();
+
+  const isLocalhost = urlPath[2].startsWith('localhost');
+  const isLoginPage = urlPath.includes('login');
+  const isInstructorPage =
+    urlPath[2].startsWith('teach') && role === 'instructor';
+  const isAdminPage = urlPath[2].startsWith('admin') && role === 'admin';
+  const isAgteachPage = urlPath[2].startsWith('agteach') && role;
+
+  if (
+    isLocalhost ||
+    isLoginPage ||
+    isInstructorPage ||
+    isAdminPage ||
+    isAgteachPage
+  ) {
+    return next();
+  }
 
   return next(
     new AppError('You do not have permission to perform this action', 403),
   );
 });
-
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
@@ -110,6 +125,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError('There is no user with email address.', 404));
   }
+
+  const isCooldownActive = cooldownRespond(
+    user.updatedAt,
+    'password reset',
+    res,
+  );
+
+  if (isCooldownActive) return;
 
   const resetToken = user.createPasswordResetToken();
   user.save({ validateBeforeSave: false });
@@ -134,6 +157,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       subject: 'Forgot password',
       text: message,
       code: resetURL,
+      templateId: process.env.FORGOT_PASSWORD_EMAIL_TEMPLATE_ID,
     });
 
     res.status(200).json({
@@ -208,18 +232,11 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   // Find the user by email
   const user = await UserAccount.findOne({ where: { email } });
 
-  // check if the cool down is active
-  const lastSent = user.updatedAt;
-  const cooldownDuration = 1 * 60 * 1000; // 1 minute
-  const timeDifference = Date.now() - new Date(lastSent).getTime();
-  const isCooldownActive = timeDifference < cooldownDuration;
+  const isCooldownActive = cooldownRespond(user.updatedAt, 'email verify', res);
 
-  if (isCooldownActive) {
-    return res.status(429).json({
-      status: 'fail',
-      message: 'Your verification is in cooldown 1 minute.',
-    });
-  }
+  if (isCooldownActive) return;
+  await user.save({ validateBeforeSave: false });
+
   const verificationCode = user.createEmailVerifyCode();
 
   res.status(200).json({
