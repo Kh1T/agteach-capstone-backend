@@ -1,8 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-const createCourseSaleHistory = () => {
-    
-};
+const createCourseSaleHistory = () => {};
 
 const createEnrollment = () => {};
 
@@ -25,7 +23,11 @@ exports.webhookEnrollmentCheckout = (req, res, next) => {
   // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    console.log(`Payment completed for session: ${session.id}`);
+    const { courseId, instructorId, customerId } = session.metadata;
+
+    console.log(
+      `Payment completed for session: ${session.id} ${courseId} ${instructorId} ${customerId}`,
+    );
   }
   res.status(200).json({ received: true });
 };
