@@ -6,6 +6,7 @@ const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const { uploadCourseVideos } = require('../utils/multerConfig');
+const AppError = require('../utils/appError');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -84,4 +85,20 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 });
 
-// exports.uploadCourseVideo = uploadCourseVideos;
+exports.updateCourse = catchAsync(async (req, res, next) => {
+  const { courseId } = req.params;
+  const { name, description, price, courseObjective } = req.body;
+  const course = await Course.findByPk(courseId);
+  if (!course) {
+    return next(new AppError('No course found with that ID', 404));
+  }
+  course.name = name;
+  course.description = description;
+  course.price = price;
+  course.courseObjective = courseObjective;
+  await course.save();
+  res.status(200).json({
+    status: 'success',
+    data: course,
+  });
+})
