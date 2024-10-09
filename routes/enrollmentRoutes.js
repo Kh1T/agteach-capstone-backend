@@ -7,6 +7,7 @@ const router = express.Router();
 router.post(
   '/checkout-session',
   authController.protect,
+  enrollmentController.checkEnrollment,
   enrollmentController.getCheckoutSession,
 );
 

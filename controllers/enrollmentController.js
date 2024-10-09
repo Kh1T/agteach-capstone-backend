@@ -2,8 +2,36 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const catchAsync = require('../utils/catchAsync');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
+const Enroll = require('../models/enrollModel');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
+
+exports.checkEnrollment = catchAsync(async (req, res, next) => {
+  const { courseId } = req.body;
+
+  const userId = req.user.userUid;
+
+  const customer = await Customer.findOne({
+    where: { userUid: userId },
+    attribute: ['customerId'],
+  });
+
+  if (!customer) {
+    return res.status(404).json({ error: 'Customer not found' });
+  }
+
+  const isEnrolled = await Enroll.findOne({
+    where: { courseId, customerId: customer.customerId },
+  });
+
+  if (isEnrolled) {
+    return res.status(200).json({
+      message: 'You are already enrolled in this course.',
+      redirectUrl: `/courses/${courseId}/watch`,
+    });
+  }
+  next();
+});
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
@@ -15,9 +43,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       error: 'Course Not Found',
     });
   }
-
-  const { name, price, thumbnailUrl, instructorId } = course;
-
   // Get user email from req.user (set by authController.protect)
   const userEmail = req.user.email;
   const userId = req.user.userUid;
@@ -28,9 +53,12 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 
   if (!customer) {
-    console.log('Customer not found');
-    return null;
+    return res.status(404).json({
+      error: 'Customer not found',
+    });
   }
+
+  const { name, price, thumbnailUrl, instructorId } = course;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
