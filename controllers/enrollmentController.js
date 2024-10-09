@@ -22,15 +22,15 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const userEmail = req.user.email;
   const userId = req.user.userUid;
 
-  // const customer = await Customer.findOne({
-  //   where: { userId },
-  //   attribute: ['customerId'],
-  // });
+  const customer = await Customer.findOne({
+    where: { userUid: userId },
+    attribute: ['customerId'],
+  });
 
-  // if (!customer) {
-  //   console.log('Customer not found');
-  //   return null;
-  // }
+  if (!customer) {
+    console.log('Customer not found');
+    return null;
+  }
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -53,10 +53,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     metadata: {
       courseId: courseId,
       instructorId: instructorId,
-      // customerId: customer.customerId,
+      customerId: customer.customerId,
     },
-    success_url: `${REDIRECT_DOMAIN}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${REDIRECT_DOMAIN}/cancel`,
+    success_url: `${REDIRECT_DOMAIN}/success-payment?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${REDIRECT_DOMAIN}/fail-payment`,
   });
   res.status(200).json({ id: session.id });
 });
