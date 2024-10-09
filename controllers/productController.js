@@ -26,7 +26,7 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
     where: { productId: req.params.id },
     include: [
       { model: ProductImage },
-      { model: Instructor, include: [{ model: Location }] },
+      { model: Instructor, include: { model: Location, attributes: ['name'] } },
     ],
   });
 

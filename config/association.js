@@ -24,7 +24,9 @@ Product.hasMany(ProductImage, { foreignKey: 'productId' });
 ProductImage.belongsTo(Product, { foreignKey: 'productId' });
 
 // Location
-Instructor.hasOne(Location, { foreignKey: 'instructorId' });
+
+Location.hasMany(Instructor, { foreignKey: 'locationId' });
+Instructor.belongsTo(Location, { foreignKey: 'locationId' });
 
 // Course
 
