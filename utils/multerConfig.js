@@ -26,4 +26,24 @@ const uploadProfileImage = multer({
   fileFilter: imageFilter,
 });
 
-module.exports = { uploadProfileImage, uploadProductImages };
+const videoFilter = (req, file, cb) => {
+  if (!req.file && file.mimetype.startsWith('video')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not a video! Please upload only videos.', 400), false);
+  }
+};
+
+const uploadCourseVideos = multer({
+  storage: multerStorage,
+  fileFilter: videoFilter,
+  limits: {
+    fileSize: 200 * 1024 * 1024, // 200MB limit
+  },
+}).fields([{ name: 'videos', minCount: 1 }]);
+
+module.exports = {
+  uploadProfileImage,
+  uploadProductImages,
+  uploadCourseVideos,
+};
