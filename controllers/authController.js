@@ -6,6 +6,7 @@ const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/sendEmail');
+const cooldownRespond = require('../utils/cooldownRespond');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -111,6 +112,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('There is no user with email address.', 404));
   }
 
+  const isCooldownActive = cooldownRespond(
+    user.updatedAt,
+    'password reset',
+    res,
+  );
+
+  if (isCooldownActive) return;
+
   const resetToken = user.createPasswordResetToken();
   user.save({ validateBeforeSave: false });
 
@@ -134,7 +143,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       subject: 'Forgot password',
       text: message,
       code: resetURL,
-      templateId: process.env.FORGOT_PASSWORD_TEMPLATE_ID,
+      templateId: process.env.FORGOT_PASSWORD_EMAIL_TEMPLATE_ID,
     });
 
     res.status(200).json({
@@ -209,19 +218,11 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   // Find the user by email
   const user = await UserAccount.findOne({ where: { email } });
 
-  // check if the cool down is active
-  const lastSent = user.updatedAt;
-  const cooldownDuration = 1 * 60 * 1000; // 1 minute
-  const timeDifference = Date.now() - new Date(lastSent).getTime();
-  const isCooldownActive = timeDifference < cooldownDuration;
+  const isCooldownActive = cooldownRespond(user.updatedAt, 'email verify', res);
 
-  if (isCooldownActive) {
-    res.status(429).json({
-      status: 'fail',
-      message: `Your verification is in cooldown ${cooldownDuration - timeDifference}.`,
-      remainCooldown: cooldownDuration - timeDifference,
-    });
-  }
+  if (isCooldownActive) return;
+  await user.save({ validateBeforeSave: false });
+
   const verificationCode = user.createEmailVerifyCode();
 
   res.status(200).json({
