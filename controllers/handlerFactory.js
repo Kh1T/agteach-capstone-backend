@@ -1,6 +1,7 @@
 const { Op, or } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const sendEmail = require('../utils/sendEmail');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -85,6 +86,12 @@ exports.additionalInfo = (Model) =>
       data.userUid = req.user.userUid;
       data.email = req.user.email;
       const userData = await Model.create(data);
+
+      await sendEmail(this, {
+        templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
+        subject: 'Your account has been created',
+        text: `Your verification code is ${req.user.verificationCode}. Please enter this code on the verification page to complete your registration.`,
+      });
 
       res.json({
         status: 'success',
