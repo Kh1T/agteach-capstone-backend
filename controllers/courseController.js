@@ -9,9 +9,27 @@ const handleFactory = require('./handlerFactory');
 
 exports.searchData = handleFactory.SearchData(Course);
 
-exports.getAll = handleFactory.getAll(ProductSuggestion);
-exports.getOne = handleFactory.getOne(Course);
+exports.getAll = handleFactory.getAll(Course);
 exports.deleteOne = handleFactory.deleteOne(Course);
+
+exports.recommendCourse = handleFactory.recommendItems(
+  Course,
+  'courseId',
+  'price',
+  ['instructorId', 'name', 'price', 'thumbnailUrl'],
+);
+
+exports.getOne = catchAsync(async (req, res, next) => {
+  const course = await SectionLecture.findAll({
+    where: { courseId: req.params.id },
+    include: [{ model: Course }, { model: Section }, { model: Lecture }],
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: course,
+  });
+});
 
 exports.uploadCourse = catchAsync(async (req, res, next) => {
   const { instructorId } = await Instructor.findOne({

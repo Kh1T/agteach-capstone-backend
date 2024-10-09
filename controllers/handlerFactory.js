@@ -1,9 +1,6 @@
 const { Op } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const UserAccount = require('../models/userModel');
-const Customer = require('../models/customerModel');
-const Instructor = require('../models/instructorModel');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -108,18 +105,6 @@ exports.deleteOne = (Model) =>
     });
   });
 
-// exports.SearchData = (Model) =>
-//   catchAsync(async (req, res, next) => {
-//     const data = await Model.findAll({
-//       where: { name: { [Op.iLike]: `%${req.query.name}%` } },
-//     });
-//     res.status(200).json({
-//       status: 'success',
-//       results: data.length,
-//       data,
-//     });
-//   });
-
 exports.sortData = (Model) =>
   catchAsync(async (req, res, next) => {
     const sortOrder = req.query.order || 'ASC';
@@ -167,5 +152,35 @@ exports.createOne = (Model) =>
     res.status(201).json({
       status: 'success',
       data,
+    });
+  });
+
+exports.recommendItems = (Model, idField, categoryField, attributes) =>
+  catchAsync(async (req, res, next) => {
+    const itemId = req.params.id;
+    
+    // Find the item (e.g., product or course) by its ID
+    const item = await Model.findOne({
+      where: { [idField]: itemId },
+    });
+
+    if (!item) {
+      return next(new AppError('No item found with that ID', 404));
+    }
+
+    // Find recommended items in the same category
+    const recommendItems = await Model.findAll({
+      where: {
+
+        [categoryField]: item[categoryField],
+        [idField]: { [Op.ne]: itemId },
+      },
+      attributes: attributes, // Fields to return
+    });
+
+    // Send the response with recommended items
+    res.status(200).json({
+      status: 'success',
+      data: recommendItems,
     });
   });
