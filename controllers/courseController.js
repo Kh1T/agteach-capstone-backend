@@ -104,4 +104,3 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 });
 
-// exports.uploadCourseVideo = uploadCourseVideos;

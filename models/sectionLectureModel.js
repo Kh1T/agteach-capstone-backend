@@ -49,9 +49,8 @@ const SectionLecture = sequelize.define('section_lecture', {
 });
 
 module.exports = SectionLecture;
-// uploadProfileImage.single('photo');
+
 SectionLecture.afterBulkCreate(async (sectionLecture, options) => {
-  // console.log('sectionLecture', sectionLecture);
-  // console.log('options',options);
+
   await uploadCourseVideosFile(sectionLecture, options);
 });
