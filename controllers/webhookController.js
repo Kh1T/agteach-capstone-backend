@@ -26,7 +26,7 @@ exports.webhookEnrollmentCheckout = (req, res, next) => {
     const { courseId, instructorId, customerId } = session.metadata;
 
     console.log(
-      `Payment completed for session: ${session.id} ${courseId} ${instructorId} ${customerId}`,
+      `Payment completed for session: ${session.id} ${courseId} ${instructorId} ${customerId} ${session.amount_total / 100}`,
     );
   }
   res.status(200).json({ received: true });
