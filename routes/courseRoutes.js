@@ -15,14 +15,13 @@ router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
+
+router.use(uploadCourseVideos);
 router.post(
-  '/uploadCourse',
-  // instructorController.uploadProfile,
-  // instructorController.resizeProfile,
-  // courseController.uploadCourseVideo,
-  uploadCourseVideos,
-  courseController.uploadCourse,
+  '/uploadCourse', courseController.uploadCourse,
 );
+
+router.patch('/:id', courseController.updateCourse);
 
 // router.post('/uploadCourse', courseController.uploadCourse);
 // router.get('/sortData', courseController.sortData);
