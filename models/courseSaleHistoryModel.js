@@ -28,6 +28,10 @@ const CourseSaleHistory = sequelize.define('course_sale_history', {
       key: 'customerId',
     },
   },
+  price: {
+    type: DataTypes.DECIMAL,
+    allowNull: false,
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
