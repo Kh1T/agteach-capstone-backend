@@ -87,7 +87,10 @@ exports.additionalInfo = (Model) =>
       data.email = req.user.email;
       const userData = await Model.create(data);
 
-      await sendEmail(this, {
+      const userAccount = await Model.findOne({
+        where: { userUid: req.user.userUid },
+      });
+      await sendEmail(userAccount, {
         templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
         subject: 'Your account has been created',
         text: `Your verification code is ${req.user.verificationCode}. Please enter this code on the verification page to complete your registration.`,
