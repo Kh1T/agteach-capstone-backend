@@ -19,6 +19,8 @@ exports.recommendCourse = handleFactory.recommendItems(
   ['instructorId', 'name', 'price', 'thumbnailUrl'],
 );
 
+exports.getInstructorCourse = handleFactory.getUserItems(Course, Instructor);
+
 exports.getOne = catchAsync(async (req, res, next) => {
   const course = await SectionLecture.findAll({
     where: { courseId: req.params.id },

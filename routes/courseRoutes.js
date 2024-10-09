@@ -8,11 +8,13 @@ const router = express.Router();
 router.get('/getAllCourse', courseController.getAll);
 router.get('/getOneCourse/:id', courseController.getOne);
 router.get('/searchData', courseController.searchData);
-// router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
+
+router.get('/getInstructorCourse', courseController.getInstructorCourse);
+
 router.post(
   '/uploadCourse',
   instructorController.uploadProfile,
@@ -21,6 +23,5 @@ router.post(
 );
 
 router.post('/uploadCourse', courseController.uploadCourse);
-// router.get('/sortData', courseController.sortData);
 
 module.exports = router;
