@@ -216,9 +216,10 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const isCooldownActive = timeDifference < cooldownDuration;
 
   if (isCooldownActive) {
-    return res.status(429).json({
+    res.status(429).json({
       status: 'fail',
-      message: 'Your verification is in cooldown 1 minute.',
+      message: `Your verification is in cooldown ${cooldownDuration - timeDifference}.`,
+      remainCooldown: cooldownDuration - timeDifference,
     });
   }
   const verificationCode = user.createEmailVerifyCode();
