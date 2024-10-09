@@ -37,7 +37,7 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
-  if (!options) return; 
+  if (!options.videos) return; 
   const url = process.env.AWS_S3_BUCKET_URL;
 
   const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
