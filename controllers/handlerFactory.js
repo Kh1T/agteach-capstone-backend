@@ -158,7 +158,7 @@ exports.createOne = (Model) =>
 exports.recommendItems = (Model, idField, categoryField, attributes) =>
   catchAsync(async (req, res, next) => {
     const itemId = req.params.id;
-    
+
     // Find the item (e.g., product or course) by its ID
     const item = await Model.findOne({
       where: { [idField]: itemId },
@@ -171,7 +171,6 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
     // Find recommended items in the same category
     const recommendItems = await Model.findAll({
       where: {
-
         [categoryField]: item[categoryField],
         [idField]: { [Op.ne]: itemId },
       },
@@ -182,5 +181,27 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
     res.status(200).json({
       status: 'success',
       data: recommendItems,
+    });
+  });
+
+exports.getUserItems = (Model1, Model2) =>
+  catchAsync(async (req, res, next) => {
+    // Model 1 : Model For Finding Data
+    // Model 2 : Model embedded ID  For Finding Model 1
+
+    const item = await Model1.findAll({
+      include: {
+        model: Model2,
+        where: {
+          userUid: req.user.userUid,
+        },
+      },
+    });
+
+    if (!item)
+      return next(new AppError("This User doesn't have any items", 404));
+
+    res.status(200).json({
+      item,
     });
   });

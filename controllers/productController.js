@@ -124,17 +124,4 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.getInstructorProduct = catchAsync(async (req, res, next) => {
-  const products = await Product.findAll({
-    include: {
-      model: Instructor,
-      where: {
-        userUid: req.user.userUid,
-      },
-    },
-  });
-
-  res.json({
-    products,
-  });
-});
+exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor);
