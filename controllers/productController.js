@@ -112,7 +112,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
     });
   }
   // Upload new cover image if provided
-  if (req.files?.productCover) {
+  if (req.files.productCover) {
     const productCoverUrl = await uploadCoverImage(
       product.productId,
       req.files.productCover[0].buffer,
