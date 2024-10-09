@@ -1,4 +1,5 @@
 const Course = require('../models/courseModel');
+const ProductSuggestion = require('../models/productSuggestionModel');
 const Section = require('../models/sectionModel');
 const SectionLecture = require('../models/sectionLectureModel');
 const Instructor = require('../models/instructorModel');
@@ -11,7 +12,6 @@ const AppError = require('../utils/appError');
 exports.searchData = handleFactory.SearchData(Course);
 
 exports.getAll = handleFactory.getAll(Course);
-exports.getOne = handleFactory.getOne(Course);
 exports.deleteOne = handleFactory.deleteOne(Course);
 
 exports.recommendCourse = handleFactory.recommendItems(
@@ -21,6 +21,18 @@ exports.recommendCourse = handleFactory.recommendItems(
   ['instructorId', 'name', 'price', 'thumbnailUrl'],
 );
 
+exports.getOne = catchAsync(async (req, res, next) => {
+  const course = await SectionLecture.findAll({
+    where: { courseId: req.params.id },
+    include: [{ model: Course }, { model: Section }, { model: Lecture }],
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: course,
+  });
+});
+
 exports.uploadCourse = catchAsync(async (req, res, next) => {
   const { instructorId } = await Instructor.findOne({
     where: { userUid: req.user.userUid },
@@ -28,8 +40,15 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 
   // Destructure the course details and sections from the request body
-  const { courseName, description, price, courseObjective, allSection } =
-    req.body;
+  const {
+    courseName,
+    description,
+    price,
+    courseObjective,
+    allSection,
+    thumbnailUrl,
+  } = req.body;
+
   const parseAllSection = JSON.parse(allSection);
   // Insert the course and retrieve its ID
   const newCourse = await Course.create({

@@ -26,7 +26,7 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
     where: { productId: req.params.id },
     include: [
       { model: ProductImage },
-      { model: Instructor, include: [{ model: Location }] },
+      { model: Instructor, include: { model: Location, attributes: ['name'] } },
     ],
   });
 
@@ -123,3 +123,5 @@ exports.createProduct = catchAsync(async (req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor);

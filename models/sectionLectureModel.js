@@ -14,7 +14,7 @@ const SectionLecture = sequelize.define('section_lecture', {
     type: DataTypes.INTEGER,
     references: {
       model: 'lectures', // name of the target table
-      key: 'lecture_id',
+      key: 'lectureId',
     },
   },
   courseId: {
@@ -49,9 +49,8 @@ const SectionLecture = sequelize.define('section_lecture', {
 });
 
 module.exports = SectionLecture;
-// uploadProfileImage.single('photo');
+
 SectionLecture.afterBulkCreate(async (sectionLecture, options) => {
-  // console.log('sectionLecture', sectionLecture);
-  // console.log('options',options);
+
   await uploadCourseVideosFile(sectionLecture, options);
 });

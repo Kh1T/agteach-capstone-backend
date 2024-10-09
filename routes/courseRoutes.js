@@ -3,14 +3,13 @@ const courseController = require('../controllers/courseController');
 const authController = require('../controllers/authController');
 const instructorController = require('../controllers/instructorController');
 const { uploadCourseVideos } = require('../utils/multerConfig');
-// const { uploadCourseVideosFile } = require('../utils/uploadMiddleware');
 
 const router = express.Router();
 
 router.get('/getAllCourse', courseController.getAll);
 router.get('/getOneCourse/:id', courseController.getOne);
 router.get('/searchData', courseController.searchData);
-router.get('/getRecommendCourse/:id', courseController.recommendCourse);
+// router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
