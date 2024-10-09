@@ -123,3 +123,18 @@ exports.createProduct = catchAsync(async (req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+exports.getInstructorProduct = catchAsync(async (req, res, next) => {
+  const products = await Product.findAll({
+    include: {
+      model: Instructor,
+      where: {
+        userUid: req.user.userUid,
+      },
+    },
+  });
+
+  res.json({
+    products,
+  });
+});

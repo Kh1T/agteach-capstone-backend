@@ -38,8 +38,14 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 
   // Destructure the course details and sections from the request body
-  const { courseName, description, price, courseObjective, allSection } =
-    req.body;
+  const {
+    courseName,
+    description,
+    price,
+    courseObjective,
+    allSection,
+    thumbnailUrl,
+  } = req.body;
 
   // Insert the course and retrieve its ID
   const newCourse = await Course.create({
@@ -48,6 +54,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     price,
     courseObjective,
     instructorId,
+    thumbnailUrl,
   });
 
   // Insert sections and lectures in parallel
