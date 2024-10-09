@@ -8,6 +8,7 @@ const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const Lecture = require('../models/lectureModel');
 const AppError = require('./appError');
+const Course = require('../models/courseModel');
 
 // Upload Profile Image
 // Need User role from protected route
@@ -35,9 +36,9 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   next();
 });
 
-
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
-  if (!options) return; 
+  if (!options) return;
+  let totalDuration = 0;
   const url = process.env.AWS_S3_BUCKET_URL;
 
   const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
@@ -70,7 +71,7 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
         getVideoDurationInSeconds(tempFilePath)
           .then((duration) => {
             videoDuration = duration;
-
+            totalDuration += videoDuration;
             // Optional: Clean up the temporary file if needed
             fs.unlink(tempFilePath, () => {
               if (err) throw err;
@@ -92,6 +93,12 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
     // await s3Client.send(new PutObjectCommand(input));
   });
   await Promise.all(promiseSectionLecture);
+  console.log(sectionLecture[0].courseId);
+  const course = await Course.findByPk(sectionLecture[0].courseId);
+  if (course) {
+    course.duration = totalDuration;
+    await course.save();
+  }
 });
 module.exports = {
   resizeUploadProfileImage,

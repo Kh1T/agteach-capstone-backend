@@ -116,7 +116,6 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
   const parseAllSection = JSON.parse(allSection);
 
   // Get file information (assuming Multer is used for file uploads)
-  const { previewVideo, thumbnail } = req.files;
 
   // Find the course and update it
   const course = await Course.findByPk(id);
