@@ -2,7 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const catchAsync = require('../utils/catchAsync');
 const Course = require('../models/courseModel');
 
-const REDIRECT_DOMAIN = 'http://localhost:3000';
+const REDIRECT_DOMAIN = 'https://agteach.site';
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
