@@ -3,6 +3,7 @@ const catchAsync = require('../utils/catchAsync');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
 const Enroll = require('../models/enrollModel');
+const AppError = require('../utils/appError');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
@@ -17,7 +18,7 @@ exports.checkEnrollment = catchAsync(async (req, res, next) => {
   });
 
   if (!customer) {
-    return res.status(404).json({ error: 'Customer not found' });
+    return AppError('Customer not found', 404);
   }
 
   const isEnrolled = await Enroll.findOne({
