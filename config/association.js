@@ -105,4 +105,5 @@ module.exports = {
   CourseSaleHistory,
   Enroll,
   ProductSuggestion,
+  Purchased,
 };
