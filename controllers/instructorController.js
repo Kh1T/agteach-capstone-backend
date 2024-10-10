@@ -36,15 +36,13 @@ exports.addAdditionalInfo = factory.additionalInfo(Instructor);
 exports.updateMe = factory.updateMe(Instructor);
 
 exports.getInstructorDetail = catchAsync(async (req, res, next) => {
-  const instructor = await Instructor.findByPk(req.params.id);
+  const { id } = req.params;
 
-  const course = await Course.findAll({
-    where: { instructorId: req.params.id },
-  });
-
-  const product = await Product.findAll({
-    where: { instructorId: req.params.id },
-  });
+  const [instructor, courses, products] = await Promise.all([
+    Instructor.findByPk(id),
+    Course.findAll({ where: { instructorId: id } }),
+    Product.findAll({ where: { instructorId: id } }),
+  ]);
 
   if (!instructor) {
     return next(new AppError("This Instructor Doesn't exist", 404));
@@ -53,8 +51,8 @@ exports.getInstructorDetail = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     instructor,
-    product,
-    course,
+    courses,
+    products,
   });
 });
 
