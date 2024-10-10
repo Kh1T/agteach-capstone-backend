@@ -8,6 +8,8 @@ const Lecture = require('../models/lectureModel');
 const Section = require('../models/sectionModel');
 const Instructor = require('../models/instructorModel');
 const ProductImage = require('../models/productImageModel');
+const CourseSaleHistory = require('../models/courseSaleHistoryModel');
+const Enroll = require('../models/enrollModel');
 
 // Account Associations
 
@@ -62,6 +64,23 @@ SectionLecture.belongsTo(Lecture, { foreignKey: 'lectureId' });
 Instructor.hasMany(SectionLecture, { foreignKey: 'instructorId' });
 SectionLecture.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
+//Course Sales History Association
+Course.hasMany(CourseSaleHistory, { foreignKey: 'courseId' });
+CourseSaleHistory.belongsTo(Course, { foreignKey: 'courseId' });
+
+Customer.hasMany(CourseSaleHistory, { foreignKey: 'customerId' });
+CourseSaleHistory.belongsTo(Customer, { foreignKey: 'customerId' });
+
+Instructor.hasMany(CourseSaleHistory, { foreignKey: 'instructorId' });
+CourseSaleHistory.belongsTo(Instructor, { foreignKey: 'instructorId' });
+
+//Enroll Association
+Course.hasMany(Enroll, { foreignKey: 'courseId' });
+Enroll.belongsTo(Course, { foreignKey: 'courseId' });
+
+Customer.hasMany(Enroll, { foreignKey: 'customerId' });
+Enroll.belongsTo(Customer, { foreignKey: 'customerId' });
+
 module.exports = {
   UserAccount,
   Customer,
@@ -71,4 +90,6 @@ module.exports = {
   Section,
   Course,
   Product,
+  CourseSaleHistory,
+  Enroll,
 };
