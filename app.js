@@ -4,16 +4,7 @@ const morgan = require('morgan');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const {
-  UserAccount,
-  Customer,
-  Instructor,
-  // SectionLecture,
-  Lecture,
-  Section,
-  Course,
-  Product,
-} = require('./config/association');
+const association = require('./config/association');
 
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -48,8 +39,11 @@ const customerRouter = require('./routes/customerRoutes');
 const productRouter = require('./routes/productRoutes');
 const courseRouter = require('./routes/courseRoutes');
 const viewRouter = require('./routes/viewRoutes');
+const enrollmentRouter = require('./routes/enrollmentRoutes');
+const webhookRoutes = require('./routes/webhookRoutes');
 
 // app.use(authController.isLoginedIn);
+app.use('/webhook', webhookRoutes);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -67,6 +61,7 @@ app.use('/api/admin', adminRouter);
 app.use('/api/view', viewRouter);
 app.use('/api/product', productRouter);
 app.use('/api/course', courseRouter);
+app.use('/api/enrollment', enrollmentRouter);
 
 app.use(globalErrorHandler);
 

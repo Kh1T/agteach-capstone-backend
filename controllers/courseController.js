@@ -20,6 +20,8 @@ exports.recommendCourse = handleFactory.recommendItems(
   ['instructorId', 'name', 'price', 'thumbnailUrl'],
 );
 
+exports.getInstructorCourse = handleFactory.getUserItems(Course, Instructor);
+
 exports.getOne = catchAsync(async (req, res, next) => {
   const course = await SectionLecture.findAll({
     where: { courseId: req.params.id },
@@ -46,6 +48,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     allSection,
     thumbnailUrl,
+    ProductSuggestionId,
   } = req.body;
 
   const parseAllSection = JSON.parse(allSection);
@@ -57,6 +60,12 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     instructorId,
     thumbnailUrl,
+  });
+
+  const newProductSuggestion = await ProductSuggestion.create({
+    courseId: newCourse.courseId,
+    productId: ProductSuggestionId,
+    instructorId,
   });
 
   // Insert sections and lectures in parallel
@@ -103,4 +112,3 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     data: newSectionLectures,
   });
 });
-

@@ -74,39 +74,28 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.roleRestrict = catchAsync(async (req, res, next) => {
-  const userAccount = await UserAccount.findOne({
+  const user = await UserAccount.findOne({
     where: { email: req.body.email },
-    attributes: ['role'], // Select only the role attribute
   });
 
-  const role = userAccount ? userAccount.role : null; // Get role or set to null
-  const frontendUrl = req.headers['x-frontend-url'];
-  const urlPath = frontendUrl ? frontendUrl.split('/') : req.url.split('/');
+  if (!user?.role) return next();
 
-  // Check role permissions
-  if (!role) return next();
+  const url = req.url || req.headers['x-frontend-url'].split('/')[2];
 
-  const isLocalhost = urlPath[2].startsWith('localhost');
-  const isLoginPage = urlPath.includes('login');
-  const isInstructorPage =
-    urlPath[2].startsWith('teach') && role === 'instructor';
-  const isAdminPage = urlPath[2].startsWith('admin') && role === 'admin';
-  const isAgteachPage = urlPath[2].startsWith('agteach') && role;
+  const isAuthorized =
+    url.startsWith('localhost') ||
+    url.includes('/login') ||
+    (url.startsWith('teach') && user.role === 'instructor') ||
+    (url.startsWith('admin') && user.role === 'admin') ||
+    (url.startsWith('agteach') && user.role);
 
-  if (
-    isLocalhost ||
-    isLoginPage ||
-    isInstructorPage ||
-    isAdminPage ||
-    isAgteachPage
-  ) {
-    return next();
-  }
+  if (isAuthorized) return next();
 
   return next(
     new AppError('You do not have permission to perform this action', 403),
   );
 });
+
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
