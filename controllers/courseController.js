@@ -107,22 +107,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 });
 
-// exports.updateCourse = catchAsync(async (req, res, next) => {
-//   const { courseId } = req.params;
-//   const { name, description, price, courseObjective } = req.body;
-//   const course = await Course.findByPk(courseId);
-//   if (!course) {
-//     return next(new AppError('No course found with that ID', 404));
-//   }
-//   course.name = name;
-//   course.description = description;
-//   course.price = price;
-//   course.courseObjective = courseObjective;
-//   await course.save();
-//   res.status(200).json({
-//     status: 'success',
-//     data: course,
-//   });
+
 // })
 exports.updateCourse = catchAsync(async (req, res, next) => {
   const { id } = req.params; // Assuming courseId is passed in the URL
@@ -153,7 +138,6 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     price,
     courseObjective,
     numberOfVideo: req.files.videos.length,    
-    // other fields can be updated similarly...
   });
   // Fetch existing sections for this course
   const existingSectionLecture = await SectionLecture.findAll({
@@ -191,9 +175,6 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     }
 
     // Fetch existing lectures for this section
-    // const existingLectures = await Lecture.findAll({ where: { sectionId: newSection.sectionId } });
-    // const existingLectureIds = new Set(existingLectures.map(lecture => lecture.lectureId));
-
     // Create or update lectures
     const lecturePromises = section.allLecture.map(async (lecture) => {
       let newLecture;
@@ -203,8 +184,8 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         newLecture = await Lecture.findByPk(lecture.lectureId);
         await newLecture.update({
           name: lecture.lectureName,
-          video_url: lecture.videoUrl, // Assuming lecture.videoUrl is passed
-          duration: lecture.duration, // Assuming lecture.duration is passed
+          video_url: lecture.videoUrl, 
+          duration: lecture.duration, 
         });
 
         // Remove lectureId from the set as it's being updated
@@ -213,8 +194,8 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         // Create new lecture
         newLecture = await Lecture.create({
           name: lecture.lectureName,
-          video_url: lecture.videoUrl, // Assuming lecture.videoUrl is passed
-          duration: lecture.duration, // Assuming lecture.duration is passed
+          video_url: lecture.videoUrl, 
+          duration: lecture.duration,
           instructorId,
           sectionId: newSection.sectionId,
         });
