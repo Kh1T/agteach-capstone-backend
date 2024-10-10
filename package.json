@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js ",
-    "test": "env-cmd -f ./test.env jest --watch"
+    "test": "env-cmd -f ./config.env jest --watch"
   },
   "jest": {
     "testEnvironment": "node"
