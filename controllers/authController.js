@@ -74,18 +74,23 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.roleRestrict = catchAsync(async (req, res, next) => {
-  const { role } = await UserAccount.findOne({
+  const user = await UserAccount.findOne({
     where: { email: req.body.email },
   });
 
-  const url = req.url || req.headers['x-frontend-url'].split('/');
+  if (!user?.role) return next();
 
-  if (!role) return next();
+  const url = req.headers['x-frontend-url'].split('/')[2] || req.url;
 
-  if (url[2].startsWith('localhost') || url.includes('/login')) return next();
-  else if (url[2].startsWith('teach') && role === 'instructor') return next();
-  else if (url[2].startsWith('admin') && role === 'admin') return next();
-  else if (url[2].startsWith('agteach') && role === 'guest') return next();
+  console.log(url);
+  const isAuthorized =
+    url.startsWith('localhost') ||
+    url.includes('/login') ||
+    (url.startsWith('teach') && user.role === 'instructor') ||
+    (url.startsWith('admin') && user.role === 'admin') ||
+    (url.startsWith('agteach') && user.role === 'guest');
+
+  if (isAuthorized) return next();
 
   return next(
     new AppError('You do not have permission to perform this action', 403),
