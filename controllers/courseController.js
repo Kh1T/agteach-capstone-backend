@@ -57,7 +57,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     thumbnailUrl,
   });
 
-  await ProductSuggestion.create({
+  await ProductSuggestion.bulkCreate({
     courseId: newCourse.courseId,
     productId: ProductSuggestionId,
     instructorId: req.instructorId,
