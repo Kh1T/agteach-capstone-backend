@@ -43,11 +43,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return AppError('Course Not Found', 404)
   }
   // Get user email from req.user (set by authController.protect)
-  const userEmail = req.user.email;
-  const userId = req.user.userUid;
+  const {email, userUid} = req.user
 
   const customer = await Customer.findOne({
-    where: { userUid: userId },
+    where: { userUid: userUid },
     attribute: ['customerId'],
   });
 
@@ -74,8 +73,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         quantity: 1,
       },
     ],
-    customer_email: userEmail,
-    client_reference_id: userId,
+    customer_email: email,
+    client_reference_id: userUid,
     mode: 'payment',
     metadata: {
       courseId: courseId,
