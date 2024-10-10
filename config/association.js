@@ -11,6 +11,7 @@ const Instructor = require('../models/instructorModel');
 const ProductImage = require('../models/productImageModel');
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const Enroll = require('../models/enrollModel');
+const Purchased = require('../models/purchasedModel');
 
 // Account Associations
 
@@ -87,6 +88,10 @@ Enroll.belongsTo(Course, { foreignKey: 'courseId' });
 
 Customer.hasMany(Enroll, { foreignKey: 'customerId' });
 Enroll.belongsTo(Customer, { foreignKey: 'customerId' });
+
+//Purchased Association
+Customer.hasMany(Purchased, { foreignKey: 'customerId' });
+Purchased.belongsTo(Customer, { foreignKey: 'customerId' });
 
 module.exports = {
   UserAccount,
