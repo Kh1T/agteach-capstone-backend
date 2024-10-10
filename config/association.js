@@ -1,5 +1,6 @@
 const Product = require('../models/productModel');
 const UserAccount = require('../models/userModel');
+const ProductSuggestion = require('../models/productSuggestionModel');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
 const SectionLecture = require('../models/sectionLectureModel');
@@ -23,6 +24,12 @@ Product.belongsTo(Instructor, { foreignKey: 'instructorId' });
 Product.hasMany(ProductImage, { foreignKey: 'productId' });
 ProductImage.belongsTo(Product, { foreignKey: 'productId' });
 
+// Product Suggestion
+
+Course.hasMany(ProductSuggestion, { foreignKey: 'courseId' });
+Instructor.hasMany(ProductSuggestion, { foreignKey: 'instructorId' });
+ProductSuggestion.belongsTo(Course, { foreignKey: 'courseId' });
+ProductSuggestion.belongsTo(Instructor, { foreignKey: 'instructorId' });
 // Location
 
 Location.hasMany(Instructor, { foreignKey: 'locationId' });
@@ -71,4 +78,5 @@ module.exports = {
   Section,
   Course,
   Product,
+  ProductSuggestion,
 };

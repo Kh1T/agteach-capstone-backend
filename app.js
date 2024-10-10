@@ -8,11 +8,12 @@ const {
   UserAccount,
   Customer,
   Instructor,
-  // SectionLecture,
+  SectionLecture,
   Lecture,
   Section,
   Course,
   Product,
+  ProductSuggestion,
 } = require('./config/association');
 
 const globalErrorHandler = require('./controllers/errorController');

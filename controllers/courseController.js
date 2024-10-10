@@ -48,6 +48,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     allSection,
     thumbnailUrl,
+    ProductSuggestionId,
   } = req.body;
 
   const parseAllSection = JSON.parse(allSection);
@@ -59,6 +60,12 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     instructorId,
     thumbnailUrl,
+  });
+
+  const newProductSuggestion = await ProductSuggestion.create({
+    courseId: newCourse.courseId,
+    productId: ProductSuggestionId,
+    instructorId,
   });
 
   // Insert sections and lectures in parallel
@@ -105,4 +112,3 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     data: newSectionLectures,
   });
 });
-
