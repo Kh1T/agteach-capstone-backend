@@ -54,13 +54,13 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
     if (session.metadata.type === 'course') {
       const { courseId, instructorId, customerId } = session.metadata;
 
-      // createCourseSaleHistory(
-      //   courseId,
-      //   instructorId,
-      //   customerId,
-      //   session.amount_total / 100,
-      // );
-      // createEnrollment(courseId, customerId);
+      createCourseSaleHistory(
+        courseId,
+        instructorId,
+        customerId,
+        session.amount_total / 100,
+      );
+      createEnrollment(courseId, customerId);
 
       console.log(`Course Payment completed for session: ${session.id}`);
     }
