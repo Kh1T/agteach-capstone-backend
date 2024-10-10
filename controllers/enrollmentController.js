@@ -36,14 +36,15 @@ exports.checkEnrollment = catchAsync(async (req, res, next) => {
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
+  // Get user email from req.user (set by authController.protect)
+  const { email, userUid } = req.user;
+
   const course = await Course.findByPk(courseId);
 
   //Check if the course exists
   if (!course) {
-    return AppError('Course Not Found', 404)
+    return AppError('Course Not Found', 404);
   }
-  // Get user email from req.user (set by authController.protect)
-  const {email, userUid} = req.user
 
   const customer = await Customer.findOne({
     where: { userUid: userUid },
