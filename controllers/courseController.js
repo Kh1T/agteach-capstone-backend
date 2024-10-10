@@ -23,14 +23,25 @@ exports.recommendCourse = handleFactory.recommendItems(
 exports.getInstructorCourse = handleFactory.getUserItems(Course, Instructor);
 
 exports.getOne = catchAsync(async (req, res, next) => {
+  
+  const courseWithSectionsAndLectures = await Course.findOne({
+    where: { courseId: req.params.id },// Replace someCourseId with the course ID you're querying
+    include: [
+      {
+        model: Section,
+        include: [{ model: Lecture }],
+      },
+    ],
+  });
+
   const course = await SectionLecture.findAll({
     where: { courseId: req.params.id },
     include: [{ model: Course }, { model: Section }, { model: Lecture }],
   });
-
+console.log(courseWithSectionsAndLectures)
   res.status(200).json({
     status: 'success',
-    data: course,
+    data: courseWithSectionsAndLectures,
   });
 });
 
