@@ -2,6 +2,10 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const Enroll = require('../models/enrollModel');
+const Product = require('../models/productModel');
+const ProductSaleHistory = require('../models/productSaleHistoryModel');
+const PurchasedDetail = require('../models/purchasedDetailModel');
+const Purchased = require('../models/purchasedModel');
 
 const createCourseSaleHistory = async (
   courseId,
@@ -65,9 +69,47 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
       console.log(`Course Payment completed for session: ${session.id}`);
     }
     if (session.metadata.type === 'product') {
+      const { customerId } = session.metadata;
       const lineItems = await stripe.checkout.sessions.listLineItems(
         session.id,
       );
+
+      // Create a purchase record for the transaction
+      const purchased = await Purchased.create({
+        customerId: customerId,
+        total: session.amount_total / 100,
+      });
+
+      // Iterate over each purchased product
+      await Promise.all(
+        lineItems.data.map(async (item) => {
+          const productId = item.price.product.metadata.product_id;
+          const price = item.price.unit_amount / 100; // Convert from cents to dollars
+          const total = price * item.quantity;
+
+          // Create a purchase detail entry for each product
+          const purchaseDetail = await PurchasedDetail.create({
+            purchasedId: purchased.id,
+            productId: productId,
+            quantity: item.quantity,
+            price: price,
+            total: total,
+          });
+
+          // Find the product's instructor
+          const product = await Product.findByPk(productId);
+
+          // Create an entry in product_sale_history
+          await ProductSaleHistory.create({
+            productId: productId,
+            customerId: customerId,
+            purchasedDetailId: purchaseDetail.id,
+            instructorId: product.instructorId,
+            isDelivered: false, // Set to true upon delivery
+          });
+        }),
+      );
+
       console.log(
         `Product Payment completed: ${session.id} ${lineItems} ${session.amount_total / 100}`,
       );
