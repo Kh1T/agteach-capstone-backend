@@ -43,7 +43,6 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
 });
 
 exports.createProduct = catchAsync(async (req, res, next) => {
-  const { userUid } = req.user.dataValues;
   // Validate cover and additional images
   const validateImages = (files, name) => {
     if (!files || files.length === 0) {
@@ -53,12 +52,10 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   validateImages(req.files.productCover, 'Product cover image');
   validateImages(req.files.productImages, 'Product images');
 
-  const instructor = await Instructor.findOne({ where: { userUid } });
-
   // Create the product without the image URL initially
   const newProduct = await Product.create({
     ...req.body,
-    instructorId: instructor.instructorId,
+    instructorId: req.instructorId,
     imageUrl: '', // Placeholder for the cover image URL
   });
 

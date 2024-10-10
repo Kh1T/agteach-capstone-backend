@@ -1,6 +1,7 @@
 const express = require('express');
 const productController = require('../controllers/productController');
 const authController = require('../controllers/authController');
+const instructorController = require('../controllers/instructorController');
 const { uploadProductImages } = require('../utils/multerConfig');
 
 const router = express.Router();
@@ -20,6 +21,7 @@ router.get('/sortData', productController.sortData);
 router.post(
   '/createProduct',
   uploadProductImages,
+  instructorController.fetchInstructor,
   productController.createProduct,
 );
 
