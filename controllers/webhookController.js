@@ -83,6 +83,7 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
       // Iterate over each purchased product
       await Promise.all(
         lineItems.data.map(async (item) => {
+          console.log('Checking Item', item);
           const productId = item.price.product.metadata.product_id;
           const price = item.price.unit_amount / 100; // Convert from cents to dollars
           const total = price * item.quantity;
