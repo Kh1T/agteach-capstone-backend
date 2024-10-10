@@ -1,11 +1,18 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
-const Product = sequelize.define('product', {
-  productId: {
+const CourseSaleHistory = sequelize.define('course_sale_history', {
+  courseSaleHistoryId: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
     autoIncrement: true,
+    primaryKey: true,
+  },
+  courseId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'course', // Name of the referenced table
+      key: 'courseId',
+    },
   },
   instructorId: {
     type: DataTypes.INTEGER,
@@ -14,30 +21,15 @@ const Product = sequelize.define('product', {
       key: 'instructorId',
     },
   },
-  categoryId: {
+  customerId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'product_categories', // Name of the referenced table
-      key: 'categoryId',
+      model: 'customer',
+      key: 'customerId',
     },
-  },
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
   },
   price: {
     type: DataTypes.DECIMAL,
-    allowNull: false,
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  imageUrl: {
-    type: DataTypes.TEXT,
-  },
-  quantity: {
-    type: DataTypes.INTEGER,
     allowNull: false,
   },
   createdAt: {
@@ -50,4 +42,4 @@ const Product = sequelize.define('product', {
   },
 });
 
-module.exports = Product;
+module.exports = CourseSaleHistory;

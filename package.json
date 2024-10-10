@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js ",
-    "test": "env-cmd -f ./test.env jest --watch"
+    "test": "env-cmd -f ./config.env jest --watch ./test/auth"
   },
   "jest": {
     "testEnvironment": "node"
@@ -43,6 +43,7 @@
     "sequelize-bcrypt": "^1.2.0",
     "sharp": "^0.33.5",
     "sinon": "^19.0.2",
+    "stripe": "^17.1.0",
     "supertest": "^7.0.0",
     "validator": "^13.12.0"
   },
