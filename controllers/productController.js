@@ -96,6 +96,12 @@ exports.createProduct = catchAsync(async (req, res, next) => {
 });
 
 exports.getProductImages = catchAsync(async (req, res, next) => {
+  if (req.params.id === 'creating') {
+    res.status(201).json({
+      status: 'creating',
+      images: [],
+    });
+  }
   const images = await ProductImage.findAll({
     where: { productId: req.params.id },
   });
