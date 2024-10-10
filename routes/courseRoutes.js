@@ -16,6 +16,11 @@ router.use(authController.protect);
 
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
-router.post('/uploadCourse', uploadCourseVideos, courseController.uploadCourse);
+router.post(
+  '/uploadCourse',
+  instructorController.fetchInstructor,
+  uploadCourseVideos,
+  courseController.uploadCourse,
+);
 
 module.exports = router;

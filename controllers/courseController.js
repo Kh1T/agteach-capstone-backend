@@ -35,11 +35,7 @@ exports.getOne = catchAsync(async (req, res, next) => {
 });
 
 exports.uploadCourse = catchAsync(async (req, res, next) => {
-  const { instructorId } = await Instructor.findOne({
-    where: { userUid: req.user.userUid },
-    attributes: ['instructorId'],
-  });
-
+  const { instructorId } = req.instructorId;
   // Destructure the course details and sections from the request body
   const {
     courseName,

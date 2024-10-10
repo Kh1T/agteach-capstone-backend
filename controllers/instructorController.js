@@ -9,6 +9,20 @@ const { resizeUploadProfileImage } = require('../utils/uploadMiddleware');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
+exports.fetchInstructor = catchAsync(async (req, res, next) => {
+  const instructor = await Instructor.findOne({
+    where: { userUid: req.user.userUid },
+    attributes: ['instructorId'],
+  });
+
+  if (!instructor) {
+    return next(new AppError('Instructor not found', 404));
+  }
+
+  req.instructorId = instructor.instructorId;
+  next();
+});
+
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [
     {
