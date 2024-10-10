@@ -40,9 +40,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
   //Check if the course exists
   if (!course) {
-    return res.status(404).json({
-      error: 'Course Not Found',
-    });
+    return AppError('Course Not Found', 404)
   }
   // Get user email from req.user (set by authController.protect)
   const userEmail = req.user.email;
