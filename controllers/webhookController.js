@@ -32,7 +32,7 @@ const createEnrollment = async (courseId, customerId) => {
   }
 };
 
-exports.webhookEnrollmentCheckout = (req, res, next) => {
+exports.webhookEnrollmentCheckout = async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
 
   let event;
@@ -51,17 +51,27 @@ exports.webhookEnrollmentCheckout = (req, res, next) => {
   // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const { courseId, instructorId, customerId } = session.metadata;
+    if (session.metadata.type === 'course') {
+      const { courseId, instructorId, customerId } = session.metadata;
 
-    createCourseSaleHistory(
-      courseId,
-      instructorId,
-      customerId,
-      session.amount_total / 100,
-    );
-    createEnrollment(courseId, customerId);
+      // createCourseSaleHistory(
+      //   courseId,
+      //   instructorId,
+      //   customerId,
+      //   session.amount_total / 100,
+      // );
+      // createEnrollment(courseId, customerId);
 
-    console.log(`Payment completed for session: ${session.id}`);
+      console.log(`Course Payment completed for session: ${session.id}`);
+    }
+    if (session.metadata.type === 'product') {
+      const lineItems = await stripe.checkout.sessions.listLineItems(
+        session.id,
+      );
+      console.log(
+        `Product Payment completed: ${session.id} ${lineItems} ${session.amount_total / 100}`,
+      );
+    }
   }
   res.status(200).json({ received: true });
 };
