@@ -88,7 +88,7 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
           const total = price * item.quantity;
 
           // Create a purchase detail entry for each product
-          const purchaseDetail = await PurchasedDetail.create({
+          const purchasedDetail = await PurchasedDetail.create({
             purchasedId: purchased.id,
             productId: productId,
             quantity: item.quantity,
@@ -103,7 +103,7 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
           await ProductSaleHistory.create({
             productId: productId,
             customerId: customerId,
-            purchasedDetailId: purchaseDetail.id,
+            purchasedDetailId: purchasedDetail.id,
             instructorId: product.instructorId,
             isDelivered: false, // Set to true upon delivery
           });
