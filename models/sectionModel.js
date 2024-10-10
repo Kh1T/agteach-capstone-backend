@@ -14,6 +14,14 @@ const Section = sequelize.define('section', {
       key: 'instructorId',
     },
   },
+  courseId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'course', // name of the referenced table
+      key: 'courseId',
+    },
+  }
+  ,
   name: {
     type: DataTypes.TEXT,
     allowNull: false,

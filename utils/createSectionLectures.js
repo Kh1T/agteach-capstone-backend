@@ -5,6 +5,7 @@ exports.createSectionsLectures = async (sections, courseId, instructorId,req) =>
   const sectionLectures = sections.map(async (section) => {
     const newSection = await Section.create({
       name: section.sectionName,
+      courseId,
       instructorId,
     });
 

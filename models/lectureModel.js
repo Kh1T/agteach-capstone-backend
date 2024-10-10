@@ -14,6 +14,14 @@ const Lecture = sequelize.define('lecture', {
       key: 'instructorId',
     },
   },
+  sectionId:{
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'section', // name of the referenced table
+      key: 'sectionId',
+    },
+  }
+  ,
   name: {
     type: DataTypes.STRING,
     allowNull: false,
