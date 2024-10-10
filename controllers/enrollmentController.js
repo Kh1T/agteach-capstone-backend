@@ -85,5 +85,5 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     success_url: `${REDIRECT_DOMAIN}/success-payment?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${REDIRECT_DOMAIN}/fail-payment`,
   });
-  res.status(200).json({ id: session.id });
+  res.status(200).json({ status: 'success', id: session.id });
 });
