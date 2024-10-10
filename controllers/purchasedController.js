@@ -26,13 +26,13 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         product_data: {
           name: item.name,
           images: [item.imageUrl],
+          metadata: {
+            product_id: item.productId, // Attach product ID to product metadata
+          },
         },
         unit_amount: item.price * 100, // amount in cents
       },
       quantity: item.quantity,
-      metadata: {
-        product_id: item.productId,
-      },
     })),
     customer_email: email,
     client_reference_id: userUid,
