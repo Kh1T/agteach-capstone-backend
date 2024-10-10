@@ -51,7 +51,7 @@ const productRouter = require('./routes/productRoutes');
 const courseRouter = require('./routes/courseRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const enrollmentRouter = require('./routes/enrollmentRoutes');
-const webhookRoutes = require('./routes/webhook');
+const webhookRoutes = require('./routes/webhookRoutes');
 
 // app.use(authController.isLoginedIn);
 app.use('/webhook', webhookRoutes);
