@@ -2,24 +2,14 @@
 
 const request = require('supertest');
 const app = require('../../app');
+// const UserAccount = require('../../models/userModel');
 
-test('Should Signup a new user', async () => {
+test('Should Login a user', async () => {
   await request(app)
-    .post('/api/users/signup')
+    .post('/api/users/login')
     .send({
-      username: 'test12345',
       email: 'songseyla99@gmail.com',
-      password: '11s23@ws',
-      passwordConfirm: '11s23@ws',
-    })
-    .expect(201);
-  await request(app)
-    .post('/api/users/signup')
-    .send({
-      username: 'test12345',
-      email: 'songseyla99@gmail.com',
-      password: '11s23@ws',
-      passwordConfirm: '11s23@ws',
+      password: '123456789',
     })
     .expect(201);
 });
