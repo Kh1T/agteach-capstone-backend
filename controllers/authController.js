@@ -87,7 +87,7 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
     url.includes('/login') ||
     (url.startsWith('teach') && user.role === 'instructor') ||
     (url.startsWith('admin') && user.role === 'admin') ||
-    (url.startsWith('agteach') && user.role);
+    (url.startsWith('agteach') && user.role === 'guest');
 
   if (isAuthorized) return next();
 
