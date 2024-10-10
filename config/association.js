@@ -46,8 +46,8 @@ Instructor.hasMany(Course, { foreignKey: 'instructorId' });
 Course.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
 // One Course can have many Sections
-// Course.hasMany(Section, { foreignKey: 'course_id' });
-// Section.belongsTo(Course, { foreignKey: 'course_id' });
+Course.hasMany(Section, { foreignKey: 'courseId' });
+Section.belongsTo(Course, { foreignKey: 'courseId' });
 
 // One Instructor can manage many Sections
 Instructor.hasMany(Section, { foreignKey: 'instructorId' });
@@ -60,6 +60,9 @@ Lecture.belongsTo(Instructor, { foreignKey: 'instructorId' });
 // One Section can have many SectionLectures
 Section.hasMany(SectionLecture, { foreignKey: 'sectionId' });
 SectionLecture.belongsTo(Section, { foreignKey: 'sectionId' });
+
+Section.hasMany(Lecture, { foreignKey: 'sectionId' });
+Lecture.belongsTo(Section, { foreignKey: 'sectionId' });
 
 // One Course can have many SectionLectures
 Course.hasMany(SectionLecture, { foreignKey: 'courseId' });

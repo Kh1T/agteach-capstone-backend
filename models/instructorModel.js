@@ -31,14 +31,7 @@ const Instructor = sequelize.define('instructor', {
     type: DataTypes.STRING,
     // allowNull: false,
   },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
+
   userUid: {
     type: DataTypes.UUID,
     references: {
@@ -52,6 +45,17 @@ const Instructor = sequelize.define('instructor', {
       model: 'location', // Name of the referenced model
       key: 'locationId', // Key in the referenced model
     },
+  },
+  bio: {
+    type: DataTypes.STRING,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
   },
 });
 
