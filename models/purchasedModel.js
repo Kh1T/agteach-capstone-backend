@@ -14,10 +14,6 @@ const Purchased = sequelize.define('purchased', {
       key: 'customerId',
     },
   },
-  purchasedDate: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
   total: {
     type: DataTypes.DECIMAL,
     allowNull: false,

@@ -78,7 +78,6 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
       const purchased = await Purchased.create({
         customerId: customerId,
         total: session.amount_total / 100,
-        purchasedDate: new Date(),
       });
 
       // Iterate over each purchased product
