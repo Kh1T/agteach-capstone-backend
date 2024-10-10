@@ -83,11 +83,11 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
   const url = req.url || req.headers['x-frontend-url'].split('/');
 
   const isAuthorized =
-    url.startsWith('localhost') ||
-    url.includes('/login') ||
-    (url.startsWith('teach') && user.role === 'instructor') ||
-    (url.startsWith('admin') && user.role === 'admin') ||
-    (url.startsWith('agteach') && user.role === 'guest');
+    url[2].startsWith('localhost') ||
+    url[2].includes('/login') ||
+    (url[2].startsWith('teach') && user.role === 'instructor') ||
+    (url[2].startsWith('admin') && user.role === 'admin') ||
+    (url[2].startsWith('agteach') && user.role === 'guest');
 
   if (isAuthorized) return next();
 
