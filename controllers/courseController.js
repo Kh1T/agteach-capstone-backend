@@ -8,6 +8,7 @@ const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const { uploadCourseVideos } = require('../utils/multerConfig');
 const { createSectionsLectures } = require('../utils/createSectionLectures');
+const { json } = require('sequelize');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -47,6 +48,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   } = req.body;
 
   const parsedSections = JSON.parse(allSection);
+  const parsedProductSuggestions = JSON.parse(ProductSuggestionId);
 
   const newCourse = await Course.create({
     name: courseName,
@@ -59,7 +61,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
 
   await ProductSuggestion.bulkCreate({
     courseId: newCourse.courseId,
-    productId: ProductSuggestionId,
+    productId: parsedProductSuggestions,
     instructorId: req.instructorId,
   });
 
