@@ -5,7 +5,7 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router.post(
-  '/checkout-session',
+  '/checkoutSession',
   authController.protect,
   enrollmentController.checkEnrollment,
   enrollmentController.getCheckoutSession,
