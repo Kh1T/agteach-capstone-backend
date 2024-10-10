@@ -11,14 +11,14 @@ const Product = sequelize.define('product', {
     type: DataTypes.INTEGER,
     references: {
       model: 'instructor', // Name of the referenced table
-      key: 'instructor_id',
+      key: 'instructorId',
     },
   },
   categoryId: {
     type: DataTypes.INTEGER,
     references: {
       model: 'product_categories', // Name of the referenced table
-      key: 'category_id',
+      key: 'categoryId',
     },
   },
   name: {

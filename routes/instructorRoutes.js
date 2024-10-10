@@ -5,6 +5,11 @@ const instructorController = require('../controllers/instructorController');
 
 const router = express.Router();
 
+router.get(
+  '/getInstructorDetail/:id',
+  instructorController.getInstructorDetail,
+);
+
 router.use(authController.protect);
 
 router.get(
