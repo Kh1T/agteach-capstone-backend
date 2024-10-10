@@ -67,6 +67,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     parsedSections,
     newCourse.courseId,
     req.instructorId,
+    req,
   );
 
   res.status(201).json({

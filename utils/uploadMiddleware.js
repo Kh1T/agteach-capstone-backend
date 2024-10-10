@@ -37,6 +37,7 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 });
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
+  console.log(options)
   if (!options.videos) return;
   let totalDuration = 0;
   let videoPreviewUrl = '';
