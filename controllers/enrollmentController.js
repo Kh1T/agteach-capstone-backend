@@ -18,7 +18,7 @@ exports.checkEnrollment = catchAsync(async (req, res, next) => {
   });
 
   if (!customer) {
-    return AppError('Customer not found', 404);
+    return next(new AppError('Customer not found', 404));
   }
 
   const isEnrolled = await Enroll.findOne({
@@ -43,7 +43,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
   //Check if the course exists
   if (!course) {
-    return AppError('Course Not Found', 404);
+    return next(new AppError('Course Not Found', 404));
   }
 
   const customer = await Customer.findOne({
@@ -52,9 +52,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 
   if (!customer) {
-    return res.status(404).json({
-      error: 'Customer not found',
-    });
+    return next(new AppError('Customer not found', 404));
   }
 
   const { name, price, thumbnailUrl, instructorId } = course;
