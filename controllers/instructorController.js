@@ -5,6 +5,7 @@ const factory = require('./handlerFactory');
 const { uploadProfileImage } = require('../utils/multerConfig');
 const { resizeUploadProfileImage } = require('../utils/uploadMiddleware');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [
@@ -38,7 +39,7 @@ exports.getInstructorData = catchAsync(async (req, res, next) => {
   });
 
   if (!instructor) {
-    return res.status(404).json({ message: 'Instructor not found' });
+    return new AppError('Instructor not found', 404);
   }
 
   // Respond with the instructor data
