@@ -49,6 +49,8 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     ProductSuggestionId,
   } = req.body;
 
+  const { instructorId } = req.memberData;
+
   const parsedSections = JSON.parse(allSection);
   const parsedProductSuggestions = !!ProductSuggestionId
     ? JSON.parse(ProductSuggestionId)
@@ -59,20 +61,20 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     description,
     price,
     courseObjective,
-    instructorId: req.instructorId,
+    instructorId,
     thumbnailUrl,
   });
 
   await ProductSuggestion.bulkCreate({
     courseId: newCourse.courseId,
     productId: parsedProductSuggestions,
-    instructorId: req.instructorId,
+    instructorId,
   });
 
   await createSectionsLectures(
     parsedSections,
     newCourse.courseId,
-    req.instructorId,
+    instructorId,
   );
 
   res.status(201).json({
