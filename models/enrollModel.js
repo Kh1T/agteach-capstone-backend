@@ -1,29 +1,30 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
-const Section = sequelize.define('section', {
-  sectionId: {
+const Enroll = sequelize.define('enroll', {
+  enrollId: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  instructorId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'instructors', // name of the referenced table
-      key: 'instructorId',
-    },
-  },
   courseId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'course', // name of the referenced table
+      model: 'course', // Name of the referenced table
       key: 'courseId',
     },
   },
-  name: {
-    type: DataTypes.TEXT,
+  customerId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'customer',
+      key: 'customerId',
+    },
+  },
+  progress: {
+    type: DataTypes.INTEGER,
     allowNull: false,
+    defaultValue: 0,
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -35,4 +36,4 @@ const Section = sequelize.define('section', {
   },
 });
 
-module.exports = Section;
+module.exports = Enroll;

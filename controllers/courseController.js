@@ -7,6 +7,8 @@ const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const { uploadCourseVideos } = require('../utils/multerConfig');
+const { createSectionsLectures } = require('../utils/createSectionLectures');
+const { json } = require('sequelize');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -23,9 +25,12 @@ exports.recommendCourse = handleFactory.recommendItems(
 exports.getInstructorCourse = handleFactory.getUserItems(Course, Instructor);
 
 exports.getOne = catchAsync(async (req, res, next) => {
-  const course = await SectionLecture.findAll({
+  const course = await Course.findOne({
     where: { courseId: req.params.id },
-    include: [{ model: Course }, { model: Section }, { model: Lecture }],
+    include: [
+      { model: Section, include: [{ model: Lecture }] },
+      { model: Instructor },
+    ],
   });
 
   res.status(200).json({
@@ -35,12 +40,6 @@ exports.getOne = catchAsync(async (req, res, next) => {
 });
 
 exports.uploadCourse = catchAsync(async (req, res, next) => {
-  const { instructorId } = await Instructor.findOne({
-    where: { userUid: req.user.userUid },
-    attributes: ['instructorId'],
-  });
-
-  // Destructure the course details and sections from the request body
   const {
     courseName,
     description,
@@ -48,61 +47,38 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     allSection,
     thumbnailUrl,
+    ProductSuggestionId,
   } = req.body;
 
-  const parseAllSection = JSON.parse(allSection);
-  // Insert the course and retrieve its ID
+  const parsedSections = JSON.parse(allSection);
+  const parsedProductSuggestions = !!ProductSuggestionId
+    ? JSON.parse(ProductSuggestionId)
+    : null;
+
   const newCourse = await Course.create({
     name: courseName,
     description,
     price,
     courseObjective,
-    instructorId,
+    instructorId: req.instructorId,
     thumbnailUrl,
   });
 
-  // Insert sections and lectures in parallel
-  const sectionLectureDataPromises = parseAllSection.map(async (section) => {
-    // Create the section and retrieve its ID
-    const newSection = await Section.create({
-      name: section.sectionName,
-      instructorId,
-    });
-
-    // Create lectures associated with this section
-    const lecturePromises = section.allLecture.map(async (lecture) => {
-      const newLecture = await Lecture.create({
-        name: lecture.lectureName,
-        instructorId,
-      });
-
-      // Return SectionLecture data for bulk insertion later
-      return {
-        lectureId: newLecture.lectureId,
-        courseId: newCourse.courseId,
-        sectionId: newSection.sectionId,
-        instructorId,
-      };
-    });
-
-    // Resolve all lecture promises for the current section
-    return Promise.all(lecturePromises);
+  await ProductSuggestion.bulkCreate({
+    courseId: newCourse.courseId,
+    productId: parsedProductSuggestions,
+    instructorId: req.instructorId,
   });
 
-  // Resolve all section/lecture creation promises and flatten the resulting array
-  const sectionLectureData = (
-    await Promise.all(sectionLectureDataPromises)
-  ).flat();
-  // Bulk insert all SectionLecture relationships at once
-  const newSectionLectures = await SectionLecture.bulkCreate(
-    sectionLectureData,
-    req.files,
+  await createSectionsLectures(
+    parsedSections,
+    newCourse.courseId,
+    req.instructorId,
   );
 
-  // Send the response with inserted data
   res.status(201).json({
     status: 'success',
-    data: newSectionLectures,
+    message: 'Course and related data created successfully',
+    data: newCourse,
   });
 });
-

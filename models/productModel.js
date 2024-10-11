@@ -1,6 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
+const ProductImage = require('./productImageModel');
+
 const Product = sequelize.define('product', {
   productId: {
     type: DataTypes.INTEGER,
@@ -11,14 +13,14 @@ const Product = sequelize.define('product', {
     type: DataTypes.INTEGER,
     references: {
       model: 'instructor', // Name of the referenced table
-      key: 'instructor_id',
+      key: 'instructorId',
     },
   },
   categoryId: {
     type: DataTypes.INTEGER,
     references: {
       model: 'product_categories', // Name of the referenced table
-      key: 'category_id',
+      key: 'categoryId',
     },
   },
   name: {
@@ -50,4 +52,15 @@ const Product = sequelize.define('product', {
   },
 });
 
+// Method to save additional images to the database
+Product.saveAdditionalImages = async function (
+  productId,
+  additionalImagesUrls,
+) {
+  await Promise.all(
+    additionalImagesUrls.map((imageUrl) =>
+      ProductImage.create({ productId, imageUrl, isPrimary: false }),
+    ),
+  );
+};
 module.exports = Product;

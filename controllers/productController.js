@@ -1,6 +1,3 @@
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const s3Client = require('../config/s3Connection');
-
 const Product = require('../models/productModel');
 const ProductImage = require('../models/productImageModel');
 const Location = require('../models/locationModel');
@@ -8,6 +5,11 @@ const Instructor = require('../models/instructorModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const AppError = require('../utils/appError');
+
+const {
+  uploadCoverImage,
+  uploadAdditionalImages,
+} = require('../utils/s3ImageUpload');
 
 exports.getAll = handleFactory.getAll(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
@@ -41,87 +43,131 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
 });
 
 exports.createProduct = catchAsync(async (req, res, next) => {
-  try {
-    // Step 1: Validate required fields
-
-    const instructor = await Instructor.findOne({
-      where: { userUid: req.user.dataValues.userUid },
-    });
-
-    const { categoryId, name, description, quantity, price } = req.body;
-    if (!req.files.productCover || req.files.productCover.length === 0) {
-      return res.status(400).json({ error: 'Product cover image is required' });
+  const { userUid } = req.user.dataValues;
+  // Validate cover and additional images
+  const validateImages = (files, name) => {
+    if (!files || files.length === 0) {
+      return next(new AppError(`${name} is required`, 400));
     }
+  };
+  validateImages(req.files.productCover, 'Product cover image');
+  validateImages(req.files.productImages, 'Product images');
 
-    // Step 2: Create the product without the image URL first
-    const newProduct = await Product.create({
-      categoryId, // Ensure these fields match your schema
-      name,
-      description,
-      quantity,
-      price,
-      instructorId: instructor.instructorId,
-      imageUrl: '', // Will be updated after image upload
-    });
+  const instructor = await Instructor.findOne({ where: { userUid } });
 
-    // Step 3: Define the product cover name (S3 Key) without CloudFront URL
-    const productCoverName = `products/${newProduct.productId}/product-cover-image.jpeg`;
+  // Create the product without the image URL initially
+  const newProduct = await Product.create({
+    ...req.body,
+    instructorId: instructor.instructorId,
+    imageUrl: '', // Placeholder for the cover image URL
+  });
 
-    // Step 4: Upload the Product Cover Image to S3
-    const productCoverBuffer = req.files.productCover[0].buffer; // Access buffer safely
-    const input = {
-      Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
-      Key: productCoverName,
-      Body: productCoverBuffer,
-      ContentType: 'image/jpeg',
-    };
+  // Upload product cover image and update product record
+  const productCoverBuffer = req.files.productCover[0].buffer;
+  newProduct.imageUrl = await uploadCoverImage(
+    newProduct.productId,
+    productCoverBuffer,
+  );
+  await newProduct.save();
 
-    await s3Client.send(new PutObjectCommand(input));
+  // Upload additional images and save to the database
+  const additionalImagesUrls = await uploadAdditionalImages(
+    newProduct.productId,
+    req.files.productImages,
+  );
 
-    // Step 5: Update the product with image URL
-    const imageUrl = `${process.env.CLOUDFRONT_URL}/${productCoverName}`;
-    newProduct.imageUrl = imageUrl;
-    await newProduct.save();
+  await Promise.all(
+    additionalImagesUrls.map((imageUrl) =>
+      ProductImage.create({
+        productId: newProduct.productId,
+        imageUrl,
+        isPrimary: false,
+      }),
+    ),
+  );
 
-    // Step 6: Handle additional images
-    req.body.images = []; // Initialize images array
-    if (req.files.productImages) {
-      await Promise.all(
-        req.files.productImages.map(async (file, id) => {
-          const filename = `products/${newProduct.productId}/product-images-${id + 1}.jpeg`;
-          const inputProducts = {
-            Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
-            Key: filename,
-            Body: file.buffer,
-            ContentType: 'image/jpeg',
-          };
+  res.status(201).json({
+    status: 'success',
+    data: {
+      product: newProduct,
+      images: additionalImagesUrls,
+    },
+  });
+});
 
-          await s3Client.send(new PutObjectCommand(inputProducts));
-          const additionalImageUrl = `${process.env.CLOUDFRONT_URL}/${filename}`;
-          req.body.images.push(additionalImageUrl);
+exports.getProductImages = catchAsync(async (req, res, next) => {
+  const images = await ProductImage.findAll({
+    where: { productId: req.params.id },
+  });
+  res.status(200).json({
+    status: 'success',
+    images,
+  });
+});
 
-          // Save additional images to the database
-          await ProductImage.create({
-            productId: newProduct.productId,
-            imageUrl: additionalImageUrl,
-            isPrimary: false,
-          });
-        }),
-      );
-    }
-
-    // Step 7: Respond with the newly created product including the image URL and uploaded images
-    res.status(201).json({
-      status: 'success',
-      data: {
-        product: newProduct,
-        images: req.body.images, // Include the additional images
+exports.updateProduct = catchAsync(async (req, res, next) => {
+  const { id: productId } = req.params;
+  const { categoryId, name, description, quantity, price, removedImages } =
+    req.body;
+  const product = await Product.findByPk(productId);
+  if (!product) return next(new AppError('No product found with that ID', 404));
+  // Update product properties
+  Object.assign(product, { categoryId, name, description, quantity, price });
+  // Remove specified images
+  if (removedImages) {
+    await ProductImage.destroy({
+      where: {
+        productId: product.productId,
+        imageUrl: JSON.parse(removedImages),
       },
     });
-  } catch (error) {
-    console.error('Error creating product:', error);
-    res.status(500).json({ error: 'Internal server error' });
   }
+  // Upload new cover image if provided
+  if (req.files.productCover) {
+    const productCoverUrl = await uploadCoverImage(
+      product.productId,
+      req.files.productCover[0].buffer,
+    );
+    product.imageUrl = productCoverUrl;
+  }
+  // Handle additional images
+  const existingImages = await ProductImage.findAll({
+    where: { productId },
+    attributes: ['imageUrl'],
+  });
+  const existingImageUrls = new Set(
+    existingImages.map(({ imageUrl }) => imageUrl),
+  );
+  if (req.files?.productImages) {
+    const additionalImagesUrls = await uploadAdditionalImages(
+      product.productId,
+      req.files.productImages,
+      existingImages,
+    );
+    const uniqueAdditionalImages = additionalImagesUrls.filter(
+      (url) => !existingImageUrls.has(url),
+    );
+    // Save unique new images to the database
+    await Product.saveAdditionalImages(
+      product.productId,
+      uniqueAdditionalImages,
+    );
+  }
+  await product.save();
+  // Fetch all images for the product to send in the response
+  const allProductImages = await ProductImage.findAll({
+    where: { productId: product.productId },
+  });
+  const uniqueImages = [
+    ...new Set(allProductImages.map((img) => img.imageUrl)),
+  ];
+  res.status(200).json({
+    status: 'success',
+    data: {
+      product,
+      images: uniqueImages,
+    },
+  });
 });
 
 exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor);
