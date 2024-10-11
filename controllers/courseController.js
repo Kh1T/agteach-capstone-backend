@@ -1,7 +1,7 @@
 const Course = require('../models/courseModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
+const Product = require('../models/productModel');
 const Section = require('../models/sectionModel');
-const SectionLecture = require('../models/sectionLectureModel');
 const Instructor = require('../models/instructorModel');
 const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
@@ -31,6 +31,7 @@ exports.getOne = catchAsync(async (req, res, next) => {
     include: [
       { model: Section, include: [{ model: Lecture }] },
       { model: Instructor },
+      { model: ProductSuggestion, include: [{ model: Product }] },
     ],
   });
   res.status(200).json({
@@ -50,6 +51,8 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     ProductSuggestionId,
   } = req.body;
 
+  const { instructorId } = req.memberData;
+
   const parsedSections = JSON.parse(allSection);
   const parsedProductSuggestions = !!ProductSuggestionId
     ? JSON.parse(ProductSuggestionId)
@@ -68,14 +71,13 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   await ProductSuggestion.bulkCreate({
     courseId: newCourse.courseId,
     productId: parsedProductSuggestions,
-    instructorId: req.instructorId,
+    instructorId,
   });
 
   await createSectionsLectures(
     parsedSections,
     newCourse.courseId,
-    req.instructorId,
-    req,
+    instructorId,
   );
 
   res.status(201).json({

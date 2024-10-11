@@ -7,7 +7,6 @@ exports.createSectionsLectures = async (sections, courseId, instructorId,req) =>
       name: section.sectionName,
       courseId,
       instructorId,
-      courseId,
     });
 
     const lectures = section.allLecture.map((lecture) => ({
@@ -17,7 +16,7 @@ exports.createSectionsLectures = async (sections, courseId, instructorId,req) =>
       courseId,
     }));
 
-    return Lecture.bulkCreate(lectures, {videos: req.files.videos, thumbnails: req.files.thumbnailUrl});
+    return Lecture.bulkCreate(lectures, { courseId });
   });
 
   return Promise.all(sectionLectures);

@@ -116,7 +116,6 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
     await s3Client.send(new PutObjectCommand(input));
   }
 
-
   const course = await Course.findByPk(sectionLecture[0].courseId);
   if (course) {
     course.duration = totalDuration;
