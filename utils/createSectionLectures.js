@@ -6,13 +6,14 @@ exports.createSectionsLectures = async (sections, courseId, instructorId) => {
     const newSection = await Section.create({
       name: section.sectionName,
       instructorId,
+      courseId,
     });
 
     const lectures = section.allLecture.map((lecture) => ({
       name: lecture.lectureName,
       instructorId,
       sectionId: newSection.sectionId,
-      courseId: courseId,
+      courseId,
     }));
 
     return Lecture.bulkCreate(lectures);
