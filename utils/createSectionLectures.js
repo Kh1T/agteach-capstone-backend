@@ -16,7 +16,7 @@ exports.createSectionsLectures = async (sections, courseId, instructorId) => {
       courseId,
     }));
 
-    return Lecture.bulkCreate(lectures);
+    return Lecture.bulkCreate(lectures, { courseId });
   });
 
   return Promise.all(sectionLectures);

@@ -33,8 +33,13 @@ ProductImage.belongsTo(Product, { foreignKey: 'productId' });
 
 Course.hasMany(ProductSuggestion, { foreignKey: 'courseId' });
 Instructor.hasMany(ProductSuggestion, { foreignKey: 'instructorId' });
+
+Product.hasMany(ProductSuggestion, { foreignKey: 'productId' });
+ProductSuggestion.belongsTo(Product, { foreignKey: 'productId' });
+
 ProductSuggestion.belongsTo(Course, { foreignKey: 'courseId' });
 ProductSuggestion.belongsTo(Instructor, { foreignKey: 'instructorId' });
+
 // Location
 
 Location.hasMany(Instructor, { foreignKey: 'locationId' });
@@ -47,8 +52,6 @@ Instructor.hasMany(Course, { foreignKey: 'instructorId' });
 Course.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
 // One Course can have many Sections
-// Course.hasMany(Section, { foreignKey: 'courseId' });
-// Section.belongsTo(Course, { foreignKey: 'courseId' });
 
 Course.hasMany(Section, { foreignKey: 'courseId' });
 Section.belongsTo(Course, { foreignKey: 'courseId' });

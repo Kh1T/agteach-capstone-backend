@@ -6,6 +6,8 @@ const { resizeUploadProfileImage } = require('../utils/uploadMiddleware');
 
 exports.addAdditionalInfo = factory.additionalInfo(Customer);
 
+exports.fetchCustomer = factory.fetchMemberData(Customer, ['customerId']);
+
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [
     {
