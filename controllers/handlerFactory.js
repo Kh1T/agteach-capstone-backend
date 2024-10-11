@@ -209,3 +209,18 @@ exports.getUserItems = (Model1, Model2) =>
       item,
     });
   });
+
+exports.fetchMemberData = (Model, field) =>
+  catchAsync(async (req, res, next) => {
+    const memberData = await Model.findOne({
+      where: { userUid: req.user.userUid },
+      attributes: [...field],
+    });
+
+    if (!memberData) {
+      return next(new AppError('Member not found', 404));
+    }
+
+    req.memberData = memberData;
+    next();
+  });

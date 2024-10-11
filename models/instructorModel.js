@@ -49,6 +49,9 @@ const Instructor = sequelize.define('instructor', {
   bio: {
     type: DataTypes.STRING,
   },
+  address: {
+    type: DataTypes.STRING,
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

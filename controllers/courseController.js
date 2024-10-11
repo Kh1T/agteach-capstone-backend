@@ -1,14 +1,13 @@
 const Course = require('../models/courseModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
+const Product = require('../models/productModel');
 const Section = require('../models/sectionModel');
-const SectionLecture = require('../models/sectionLectureModel');
 const Instructor = require('../models/instructorModel');
 const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
-const { uploadCourseVideos } = require('../utils/multerConfig');
 const { createSectionsLectures } = require('../utils/createSectionLectures');
-const { json } = require('sequelize');
+const AppError = require('../utils/appError');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -30,6 +29,7 @@ exports.getOne = catchAsync(async (req, res, next) => {
     include: [
       { model: Section, include: [{ model: Lecture }] },
       { model: Instructor },
+      { model: ProductSuggestion, include: [{ model: Product }] },
     ],
   });
 
@@ -50,6 +50,8 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     ProductSuggestionId,
   } = req.body;
 
+  const { instructorId } = req.memberData;
+
   const parsedSections = JSON.parse(allSection);
   const parsedProductSuggestions = !!ProductSuggestionId
     ? JSON.parse(ProductSuggestionId)
@@ -60,20 +62,20 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     description,
     price,
     courseObjective,
-    instructorId: req.instructorId,
-    thumbnailUrl,
+    instructorId,
+    numberOfVideo: req.files.videos.length,
   });
 
   await ProductSuggestion.bulkCreate({
     courseId: newCourse.courseId,
     productId: parsedProductSuggestions,
-    instructorId: req.instructorId,
+    instructorId,
   });
 
   await createSectionsLectures(
     parsedSections,
     newCourse.courseId,
-    req.instructorId,
+    instructorId,
   );
 
   res.status(201).json({
