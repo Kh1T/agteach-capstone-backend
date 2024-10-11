@@ -14,13 +14,13 @@ router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
 
+router.use(uploadCourseVideos);
+router.post('/uploadCourse', courseController.uploadCourse);
+
+router.patch('/:id', courseController.updateCourse);
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
-router.post(
-  '/uploadCourse',
-  instructorController.fetchInstructor,
-  uploadCourseVideos,
-  courseController.uploadCourse,
-);
+// router.post('/uploadCourse', courseController.uploadCourse);
+// router.get('/sortData', courseController.sortData);
 
 module.exports = router;

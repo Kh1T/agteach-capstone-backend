@@ -7,6 +7,7 @@ const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const { createSectionsLectures } = require('../utils/createSectionLectures');
+const AppError = require('../utils/appError');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -62,7 +63,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     price,
     courseObjective,
     instructorId,
-    thumbnailUrl,
+    numberOfVideo: req.files.videos.length,
   });
 
   await ProductSuggestion.bulkCreate({

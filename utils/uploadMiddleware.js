@@ -8,6 +8,7 @@ const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const Lecture = require('../models/lectureModel');
 const AppError = require('./appError');
+const Course = require('../models/courseModel');
 
 // Upload Profile Image
 // Need User role from protected route
@@ -37,10 +38,15 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
   if (!options.videos) return;
+  let totalDuration = 0;
+  let videoPreviewUrl = '';
   const url = process.env.AWS_S3_BUCKET_URL;
 
   const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
     const filename = `courses/${section.courseId}/section_${section.sectionId}/lecture-${section.lectureId}.mp4`;
+    // First Video as Preview
+    if (idx === 0) videoPreviewUrl = url + filename;
+
     const input = {
       Bucket: process.env.AWS_S3_BUCKET_URL,
       Key: filename,
@@ -69,7 +75,7 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
         getVideoDurationInSeconds(tempFilePath)
           .then((duration) => {
             videoDuration = duration;
-
+            totalDuration += videoDuration;
             // Optional: Clean up the temporary file if needed
             fs.unlink(tempFilePath, () => {
               if (err) throw err;
@@ -91,6 +97,30 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
     // await s3Client.send(new PutObjectCommand(input));
   });
   await Promise.all(promiseSectionLecture);
+
+  const filename = `courses/${sectionLecture[0].courseId}/thumbnail.jpeg`;
+
+  if (options.thumbnails) {
+    const buffer = await sharp(options.thumbnails[0].buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toBuffer();
+    const input = {
+      Bucket: process.env.AWS_S3_ASSET_BUCKET,
+      Key: filename,
+      Body: buffer,
+      ContentType: 'image/jpeg',
+    };
+    await s3Client.send(new PutObjectCommand(input));
+  }
+
+  const course = await Course.findByPk(sectionLecture[0].courseId);
+  if (course) {
+    course.duration = totalDuration;
+    course.thumbnailUrl = url + filename;
+    await course.save();
+  }
 });
 module.exports = {
   resizeUploadProfileImage,
