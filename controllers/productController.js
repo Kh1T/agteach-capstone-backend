@@ -7,13 +7,11 @@ const handleFactory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 
 const {
-  uploadCoverImage,
-  uploadAdditionalImages,
-} = require('../utils/s3ImageUpload');
-const {
   validateImages,
   removeProductImages,
   handleAddUpdateCoverImage,
+  handleAddUpdateAdditionalImages,
+  fetchProductImages,
 } = require('../utils/imagesOperator');
 
 exports.getAll = handleFactory.getAll(Product);
@@ -49,7 +47,6 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
 
 exports.createProduct = catchAsync(async (req, res, next) => {
   // Validate cover and additional images
-
   validateImages(req.files.productCover, 'Product cover image', next);
   validateImages(req.files.productImages, 'Product images', next);
 
@@ -64,26 +61,17 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   await handleAddUpdateCoverImage(newProduct, req.files.productCover);
 
   // Upload additional images and save to the database
-  const additionalImagesUrls = await uploadAdditionalImages(
+  await handleAddUpdateAdditionalImages(
+    'add',
     newProduct.productId,
     req.files.productImages,
-  );
-
-  await Promise.all(
-    additionalImagesUrls.map((imageUrl) =>
-      ProductImage.create({
-        productId: newProduct.productId,
-        imageUrl,
-        isPrimary: false,
-      }),
-    ),
   );
 
   res.status(201).json({
     status: 'success',
     data: {
       product: newProduct,
-      images: additionalImagesUrls,
+      images: newProduct.images,
     },
   });
 });
@@ -109,49 +97,29 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   const { categoryId, name, description, quantity, price, removedImages } =
     req.body;
   const product = await Product.findByPk(productId);
+
   if (!product) return next(new AppError('No product found with that ID', 404));
-  // Update product properties
+
   Object.assign(product, { categoryId, name, description, quantity, price });
 
-  // Remove specified images
   await removeProductImages(product.productId, removedImages);
 
-  // Upload new cover image if provided
   if (req.files.productCover) {
     await handleAddUpdateCoverImage(product, req.files.productCover);
   }
 
-  // Handle additional images
-  const existingImages = await ProductImage.findAll({
-    where: { productId },
-    attributes: ['imageUrl'],
-  });
-  const existingImageUrls = new Set(
-    existingImages.map(({ imageUrl }) => imageUrl),
-  );
-  if (req.files?.productImages) {
-    const additionalImagesUrls = await uploadAdditionalImages(
+  if (req.files.productImages.length > 0) {
+    await handleAddUpdateAdditionalImages(
+      'edit',
       product.productId,
       req.files.productImages,
-      existingImages,
-    );
-    const uniqueAdditionalImages = additionalImagesUrls.filter(
-      (url) => !existingImageUrls.has(url),
-    );
-    // Save unique new images to the database
-    await Product.saveAdditionalImages(
-      product.productId,
-      uniqueAdditionalImages,
     );
   }
+
   await product.save();
-  // Fetch all images for the product to send in the response
-  const allProductImages = await ProductImage.findAll({
-    where: { productId: product.productId },
-  });
-  const uniqueImages = [
-    ...new Set(allProductImages.map((img) => img.imageUrl)),
-  ];
+
+  const uniqueImages = await fetchProductImages(product.productId);
+
   res.status(200).json({
     status: 'success',
     data: {

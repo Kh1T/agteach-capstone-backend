@@ -30,49 +30,62 @@ const handleAddUpdateCoverImage = async (product, productCover) => {
   await product.save();
 };
 
-const handleAdditionalImages = async (
+const fetchProductImages = async (productId) => {
+  const allProductImages = await ProductImage.findAll({
+    where: { productId },
+  });
+  return new Set(allProductImages.map((img) => img.imageUrl));
+};
+const handleAddUpdateAdditionalImages = async (
+  mode,
   productId,
   productImages,
-  existingImages,
 ) => {
-  if (productImages) {
-    const existingImageUrls = new Set(
-      existingImages.map(({ imageUrl }) => imageUrl),
-    );
+  // When User First Create Product and upload additional images (done)
+  if (mode === 'add') {
     const additionalImagesUrls = await uploadAdditionalImages(
       productId,
       productImages,
-      existingImages,
     );
-    const uniqueAdditionalImages = additionalImagesUrls.filter(
-      (url) => !existingImageUrls.has(url),
-    );
-    await Product.saveAdditionalImages(productId, uniqueAdditionalImages);
-  }
-};
 
-const uploadAndSaveAdditionalImages = async (productId, productImages) => {
-  const additionalImagesUrls = await uploadAdditionalImages(
-    productId,
-    productImages,
-  );
-  await Promise.all(
-    additionalImagesUrls.map((imageUrl) =>
-      ProductImage.create({
+    await Promise.all(
+      additionalImagesUrls.map((imageUrl) =>
+        ProductImage.create({
+          productId,
+          imageUrl,
+          isPrimary: false,
+        }),
+      ),
+    );
+  }
+  // When User Start Editing Product and upload additional images
+  if (mode === 'edit') {
+    const existingImages = await ProductImage.findAll({
+      where: { productId },
+      attributes: ['imageUrl'],
+    });
+    const existingImageUrls = new Set(
+      existingImages.map(({ imageUrl }) => imageUrl),
+    );
+
+    if (productImages) {
+      const additionalImagesUrls = await uploadAdditionalImages(
         productId,
-        imageUrl,
-        isPrimary: false,
-      }),
-    ),
-  );
-  return additionalImagesUrls;
+        productImages,
+        existingImages,
+      );
+      const uniqueAdditionalImages = additionalImagesUrls.filter(
+        (url) => !existingImageUrls.has(url),
+      );
+      await Product.saveAdditionalImages(productId, uniqueAdditionalImages);
+    }
+  }
 };
 
 module.exports = {
   validateImages,
   removeProductImages,
+  fetchProductImages,
   handleAddUpdateCoverImage,
-
-  handleAdditionalImages,
-  uploadAndSaveAdditionalImages,
+  handleAddUpdateAdditionalImages,
 };
