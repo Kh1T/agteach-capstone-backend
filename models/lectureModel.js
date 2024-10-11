@@ -14,14 +14,13 @@ const Lecture = sequelize.define('lecture', {
       key: 'instructorId',
     },
   },
-  sectionId:{
+  sectionId: {
     type: DataTypes.INTEGER,
     references: {
       model: 'section', // name of the referenced table
       key: 'sectionId',
     },
-  }
-  ,
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -48,4 +47,3 @@ const Lecture = sequelize.define('lecture', {
 });
 
 module.exports = Lecture;
-

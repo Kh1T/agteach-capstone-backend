@@ -20,8 +20,7 @@ const Section = sequelize.define('section', {
       model: 'course', // name of the referenced table
       key: 'courseId',
     },
-  }
-  ,
+  },
   name: {
     type: DataTypes.TEXT,
     allowNull: false,

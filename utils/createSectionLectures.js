@@ -7,13 +7,14 @@ exports.createSectionsLectures = async (sections, courseId, instructorId,req) =>
       name: section.sectionName,
       courseId,
       instructorId,
+      courseId,
     });
 
     const lectures = section.allLecture.map((lecture) => ({
       name: lecture.lectureName,
       instructorId,
       sectionId: newSection.sectionId,
-      courseId: courseId,
+      courseId,
     }));
 
     return Lecture.bulkCreate(lectures, {videos: req.files.videos, thumbnails: req.files.thumbnailUrl});
