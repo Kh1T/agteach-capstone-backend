@@ -80,14 +80,15 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
 
   if (!user?.role) return next();
 
-  const url = req.url || req.headers['x-frontend-url'].split('/')[2];
+  const url = req.headers['x-frontend-url'].split('/')[2] || req.url;
 
+  console.log(url);
   const isAuthorized =
     url.startsWith('localhost') ||
     url.includes('/login') ||
     (url.startsWith('teach') && user.role === 'instructor') ||
     (url.startsWith('admin') && user.role === 'admin') ||
-    (url.startsWith('agteach') && user.role);
+    (url.startsWith('agteach') && user.role === 'guest');
 
   if (isAuthorized) return next();
 
@@ -283,8 +284,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2) Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-  // console.log(token);
 
   // 3) Check if user still exists
   const currentUser = await UserAccount.findByPk(decoded.id);

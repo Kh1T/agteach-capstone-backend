@@ -32,6 +32,9 @@ const Customer = sequelize.define('customer', {
     type: DataTypes.STRING,
     // allowNull: false,
   },
+  address: {
+    type: DataTypes.STRING,
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
