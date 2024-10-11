@@ -27,6 +27,7 @@ const uploadProfileImage = multer({
 });
 
 const videoFilter = (req, file, cb) => {
+  console.log('hello')
   if (
     (!req.file && file.mimetype.startsWith('video')) ||
     file.mimetype.startsWith('image')

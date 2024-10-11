@@ -13,9 +13,9 @@ router.get('/searchData', courseController.searchData);
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
+router.use(uploadCourseVideos);
 
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
-router.use(uploadCourseVideos);
 
 
 router.patch('/:id', courseController.updateCourse);

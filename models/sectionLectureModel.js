@@ -51,6 +51,6 @@ const SectionLecture = sequelize.define('section_lecture', {
 module.exports = SectionLecture;
 
 SectionLecture.afterBulkCreate(async (sectionLecture, options) => {
-
-  await uploadCourseVideosFile(sectionLecture, options);
+  console.log(sectionLecture);
+  // await uploadCourseVideosFile(sectionLecture, options);
 });

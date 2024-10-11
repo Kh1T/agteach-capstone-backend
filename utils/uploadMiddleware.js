@@ -37,91 +37,98 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 });
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
-  console.log(options)
-  if (!options.videos) return;
-  let totalDuration = 0;
-  let videoPreviewUrl = '';
-  const url = process.env.AWS_S3_BUCKET_URL;
+  console.log(options);
+  // if (!options.videos) return;
+  // let totalDuration = 0;
+  // let videoPreviewUrl = '';
 
-  const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
-    const filename = `courses/${section.courseId}/section_${section.sectionId}/lecture-${section.lectureId}.mp4`;
-    // First Video as Preview
-    if (idx === 0) videoPreviewUrl = url + filename;
+  // const url = process.env.AWS_S3_BUCKET_URL;
 
-    const input = {
-      Bucket: process.env.AWS_S3_BUCKET_URL,
-      Key: filename,
-      Body: options.videos[idx].buffer,
-      ContentType: 'video/mp4',
-    };
-    // Write buffer to temp file
-    // Path to the temporary directory
-    const tempDir = path.join('temp');
+  // const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
+  //   const filename = `courses/${options.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}.mp4`;
 
-    // Create the directory if it doesn't exist
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-    const tempFilePath = path.join(
-      'temp',
-      `${options.videos[idx].originalname}`,
-    );
-    let videoDuration;
-    fs.mkdir(tempDir, { recursive: true }, (err) => {
-      if (err) return new AppError('Error creating directory', 500);
+  //   // sectionLecture.sectionId
+  //   const input = {
+  //     Bucket: process.env.AWS_S3_BUCKET_URL,
+  //     Key: filename,
+  //     Body: options.videos[idx].buffer,
+  //     ContentType: 'video/mp4',
+  //   };
 
-      // Write the file asynchronously
-      fs.writeFile(tempFilePath, options.videos[idx].buffer, () => {
-        // Get the video duration after writing the file
-        getVideoDurationInSeconds(tempFilePath)
-          .then((duration) => {
-            videoDuration = duration;
-            totalDuration += videoDuration;
-            // Optional: Clean up the temporary file if needed
-            fs.unlink(tempFilePath, () => {
-              if (err) throw err;
-            });
-          })
-          .catch(() => {
-            throw err;
-          });
-      });
-    });
+  //   // First Video as Preview
+  //   if (idx === 0) videoPreviewUrl = url + filename;
 
-    const lecture = await Lecture.findByPk(section.lectureId);
-    if (lecture) {
-      lecture.videoUrl = url + filename;
-      lecture.duration = videoDuration;
-      await lecture.save();
-    }
+  //   // Write buffer to temp file
+  //   // Path to the temporary directory
+  //   const tempDir = path.join('temp');
 
-    // await s3Client.send(new PutObjectCommand(input));
-  });
-  await Promise.all(promiseSectionLecture);
+  //   // Create the directory if it doesn't exist
+  //   if (!fs.existsSync(tempDir)) {
+  //     fs.mkdirSync(tempDir);
+  //   }
+  //   const tempFilePath = path.join(
+  //     'temp',
+  //     `${options.videos[idx].originalname}`,
+  //   );
+  //   let videoDuration;
+  //   fs.mkdir(tempDir, { recursive: true }, (err) => {
+  //     if (err) return new AppError('Error creating directory', 500);
 
-  const filename = `courses/${sectionLecture[0].courseId}/thumbnail.jpeg`;
+  //     // Write the file asynchronously
+  //     fs.writeFile(tempFilePath, options.videos[idx].buffer, () => {
+  //       // Get the video duration after writing the file
+  //       getVideoDurationInSeconds(tempFilePath)
+  //         .then((duration) => {
+  //           videoDuration = duration;
+  //           totalDuration += videoDuration;
+  //           // Optional: Clean up the temporary file if needed
+  //           fs.unlink(tempFilePath, () => {
+  //             if (err) throw err;
+  //           });
+  //         })
+  //         .catch(() => {
+  //           throw err;
+  //         });
+  //     });
+  //   });
+  //   // sectionLecture.videoUrl = url + filename;
+  //   // sectionLecture.duration = videoDuration;
 
-  if (options.thumbnails) {
-    const buffer = await sharp(options.thumbnails[0].buffer)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toBuffer();
-    const input = {
-      Bucket: process.env.AWS_S3_ASSET_BUCKET,
-      Key: filename,
-      Body: buffer,
-      ContentType: 'image/jpeg',
-    };
-    await s3Client.send(new PutObjectCommand(input));
-  }
+  //   // const lecture = await Lecture.findByPk(section.lectureId);
+  //   // if (lecture) {
+  //   //   lecture.videoUrl = url + filename;
+  //   //   lecture.duration = videoDuration;
+  //   //   await lecture.save();
+  //   // }
 
-  const course = await Course.findByPk(sectionLecture[0].courseId);
-  if (course) {
-    course.duration = totalDuration;
-    course.thumbnailUrl = url + filename;
-    await course.save();
-  }
+  //   // await s3Client.send(new PutObjectCommand(input));
+  //   console.log('section_lection: ', sectionLecture);
+  // });
+  // await Promise.all(promiseSectionLecture);
+
+  // const filename = `courses/${sectionLecture[0].courseId}/thumbnail.jpeg`;
+
+  // if (options.thumbnails) {
+  //   const buffer = await sharp(options.thumbnails[0].buffer)
+  //     .resize(500, 500)
+  //     .toFormat('jpeg')
+  //     .jpeg({ quality: 90 })
+  //     .toBuffer();
+  //   const input = {
+  //     Bucket: process.env.AWS_S3_ASSET_BUCKET,
+  //     Key: filename,
+  //     Body: buffer,
+  //     ContentType: 'image/jpeg',
+  //   };
+  //   await s3Client.send(new PutObjectCommand(input));
+  // }
+
+  // const course = await Course.findByPk(sectionLecture[0].courseId);
+  // if (course) {
+  //   course.duration = totalDuration;
+  //   course.thumbnailUrl = url + filename;
+  //   await course.save();
+  // }
 });
 module.exports = {
   resizeUploadProfileImage,
