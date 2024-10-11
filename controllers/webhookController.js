@@ -86,37 +86,35 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
       // Iterate over each purchased product
       await Promise.all(
         lineItems.data.map(async (item) => {
-          console.log('Checking Item', item.price.product);
-          // const productId = item.price.product.metadata.product_id;
-          // const price = item.price.unit_amount / 100; // Convert from cents to dollars
-          // const total = price * item.quantity;
 
-          // // Create a purchase detail entry for each product
-          // const purchasedDetail = await PurchasedDetail.create({
-          //   purchasedId: purchased.id,
-          //   productId: productId,
-          //   quantity: item.quantity,
-          //   price: price,
-          //   total: total,
-          // });
+          const productId = item.price.product.metadata.product_id;
+          const price = item.price.unit_amount / 100; // Convert from cents to dollars
+          const total = price * item.quantity;
 
-          // // Find the product's instructor
-          // const product = await Product.findByPk(productId);
+          // Create a purchase detail entry for each product
+          const purchasedDetail = await PurchasedDetail.create({
+            purchasedId: purchased.id,
+            productId: productId,
+            quantity: item.quantity,
+            price: price,
+            total: total,
+          });
 
-          // // Create an entry in product_sale_history
-          // await ProductSaleHistory.create({
-          //   productId: productId,
-          //   customerId: customerId,
-          //   purchasedDetailId: purchasedDetail.id,
-          //   instructorId: product.instructorId,
-          //   isDelivered: false, // Set to true upon delivery
-          // });
+          // Find the product's instructor
+          const product = await Product.findByPk(productId);
+
+          // Create an entry in product_sale_history
+          await ProductSaleHistory.create({
+            productId: productId,
+            customerId: customerId,
+            purchasedDetailId: purchasedDetail.id,
+            instructorId: product.instructorId,
+            isDelivered: false, // Set to true upon delivery
+          });
         }),
       );
 
-      console.log(
-        `Product Payment completed: ${session.id} ${lineItems} ${session.amount_total / 100}`,
-      );
+      console.log(`Product Payment completed: ${session.id}`);
     }
   }
   res.status(200).json({ received: true });
