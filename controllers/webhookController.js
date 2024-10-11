@@ -107,7 +107,7 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
           await ProductSaleHistory.create({
             productId: productId,
             customerId: customerId,
-            purchasedDetailId: purchasedDetail.id,
+            purchasedDetailId: purchasedDetail.purchasedDetailId,
             instructorId: product.instructorId,
             isDelivered: false, // Set to true upon delivery
           });
