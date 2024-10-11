@@ -72,6 +72,9 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
       const { customerId } = session.metadata;
       const lineItems = await stripe.checkout.sessions.listLineItems(
         session.id,
+        {
+          expand: ['data.price.product'],
+        },
       );
 
       // Create a purchase record for the transaction
@@ -83,31 +86,31 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
       // Iterate over each purchased product
       await Promise.all(
         lineItems.data.map(async (item) => {
-          console.log('Checking Item', item.price.product.metadata);
-          const productId = item.price.product.metadata.product_id;
-          const price = item.price.unit_amount / 100; // Convert from cents to dollars
-          const total = price * item.quantity;
+          console.log('Checking Item', item.price.product);
+          // const productId = item.price.product.metadata.product_id;
+          // const price = item.price.unit_amount / 100; // Convert from cents to dollars
+          // const total = price * item.quantity;
 
-          // Create a purchase detail entry for each product
-          const purchasedDetail = await PurchasedDetail.create({
-            purchasedId: purchased.id,
-            productId: productId,
-            quantity: item.quantity,
-            price: price,
-            total: total,
-          });
+          // // Create a purchase detail entry for each product
+          // const purchasedDetail = await PurchasedDetail.create({
+          //   purchasedId: purchased.id,
+          //   productId: productId,
+          //   quantity: item.quantity,
+          //   price: price,
+          //   total: total,
+          // });
 
-          // Find the product's instructor
-          const product = await Product.findByPk(productId);
+          // // Find the product's instructor
+          // const product = await Product.findByPk(productId);
 
-          // Create an entry in product_sale_history
-          await ProductSaleHistory.create({
-            productId: productId,
-            customerId: customerId,
-            purchasedDetailId: purchasedDetail.id,
-            instructorId: product.instructorId,
-            isDelivered: false, // Set to true upon delivery
-          });
+          // // Create an entry in product_sale_history
+          // await ProductSaleHistory.create({
+          //   productId: productId,
+          //   customerId: customerId,
+          //   purchasedDetailId: purchasedDetail.id,
+          //   instructorId: product.instructorId,
+          //   isDelivered: false, // Set to true upon delivery
+          // });
         }),
       );
 
