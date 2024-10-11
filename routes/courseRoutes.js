@@ -15,7 +15,11 @@ router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 router.use(authController.protect);
 
 router.use(uploadCourseVideos);
-router.post('/uploadCourse', courseController.uploadCourse);
+router.post(
+  '/uploadCourse',
+  instructorController.fetchInstructor,
+  courseController.uploadCourse,
+);
 
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
