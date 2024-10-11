@@ -325,14 +325,18 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         : [];
     
       // Process lecture updates/creations in parallel
+      console.log('Processing section:', section); 
       const lecturePromises = section.allLecture.map(async (lecture) => {
+        // Log lecture information for debugging
+        console.log('Processing Lecture:', lecture);
+
         if (lecture.lectureId) {
           const existingLecture = await Lecture.findByPk(lecture.lectureId, { transaction });
           if (existingLecture) {
             return existingLecture.update(
               {
                 name: lecture.lectureName,
-                video_url: lecture.videoUrl,
+                videoUrl: lecture.videoUrl,
                 duration: lecture.duration,
               },
               { transaction },
@@ -361,9 +365,10 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     // Commit the transaction after everything is done
     await transaction.commit();
 
+
     res.status(200).json({
       status: 'success',
-      message: 'Course, sections, and lectures updated successfully',
+      message:  course
     });
   } catch (error) {
     // Rollback the transaction in case of an error
