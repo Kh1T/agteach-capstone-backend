@@ -1,14 +1,11 @@
 const Course = require('../models/courseModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
 const Section = require('../models/sectionModel');
-const SectionLecture = require('../models/sectionLectureModel');
 const Instructor = require('../models/instructorModel');
 const Lecture = require('../models/lectureModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
-const { uploadCourseVideos } = require('../utils/multerConfig');
 const { createSectionsLectures } = require('../utils/createSectionLectures');
-const { json } = require('sequelize');
 
 exports.searchData = handleFactory.SearchData(Course);
 
