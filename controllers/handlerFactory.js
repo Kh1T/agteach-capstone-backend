@@ -159,6 +159,8 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
   catchAsync(async (req, res, next) => {
     const itemId = req.params.id;
 
+    console.log(req.url);
+
     // Find the item (e.g., product or course) by its ID
     const item = await Model.findOne({
       where: { [idField]: itemId },
