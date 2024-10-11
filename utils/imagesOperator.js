@@ -20,23 +20,14 @@ const removeProductImages = async (productId, removedImages) => {
   }
 };
 
-const uploadProductCoverImage = async (productId, productCover) => {
-  if (productCover) {
-    return await uploadCoverImage(productId, productCover[0].buffer);
-  }
-  return null;
-};
-
-const uploadAndSaveCoverImage = async (product, productCover) => {
-  if (productCover) {
-    const productCoverBuffer = productCover[0].buffer;
-    const productCoverUrl = await uploadCoverImage(
-      product.productId,
-      productCoverBuffer,
-    );
-    product.imageUrl = productCoverUrl;
-    await product.save();
-  }
+const handleAddUpdateCoverImage = async (product, productCover) => {
+  const productCoverBuffer = productCover[0].buffer;
+  const productCoverUrl = await uploadCoverImage(
+    product.productId,
+    productCoverBuffer,
+  );
+  product.imageUrl = productCoverUrl;
+  await product.save();
 };
 
 const handleAdditionalImages = async (
@@ -77,12 +68,11 @@ const uploadAndSaveAdditionalImages = async (productId, productImages) => {
   return additionalImagesUrls;
 };
 
-
 module.exports = {
   validateImages,
   removeProductImages,
-  uploadAndSaveCoverImage,
-  uploadProductCoverImage,
+  handleAddUpdateCoverImage,
+
   handleAdditionalImages,
   uploadAndSaveAdditionalImages,
 };

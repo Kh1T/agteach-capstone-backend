@@ -10,6 +10,11 @@ const {
   uploadCoverImage,
   uploadAdditionalImages,
 } = require('../utils/s3ImageUpload');
+const {
+  validateImages,
+  removeProductImages,
+  handleAddUpdateCoverImage,
+} = require('../utils/imagesOperator');
 
 exports.getAll = handleFactory.getAll(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
@@ -44,13 +49,9 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
 
 exports.createProduct = catchAsync(async (req, res, next) => {
   // Validate cover and additional images
-  const validateImages = (files, name) => {
-    if (!files || files.length === 0) {
-      return next(new AppError(`${name} is required`, 400));
-    }
-  };
-  validateImages(req.files.productCover, 'Product cover image');
-  validateImages(req.files.productImages, 'Product images');
+
+  validateImages(req.files.productCover, 'Product cover image', next);
+  validateImages(req.files.productImages, 'Product images', next);
 
   // Create the product without the image URL initially
   const newProduct = await Product.create({
@@ -59,13 +60,8 @@ exports.createProduct = catchAsync(async (req, res, next) => {
     imageUrl: '', // Placeholder for the cover image URL
   });
 
-  // Upload product cover image and update product record
-  const productCoverBuffer = req.files.productCover[0].buffer;
-  newProduct.imageUrl = await uploadCoverImage(
-    newProduct.productId,
-    productCoverBuffer,
-  );
-  await newProduct.save();
+  // Upload product cover image
+  await handleAddUpdateCoverImage(newProduct, req.files.productCover);
 
   // Upload additional images and save to the database
   const additionalImagesUrls = await uploadAdditionalImages(
@@ -116,23 +112,15 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   if (!product) return next(new AppError('No product found with that ID', 404));
   // Update product properties
   Object.assign(product, { categoryId, name, description, quantity, price });
+
   // Remove specified images
-  if (removedImages) {
-    await ProductImage.destroy({
-      where: {
-        productId: product.productId,
-        imageUrl: JSON.parse(removedImages),
-      },
-    });
-  }
+  await removeProductImages(product.productId, removedImages);
+
   // Upload new cover image if provided
   if (req.files.productCover) {
-    const productCoverUrl = await uploadCoverImage(
-      product.productId,
-      req.files.productCover[0].buffer,
-    );
-    product.imageUrl = productCoverUrl;
+    await handleAddUpdateCoverImage(product, req.files.productCover);
   }
+
   // Handle additional images
   const existingImages = await ProductImage.findAll({
     where: { productId },
