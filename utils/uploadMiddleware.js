@@ -37,74 +37,57 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 });
 
 const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
+
   console.log(options);
-  // if (!options.videos) return;
-  // let totalDuration = 0;
-  // let videoPreviewUrl = '';
+  if (!options.files) return;
+  const {files} = options
+  let totalDuration = 0;
+  let videoPreviewUrl = '';
 
-  // const url = process.env.AWS_S3_BUCKET_URL;
+  const url = process.env.AWS_S3_BUCKET_URL;
 
-  // const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
-  //   const filename = `courses/${options.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}.mp4`;
+  const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
+    const filename = `courses/${options.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}.mp4`;
 
-  //   // sectionLecture.sectionId
-  //   const input = {
-  //     Bucket: process.env.AWS_S3_BUCKET_URL,
-  //     Key: filename,
-  //     Body: options.videos[idx].buffer,
-  //     ContentType: 'video/mp4',
-  //   };
+    // sectionLecture.sectionId
+    const input = {
+      Bucket: process.env.AWS_S3_BUCKET_URL,
+      Key: filename,
+      Body: files.videos[idx].buffer,
+      ContentType: 'video/mp4',
+    };
 
-  //   // First Video as Preview
-  //   if (idx === 0) videoPreviewUrl = url + filename;
+    // First Video as Preview
+    if (idx === 0) videoPreviewUrl = url + filename;
 
-  //   // Write buffer to temp file
-  //   // Path to the temporary directory
-  //   const tempDir = path.join('temp');
+    // Write buffer to temp file
+    // Path to the temporary directory
+    const tempDir = path.join('temp');
 
-  //   // Create the directory if it doesn't exist
-  //   if (!fs.existsSync(tempDir)) {
-  //     fs.mkdirSync(tempDir);
-  //   }
-  //   const tempFilePath = path.join(
-  //     'temp',
-  //     `${options.videos[idx].originalname}`,
-  //   );
-  //   let videoDuration;
-  //   fs.mkdir(tempDir, { recursive: true }, (err) => {
-  //     if (err) return new AppError('Error creating directory', 500);
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+    const tempFilePath = path.join(
+      'temp',
+      `${files.videos[idx].originalname}`,
+    );
+    let videoDuration;
 
-  //     // Write the file asynchronously
-  //     fs.writeFile(tempFilePath, options.videos[idx].buffer, () => {
-  //       // Get the video duration after writing the file
-  //       getVideoDurationInSeconds(tempFilePath)
-  //         .then((duration) => {
-  //           videoDuration = duration;
-  //           totalDuration += videoDuration;
-  //           // Optional: Clean up the temporary file if needed
-  //           fs.unlink(tempFilePath, () => {
-  //             if (err) throw err;
-  //           });
-  //         })
-  //         .catch(() => {
-  //           throw err;
-  //         });
-  //     });
-  //   });
-  //   // sectionLecture.videoUrl = url + filename;
-  //   // sectionLecture.duration = videoDuration;
+    sectionLecture.videoUrl = url + filename;
+    sectionLecture.duration = videoDuration;
 
-  //   // const lecture = await Lecture.findByPk(section.lectureId);
-  //   // if (lecture) {
-  //   //   lecture.videoUrl = url + filename;
-  //   //   lecture.duration = videoDuration;
-  //   //   await lecture.save();
-  //   // }
+    // const lecture = await Lecture.findByPk(section.lectureId);
+    // if (lecture) {
+    //   lecture.videoUrl = url + filename;
+    //   lecture.duration = videoDuration;
+    //   await lecture.save();
+    // }
 
-  //   // await s3Client.send(new PutObjectCommand(input));
-  //   console.log('section_lection: ', sectionLecture);
-  // });
-  // await Promise.all(promiseSectionLecture);
+    // await s3Client.send(new PutObjectCommand(input));
+    console.log('section_lection: ', sectionLecture);
+  });
+  await Promise.all(promiseSectionLecture);
 
   // const filename = `courses/${sectionLecture[0].courseId}/thumbnail.jpeg`;
 
