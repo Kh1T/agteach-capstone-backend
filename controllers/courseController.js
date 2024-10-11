@@ -231,7 +231,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
 // });
 
 exports.updateCourse = catchAsync(async (req, res, next) => {
-  const { courseId } = req.params;
+  const { id } = req.params;
   const { courseName, description, price, courseObjective, allSection } =
     req.body;
 
@@ -243,10 +243,11 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
 
   try {
     // Step 1: Update the course details
-    const course = await Course.findByPk(courseId);
+    const course = await Course.findByPk(id);
     if (!course) {
       return next(new AppError('Course not found', 404));
     }
+    const { instructorId } = await Instructor.findByPk(course.instructorId);
 
     await course.update(
       {
@@ -266,7 +267,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
 
     // Get all existing sections for the course
     const existingSections = await Section.findAll({
-      where: { course_id: courseId },
+      where: { course_id: id },
       transaction,
     });
 
@@ -280,7 +281,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     );
     if (sectionsToDelete.length > 0) {
       await Section.destroy({
-        where: { section_id: sectionsToDelete },
+        where: { sectionId: sectionsToDelete },
         transaction,
       });
     }
@@ -297,7 +298,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         }
       } else {
         updatedSection = await Section.create(
-          { course_id: courseId, name: section.sectionName },
+          { courseId: id, name: section.sectionName, instructorId  },
           { transaction },
         );
       }
@@ -308,11 +309,11 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         .filter(Boolean);
     
       const existingLectures = await Lecture.findAll({
-        where: { section_id: updatedSection.section_id },
+        where: { sectionId: updatedSection.sectionId },
         transaction,
       });
     
-      const existingLectureIds = existingLectures.map((lecture) => lecture.lecture_id);
+      const existingLectureIds = existingLectures.map((lecture) => lecture.lectureId);
     
       // Delete lectures that are not present in the request
       const lecturesToDelete = existingLectureIds.filter(
@@ -320,7 +321,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       );
     
       const deletePromises = lecturesToDelete.length > 0 
-        ? Lecture.destroy({ where: { lecture_id: lecturesToDelete }, transaction })
+        ? Lecture.destroy({ where: { lectureId: lecturesToDelete }, transaction })
         : [];
     
       // Process lecture updates/creations in parallel
@@ -340,9 +341,9 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         } else {
           return Lecture.create(
             {
-              section_id: updatedSection.section_id,
+              sectionId: updatedSection.sectionId,
               name: lecture.lectureName,
-              video_url: lecture.videoUrl,
+              videoUrl: lecture.videoUrl,
               duration: lecture.duration,
             },
             { transaction },
