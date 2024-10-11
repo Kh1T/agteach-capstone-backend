@@ -93,7 +93,7 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
 
           // Create a purchase detail entry for each product
           const purchasedDetail = await PurchasedDetail.create({
-            purchasedId: purchased.id,
+            purchasedId: purchased.purchasedId,
             productId: productId,
             quantity: item.quantity,
             price: price,
