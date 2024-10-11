@@ -8,6 +8,7 @@ const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const { uploadCourseVideos } = require('../utils/multerConfig');
 const { createSectionsLectures } = require('../utils/createSectionLectures');
+const { json } = require('sequelize');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -24,9 +25,12 @@ exports.recommendCourse = handleFactory.recommendItems(
 exports.getInstructorCourse = handleFactory.getUserItems(Course, Instructor);
 
 exports.getOne = catchAsync(async (req, res, next) => {
-  const course = await SectionLecture.findAll({
+  const course = await Course.findOne({
     where: { courseId: req.params.id },
-    include: [{ model: Course }, { model: Section }, { model: Lecture }],
+    include: [
+      { model: Section, include: [{ model: Lecture }] },
+      { model: Instructor },
+    ],
   });
 
   res.status(200).json({
@@ -47,6 +51,9 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   } = req.body;
 
   const parsedSections = JSON.parse(allSection);
+  const parsedProductSuggestions = !!ProductSuggestionId
+    ? JSON.parse(ProductSuggestionId)
+    : null;
 
   const newCourse = await Course.create({
     name: courseName,
@@ -57,9 +64,9 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     thumbnailUrl,
   });
 
-  await ProductSuggestion.create({
+  await ProductSuggestion.bulkCreate({
     courseId: newCourse.courseId,
-    productId: ProductSuggestionId,
+    productId: parsedProductSuggestions,
     instructorId: req.instructorId,
   });
 
@@ -72,5 +79,6 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: 'success',
     message: 'Course and related data created successfully',
+    data: newCourse,
   });
 });
