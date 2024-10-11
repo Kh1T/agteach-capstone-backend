@@ -1,5 +1,6 @@
 const Course = require('../models/courseModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
+const Product = require('../models/productModel');
 const Section = require('../models/sectionModel');
 const Instructor = require('../models/instructorModel');
 const Lecture = require('../models/lectureModel');
@@ -27,6 +28,7 @@ exports.getOne = catchAsync(async (req, res, next) => {
     include: [
       { model: Section, include: [{ model: Lecture }] },
       { model: Instructor },
+      { model: ProductSuggestion, include: [{ model: Product }] },
     ],
   });
 
