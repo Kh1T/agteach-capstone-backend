@@ -51,7 +51,7 @@ exports.updateMe = (Model) =>
       );
     }
     // // 2) Filtered out unwanted fields names that are not allowed to be updated
-    req.body.imageUrl = req.file ? req.file.filename : null;
+    if (req.file) req.body.imageUrl = req.file.filename ;
     const filteredBody = filterObj(
       req.body,
       'username',
