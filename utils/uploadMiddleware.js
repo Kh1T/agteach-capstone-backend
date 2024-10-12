@@ -69,13 +69,14 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     bucket = process.env.AWS_S3_ASSET_COURSE_BUCKET;
   } else {
     url = process.env.AWS_S3_BUCKET_URL;
-    bucket = process.env.AWS_S3_ASSET_BUCKET
+    bucket = process.env.AWS_S3_ASSET_BUCKET;
   }
 
   // There are many lecutre when create bulk
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
-
+    console.log('lecuture_name: ', lecture.name, 'video idx:', idx);
+    console.log('video_file_name: ', options.files.videos[idx]);
     // Upload to AWS
     const input = {
       Bucket: bucket,
