@@ -3,9 +3,6 @@ const { PutObjectCommand } = require('@aws-sdk/client-s3');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
-const Lecture = require('../models/lectureModel');
-const AppError = require('./appError');
-const Course = require('../models/courseModel');
 
 // Upload Profile Image
 // Need User role from protected route
@@ -59,84 +56,49 @@ const resizeUplaodCourseThumbail = catchAsync(
   },
 );
 
-const uploadCourseVidoes = catchAsync(async (currentLectures, options) => {
+const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
+  // If using HLS video give true else give false;
+  const isHlsVideo = true;
   if (!options.files) return;
 
   // options{ courseId, files: videos[], thumnail[] }
-  const url = process.env.AWS_S3_BUCKET_URL;
+  let url;
+  let bucket;
+  if (isHlsVideo) {
+    url = process.env.AWS_S3_BUCKET_TRANSCODE_URL;
+    bucket = process.env.AWS_S3_ASSET_COURSE_BUCKET;
+  } else {
+    url = process.env.AWS_S3_BUCKET_URL;
+    bucket = process.env.AWS_S3_ASSET_BUCKET
+  }
 
   // There are many lecutre when create bulk
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
-    const filename = `courses/${options.courseId}/section_${currentLectures.sectionId}/lecture-${currentLectures.lectureId}.mp4`;
+    const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
 
+    // Upload to AWS
+    const input = {
+      Bucket: bucket,
+      Key: filename,
+      Body: options.files.videos[idx].buffer,
+    };
+    // await s3Client.send(new PutObjectCommand(input));
+
+    if (isHlsVideo) {
+      // Split to get filename without extension
+      lecture.videoUrl = `${url}${filename.split('.')[0]}/master.m3u8`;
+    } else {
+      lecture.videoUrl = url + filename;
+    }
+
+    console.log(lecture);
+    await lecture.save();
   });
   await Promise.all(lecturePromises);
 });
 
-const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
-  console.log(options);
-  if (!options.files) return;
-
-  // options{ courseId, files: videos[], thumnail[] }
-  const { files } = options;
-  // let videoPreviewUrl = '';
-
-  const url = process.env.AWS_S3_BUCKET_URL;
-
-  const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
-    // filename to put into the bucket
-    const filename = `courses/${options.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}.mp4`;
-
-    // Upload to AWS
-    const input = {
-      Bucket: process.env.AWS_S3_BUCKET_URL,
-      Key: filename,
-      Body: files.videos[idx].buffer,
-      ContentType: 'video/mp4',
-    };
-
-    // First Video as Preview
-    // if (idx === 0) videoPreviewUrl = url + filename;
-
-    // const lecture = await Lecture.findByPk(section.lectureId);
-    // if (lecture) {
-    //   lecture.videoUrl = url + filename;
-    //   lecture.duration = videoDuration;
-    //   await lecture.save();
-    // }
-
-    // await s3Client.send(new PutObjectCommand(input));
-    console.log('section_lection: ', sectionLecture);
-  });
-  await Promise.all(promiseSectionLecture);
-
-  // const filename = `courses/${sectionLecture[0].courseId}/thumbnail.jpeg`;
-
-  // if (options.thumbnails) {
-  //   const buffer = await sharp(options.thumbnails[0].buffer)
-  //     .resize(500, 500)
-  //     .toFormat('jpeg')
-  //     .jpeg({ quality: 90 })
-  //     .toBuffer();
-  //   const input = {
-  //     Bucket: process.env.AWS_S3_ASSET_BUCKET,
-  //     Key: filename,
-  //     Body: buffer,
-  //     ContentType: 'image/jpeg',
-  //   };
-  //   await s3Client.send(new PutObjectCommand(input));
-  // }
-
-  // const course = await Course.findByPk(sectionLecture[0].courseId);
-  // if (course) {
-  //   course.duration = totalDuration;
-  //   course.thumbnailUrl = url + filename;
-  //   await course.save();
-  // }
-});
 module.exports = {
   resizeUploadProfileImage,
-  uploadCourseVideosFile,
   resizeUplaodCourseThumbail,
-  uploadCourseVidoes,
+  uploadCourseVideos,
 };

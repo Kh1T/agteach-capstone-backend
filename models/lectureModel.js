@@ -1,11 +1,8 @@
 const { DataTypes } = require('sequelize');
-const fs = require('fs');
-const path = require('path');
+
 // const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const { getVideoDurationInSeconds } = require('get-video-duration');
 const sequelize = require('../config/db');
-const AppError = require('../utils/appError');
-const { uploadCourseVideosFile } = require('../utils/uploadMiddleware');
+const { uploadCourseVideos } = require('../utils/uploadMiddleware');
 
 const Lecture = sequelize.define('lecture', {
   lectureId: {
@@ -58,10 +55,8 @@ module.exports = Lecture;
 //   await uploadCourseVideosFile(lectures, options);
 // });
 
-Lecture.afterBulkCreate(async (sectionLecture, options) => {
-
-  // console.log(sectionLecture);
-  // console.log('options', options)
-  // await uploadCourseVideosFile(sectionLecture, options);
- 
+Lecture.afterBulkCreate(async (lectures, options) => {
+  if (!options.files) return;
+  console.log(lectures);
+  uploadCourseVideos(lectures, options);
 });
