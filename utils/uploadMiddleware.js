@@ -1,8 +1,5 @@
 const sharp = require('sharp');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const path = require('path');
-const { getVideoDurationInSeconds } = require('get-video-duration');
-const fs = require('fs');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
@@ -36,20 +33,61 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   next();
 });
 
-const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
+// Upload Thumnail Course
+// This function will use in the after create course to get courseId
+const resizeUplaodCourseThumbail = catchAsync(
+  async (currentCourse, options) => {
+    // options{ courseId, files: videos[], thumnailUrl[] }
+    const url = process.env.AWS_S3_BUCKET_URL;
+    const filename = `courses/${currentCourse.courseId}/thumbnail.jpeg`;
 
+    const buffer = await sharp(options.files.thumbnailUrl[0].buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toBuffer();
+
+    const input = {
+      Bucket: process.env.AWS_S3_ASSET_BUCKET,
+      Key: filename,
+      Body: buffer,
+      ContentType: 'image/jpeg',
+    };
+    await s3Client.send(new PutObjectCommand(input));
+    currentCourse.thumbnailUrl = url + filename;
+    await currentCourse.save();
+  },
+);
+
+const uploadCourseVidoes = catchAsync(async (currentLectures, options) => {
+  if (!options.files) return;
+
+  // options{ courseId, files: videos[], thumnail[] }
+  const url = process.env.AWS_S3_BUCKET_URL;
+
+  // There are many lecutre when create bulk
+  const lecturePromises = currentLectures.map(async (lecture, idx) => {
+    const filename = `courses/${options.courseId}/section_${currentLectures.sectionId}/lecture-${currentLectures.lectureId}.mp4`;
+
+  });
+  await Promise.all(lecturePromises);
+});
+
+const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
   console.log(options);
   if (!options.files) return;
-  const {files} = options
-  let totalDuration = 0;
-  let videoPreviewUrl = '';
+
+  // options{ courseId, files: videos[], thumnail[] }
+  const { files } = options;
+  // let videoPreviewUrl = '';
 
   const url = process.env.AWS_S3_BUCKET_URL;
 
   const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
+    // filename to put into the bucket
     const filename = `courses/${options.courseId}/section_${sectionLecture.sectionId}/lecture-${sectionLecture.lectureId}.mp4`;
 
-    // sectionLecture.sectionId
+    // Upload to AWS
     const input = {
       Bucket: process.env.AWS_S3_BUCKET_URL,
       Key: filename,
@@ -58,24 +96,7 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
     };
 
     // First Video as Preview
-    if (idx === 0) videoPreviewUrl = url + filename;
-
-    // Write buffer to temp file
-    // Path to the temporary directory
-    const tempDir = path.join('temp');
-
-    // Create the directory if it doesn't exist
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-    const tempFilePath = path.join(
-      'temp',
-      `${files.videos[idx].originalname}`,
-    );
-    let videoDuration;
-
-    sectionLecture.videoUrl = url + filename;
-    sectionLecture.duration = videoDuration;
+    // if (idx === 0) videoPreviewUrl = url + filename;
 
     // const lecture = await Lecture.findByPk(section.lectureId);
     // if (lecture) {
@@ -116,4 +137,6 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
 module.exports = {
   resizeUploadProfileImage,
   uploadCourseVideosFile,
+  resizeUplaodCourseThumbail,
+  uploadCourseVidoes,
 };

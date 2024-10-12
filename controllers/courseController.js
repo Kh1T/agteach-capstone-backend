@@ -66,7 +66,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     numberOfVideo: req.files.videos?.length,
     instructorId: req.instructorId,
     thumbnailUrl,
-  });
+  }, {files: req.files});
 
   await ProductSuggestion.bulkCreate({
     courseId: newCourse.courseId,

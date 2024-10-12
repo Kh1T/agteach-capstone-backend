@@ -62,6 +62,6 @@ Lecture.afterBulkCreate(async (sectionLecture, options) => {
 
   // console.log(sectionLecture);
   // console.log('options', options)
-  await uploadCourseVideosFile(sectionLecture, options);
+  // await uploadCourseVideosFile(sectionLecture, options);
  
 });

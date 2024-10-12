@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const { resizeUplaodCourseThumbail } = require('../utils/uploadMiddleware');
 
 const Course = sequelize.define('course', {
   courseId: {
@@ -62,3 +63,8 @@ const Course = sequelize.define('course', {
 });
 
 module.exports = Course;
+
+Course.afterCreate(async (course, options) => {
+  if (!options.files) return;
+  resizeUplaodCourseThumbail(course, options);
+});
