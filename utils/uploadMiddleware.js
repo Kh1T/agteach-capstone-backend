@@ -74,15 +74,17 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
 
   // There are many lecutre when create bulk
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
+    idx += options.videoIndex;
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
-    // console.log('video_file_name: ', options.files.videos[idx]);
+    console.log('lecuture_name: ', lecture.name, 'video idx:', options.videoIndex);
+    console.log('video_file_name: ', options.files.videos[options.videoIndex].originalname);
     // Upload to AWS
     const input = {
       Bucket: bucket,
       Key: filename,
-      Body: options.files.videos[options.videoIndex].buffer,
+      Body: options.files.videos[idx].buffer,
     };
-    // await s3Client.send(new PutObjectCommand(input));
+    await s3Client.send(new PutObjectCommand(input));
 
     if (isHlsVideo) {
       // Split to get filename without extension
