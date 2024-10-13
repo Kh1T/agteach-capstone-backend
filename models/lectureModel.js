@@ -57,6 +57,6 @@ module.exports = Lecture;
 
 Lecture.afterBulkCreate(async (lectures, options) => {
   if (!options.files) return;
-  console.log(lectures);
   uploadCourseVideos(lectures, options);
+  // options.body.sectionNo += 1;
 });

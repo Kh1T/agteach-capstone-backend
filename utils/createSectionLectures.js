@@ -2,6 +2,9 @@ const Section = require('../models/sectionModel');
 const Lecture = require('../models/lectureModel');
 
 exports.createSectionsLectures = async (sections, courseId, instructorId,req) => {
+  // Get section no to give video upload 
+  req.body.sectionNo = 0
+  let videoIndex = 0;
   const sectionLectures = sections.map(async (section) => {
     const newSection = await Section.create({
       name: section.sectionName,
@@ -15,9 +18,10 @@ exports.createSectionsLectures = async (sections, courseId, instructorId,req) =>
       sectionId: newSection.sectionId,
       courseId,
     }));
-
-    return Lecture.bulkCreate(lectures, { courseId, files: req.files});
+    const lecutreBulk = Lecture.bulkCreate(lectures, { courseId, files: req.files, videoIndex: videoIndex});
+    videoIndex += section.allLecture.length
+    console.log('videoIndex: ', videoIndex);
+    return lecutreBulk
   });
-
   return Promise.all(sectionLectures);
 };

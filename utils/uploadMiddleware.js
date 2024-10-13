@@ -75,13 +75,12 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   // There are many lecutre when create bulk
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
-    console.log('lecuture_name: ', lecture.name, 'video idx:', idx);
-    console.log('video_file_name: ', options.files.videos[idx]);
+    // console.log('video_file_name: ', options.files.videos[idx]);
     // Upload to AWS
     const input = {
       Bucket: bucket,
       Key: filename,
-      Body: options.files.videos[idx].buffer,
+      Body: options.files.videos[options.videoIndex].buffer,
     };
     // await s3Client.send(new PutObjectCommand(input));
 
@@ -91,7 +90,7 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     } else {
       lecture.videoUrl = url + filename;
     }
-
+    options.videoIndex += 1
     console.log(lecture);
     await lecture.save();
   });
