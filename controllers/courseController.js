@@ -102,10 +102,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
   const { courseName, description, price, courseObjective, allSection } =
     req.body;
 
-  // Parse the incoming sections and lectures data
   const parseAllSection = JSON.parse(allSection);
-
-  // Start a transaction to ensure consistency
   const transaction = await sequelize.transaction();
 
   try {
@@ -114,7 +111,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     if (!course) {
       return next(new AppError('Course not found', 404));
     }
-    // const { instructorId } = await Instructor.findByPk(course.instructorId);
+
     const { instructorId } = req.memberData;
     await course.update(
       {
@@ -126,13 +123,11 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       { transaction },
     );
 
-    // Step 2: Update the sections and lectures
-
+    // Step 2: Get existing sections for comparison
     const sectionIdsFromRequest = parseAllSection
       .map((section) => section.sectionId)
       .filter((id) => !!id);
 
-    // Get all existing sections for the course
     const existingSections = await Section.findAll({
       where: { courseId: id },
       transaction,
@@ -141,13 +136,11 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     const existingSectionIds = existingSections.map(
       (section) => section.sectionId,
     );
-    console.log('existingSectionsID:', existingSectionIds);
 
-    // Delete sections that are not in the request anymore
+    // Step 3: Delete sections that are not in the request
     const sectionsToDelete = existingSectionIds.filter(
       (id) => !sectionIdsFromRequest.includes(id),
     );
-    console.log('sectionsToDelete:', sectionsToDelete);
     if (sectionsToDelete.length > 0) {
       await Section.destroy({
         where: { sectionId: sectionsToDelete },
@@ -155,12 +148,16 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       });
     }
 
-    // Step 3: Iterate through the request sections
-    const sectionPromises = parseAllSection.map(async (section) => {
+    // Step 4: Process sections individually (no bulk section creation)
+    const newLectures = [];
+    const updateLectures = [];
+    const lecturesToDelete = [];
+    let videoIndex = 0;
+    for (const section of parseAllSection) {
       let updatedSection;
-
-      // Update or create section
+      console.log('process section:', section);
       if (section.sectionId) {
+        // If section exists, update it
         updatedSection = await Section.findByPk(section.sectionId, {
           transaction,
         });
@@ -171,13 +168,20 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
           );
         }
       } else {
+        // Create a new section (no bulk)
+
         updatedSection = await Section.create(
-          { courseId: id, name: section.sectionName, instructorId },
+          {
+            courseId: id,
+            name: section.sectionName,
+            instructorId,
+            videoIndex,
+          },
           { transaction },
         );
       }
 
-      // Fetch existing lectures for the section
+      // Step 5: Handle lectures for each section
       const lectureIdsFromRequest = section.allLecture
         .map((lecture) => lecture.lectureId)
         .filter(Boolean);
@@ -190,83 +194,79 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       const existingLectureIds = existingLectures.map(
         (lecture) => lecture.lectureId,
       );
-
-      // Delete lectures that are not present in the request
-      const lecturesToDelete = existingLectureIds.filter(
-        (id) => !lectureIdsFromRequest.includes(id),
+      lecturesToDelete.push(
+        ...existingLectureIds.filter(
+          (id) => !lectureIdsFromRequest.includes(id),
+        ),
       );
-
-      const deletePromises =
-        lecturesToDelete.length > 0
-          ? Lecture.destroy({
-              where: { lectureId: lecturesToDelete },
-              transaction,
-            })
-          : [];
-
-      // Process lecture updates/creations in parallel
-      console.log('Processing section:', section);
-      const lecturePromises = section.allLecture.map(async (lecture) => {
-        // Log lecture information for debugging
-        console.log('Processing Lecture:', lecture);
-
-        const newLectures = [];
-        console.log('existing lecture:', lecture.lectureId);
-        console.log('transation', transaction);
+      let index = 0;
+      for (const lecture of section.allLecture) {
         if (lecture.lectureId) {
-          const existingLecture = await Lecture.findByPk(lecture.lectureId, {
-            transaction,
+          // Update existing lecture
+          const videoFile = req.files.find(
+            (file) =>
+              file.fieldname ===
+              `videos[${section.sectionId}][${lecture.lectureId}]`,
+          );
+          console.log('video file index:',videoFile);
+
+          updateLectures.push({
+            lectureId: lecture.lectureId,
+            name: lecture.lectureName,
+            duration: lecture.duration,
           });
-          if (existingLecture) {
-            console.log('options file:', options.files);
-            const videoFile = options.files.find(
-              (file) => file.fieldname === `vides[${lecture.setcionId}][${lecture.lectureId}]`,
-            );
-            console.log('upload Videofile:',videoFile);
-            return existingLecture.update(
-              {
-                name: lecture.lectureName,
-                videoUrl: lecture.videoUrl,
-                duration: lecture.duration,
-              },
-              { transaction },
-            );
-          }
         } else {
+          // Collect new lectures for bulk creation after section creation
           newLectures.push({
-            sectionId: updatedSection.sectionId,
+            sectionId: updatedSection.sectionId, // Ensure it's linked to the right section
             name: lecture.lectureName,
             videoUrl: lecture.videoUrl,
             duration: lecture.duration,
+            videoIndex: index,
           });
-          // return Lecture.create(
-          //   {
-          //     sectionId: updatedSection.sectionId,
-          //     name: lecture.lectureName,
-          //     videoUrl: lecture.videoUrl,
-          //     duration: lecture.duration,
-          //   },
-          //   { transaction },
-          // );
+          console.log('video file index:',index);
+          index += 1;
+          console.log('updatedSection',updatedSection)
         }
-      });
-      if (newLectures.length > 0) {
-        await Lecture.bulkCreate(newLectures, {
-          courseId: id,
-          files: req.files,
-          videoIndex: videoIndex,
-          transaction,
-        });
       }
+    }
+    
+    // Step 6: Bulk create new lectures
+    if (newLectures.length > 0) {
+      await Lecture.bulkCreate(newLectures, {
+        courseId: id,
+        files: req.files,
+        isUpdated: true,
+        transaction,
+      });
+      // console.log('videoIndex', newLectures)
+    }
+    
+    // Step 7: Bulk update lectures
+    if (updateLectures.length > 0) {
+      await Promise.all(
+        updateLectures.map((lecture) => {
+          return Lecture.update(
+            {
+              name: lecture.name,
+              videoUrl: lecture.videoUrl,
+              duration: lecture.duration,
+            },
+            { where: { lectureId: lecture.lectureId }, transaction },
+          );
+        }),
+      );
+    }
 
-      // Resolve all delete and lecture creation/update promises
-      await Promise.all([deletePromises, ...lecturePromises]);
-    });
+    // Step 8: Delete lectures that were not in the request
+    if (lecturesToDelete.length > 0) {
+      await Lecture.destroy({
+        where: { lectureId: lecturesToDelete },
+        transaction,
+      });
+    }
 
-    // Execute all section-related promises in parallel
-    await Promise.all(sectionPromises);
-
-    // Commit the transaction after everything is done
+    // Step 9: Commit transaction
     await transaction.commit();
 
     res.status(200).json({
@@ -274,8 +274,191 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       message: course,
     });
   } catch (error) {
-    // Rollback the transaction in case of an error
+    // Rollback the transaction in case of error
     await transaction.rollback();
     return next(error);
   }
 });
+
+// exports.updateCourse = catchAsync(async (req, res, next) => {
+//   const { id } = req.params;
+//   const { courseName, description, price, courseObjective, allSection } =
+//     req.body;
+
+//   // Parse the incoming sections and lectures data
+//   const parseAllSection = JSON.parse(allSection);
+
+//   // Start a transaction to ensure consistency
+//   const transaction = await sequelize.transaction();
+
+//   try {
+//     // Step 1: Update the course details
+//     const course = await Course.findByPk(id);
+//     if (!course) {
+//       return next(new AppError('Course not found', 404));
+//     }
+//     // const { instructorId } = await Instructor.findByPk(course.instructorId);
+//     const { instructorId } = req.memberData;
+//     await course.update(
+//       {
+//         name: courseName,
+//         description,
+//         price,
+//         courseObjective,
+//       },
+//       { transaction },
+//     );
+
+//     // Step 2: Update the sections and lectures
+
+//     const sectionIdsFromRequest = parseAllSection
+//       .map((section) => section.sectionId)
+//       .filter((id) => !!id);
+
+//     // Get all existing sections for the course
+//     const existingSections = await Section.findAll({
+//       where: { courseId: id },
+//       transaction,
+//     });
+
+//     const existingSectionIds = existingSections.map(
+//       (section) => section.sectionId,
+//     );
+//     console.log('existingSectionsID:', existingSectionIds);
+
+//     // Delete sections that are not in the request anymore
+//     const sectionsToDelete = existingSectionIds.filter(
+//       (id) => !sectionIdsFromRequest.includes(id),
+//     );
+//     console.log('sectionsToDelete:', sectionsToDelete);
+//     if (sectionsToDelete.length > 0) {
+//       await Section.destroy({
+//         where: { sectionId: sectionsToDelete },
+//         transaction,
+//       });
+//     }
+
+//     // Step 3: Iterate through the request sections
+//     const sectionPromises = parseAllSection.map(async (section) => {
+//       let updatedSection;
+
+//       // Update or create section
+//       if (section.sectionId) {
+//         updatedSection = await Section.findByPk(section.sectionId, {
+//           transaction,
+//         });
+//         if (updatedSection) {
+//           await updatedSection.update(
+//             { name: section.sectionName },
+//             { transaction },
+//           );
+//         }
+//       } else {
+//         updatedSection = await Section.create(
+//           { courseId: id, name: section.sectionName, instructorId },
+//           { transaction },
+//         );
+//       }
+
+//       // Fetch existing lectures for the section
+//       const lectureIdsFromRequest = section.allLecture
+//         .map((lecture) => lecture.lectureId)
+//         .filter(Boolean);
+
+//       const existingLectures = await Lecture.findAll({
+//         where: { sectionId: updatedSection.sectionId },
+//         transaction,
+//       });
+
+//       const existingLectureIds = existingLectures.map(
+//         (lecture) => lecture.lectureId,
+//       );
+
+//       // Delete lectures that are not present in the request
+//       const lecturesToDelete = existingLectureIds.filter(
+//         (id) => !lectureIdsFromRequest.includes(id),
+//       );
+
+//       const deletePromises =
+//         lecturesToDelete.length > 0
+//           ? Lecture.destroy({
+//               where: { lectureId: lecturesToDelete },
+//               transaction,
+//             })
+//           : [];
+
+//       // Process lecture updates/creations in parallel
+//       console.log('Processing section:', section);
+//       const lecturePromises = section.allLecture.map(async (lecture) => {
+//         // Log lecture information for debugging
+//         console.log('Processing Lecture:', lecture);
+
+//         const newLectures = [];
+//         console.log('existing lecture:', lecture.lectureId);
+//         console.log('transation', transaction);
+//         if (lecture.lectureId) {
+//           const existingLecture = await Lecture.findByPk(lecture.lectureId, {
+//             transaction,
+//           });
+//           if (existingLecture) {
+//             console.log('options file:', options.files);
+//             const videoFile = options.files.find(
+//               (file) => file.fieldname === `vides[${lecture.setcionId}][${lecture.lectureId}]`,
+//             );
+//             console.log('upload Videofile:',videoFile);
+//             return existingLecture.update(
+//               {
+//                 name: lecture.lectureName,
+//                 videoUrl: lecture.videoUrl,
+//                 duration: lecture.duration,
+//               },
+//               { transaction },
+//             );
+//           }
+//         } else {
+//           newLectures.push({
+//             sectionId: updatedSection.sectionId,
+//             name: lecture.lectureName,
+//             videoUrl: lecture.videoUrl,
+//             duration: lecture.duration,
+//           });
+//           // return Lecture.create(
+//           //   {
+//           //     sectionId: updatedSection.sectionId,
+//           //     name: lecture.lectureName,
+//           //     videoUrl: lecture.videoUrl,
+//           //     duration: lecture.duration,
+//           //   },
+//           //   { transaction },
+//           // );
+//         }
+//       });
+//       if (newLectures.length > 0) {
+//         await Lecture.bulkCreate(newLectures, {
+//           courseId: id,
+//           files: req.files,
+//           videoIndex: videoIndex,
+//           transaction,
+//         });
+//       }
+
+//       // Resolve all delete and lecture creation/update promises
+//       await Promise.all([deletePromises, ...lecturePromises]);
+//     });
+
+//     // Execute all section-related promises in parallel
+//     await Promise.all(sectionPromises);
+
+//     // Commit the transaction after everything is done
+//     await transaction.commit();
+
+//     res.status(200).json({
+//       status: 'success',
+//       message: course,
+//     });
+//   } catch (error) {
+//     // Rollback the transaction in case of an error
+//     await transaction.rollback();
+//     return next(error);
+//   }
+// });

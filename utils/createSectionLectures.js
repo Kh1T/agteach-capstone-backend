@@ -37,7 +37,8 @@ exports.createSectionsLectures = async (
       videoIndex: videoIndex,
     });
 
-    videoIndex += section.allLecture.length;
+    // videoIndex += section.allLecture.length;
+    videoIndex += 1;
     console.log('videoIndex: ', videoIndex);
 
     // Return a resolved promise for the next iteration
