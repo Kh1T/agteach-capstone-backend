@@ -1,6 +1,7 @@
 const { Op, or } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const sendEmail = require('../utils/sendEmail');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -86,6 +87,15 @@ exports.additionalInfo = (Model) =>
       data.email = req.user.email;
       const userData = await Model.create(data);
 
+      const userAccount = await Model.findOne({
+        where: { userUid: req.user.userUid },
+      });
+      await sendEmail(userAccount, {
+        templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
+        subject: 'Your account has been created',
+        text: `Your verification code is ${req.user.verificationCode}. Please enter this code on the verification page to complete your registration.`,
+      });
+
       res.json({
         status: 'success',
         userData,
@@ -158,6 +168,8 @@ exports.createOne = (Model) =>
 exports.recommendItems = (Model, idField, categoryField, attributes) =>
   catchAsync(async (req, res, next) => {
     const itemId = req.params.id;
+
+    console.log(req.url);
 
     // Find the item (e.g., product or course) by its ID
     const item = await Model.findOne({

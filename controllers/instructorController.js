@@ -65,7 +65,7 @@ exports.getInstructorData = catchAsync(async (req, res, next) => {
   });
 
   if (!instructor) {
-    return res.status(404).json({ message: 'Instructor not found' });
+    return new AppError('Instructor not found', 404);
   }
 
   // Respond with the instructor data

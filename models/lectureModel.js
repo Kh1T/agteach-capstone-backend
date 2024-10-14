@@ -56,7 +56,7 @@ module.exports = Lecture;
 // });
 
 Lecture.afterBulkCreate(async (lectures, options) => {
-  if (!options.files) return;
+  if (!options.files) return;  
   uploadCourseVideos(lectures, options);
   // options.body.sectionNo += 1;
 });

@@ -9,11 +9,18 @@ const router = express.Router();
 router.get('/getAllCourse', courseController.getAll);
 router.get('/getOneCourse/:id', courseController.getOne);
 router.get('/searchData', courseController.searchData);
+router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
+
+router.patch(
+  '/:id',
+  instructorController.fetchInstructor,
+  courseController.updateCourse,
+);
 
 router.use(uploadCourseVideos);
 router.patch('/:id', courseController.updateCourse);
