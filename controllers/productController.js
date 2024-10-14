@@ -56,7 +56,7 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   const newProduct = await Product.create({
     ...req.body,
     instructorId,
-    imageUrl: '', 
+    imageUrl: '',
   });
 
   // Upload product cover image
@@ -133,4 +133,5 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
 
 exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor, {
   model: ProductCategory,
+  attributes: ['name'],
 });
