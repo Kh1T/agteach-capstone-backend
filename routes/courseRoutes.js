@@ -13,20 +13,16 @@ router.get('/searchData', courseController.searchData);
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
-router.use(uploadCourseVideos);
-
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
-
+router.use(uploadCourseVideos);
 router.patch('/:id', courseController.updateCourse);
-
 
 router.post(
   '/uploadCourse',
   instructorController.fetchInstructor,
   courseController.uploadCourse,
 );
-
 
 // router.post('/uploadCourse', courseController.uploadCourse);
 // router.get('/sortData', courseController.sortData);
