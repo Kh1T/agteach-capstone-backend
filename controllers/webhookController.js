@@ -6,6 +6,7 @@ const Product = require('../models/productModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const Purchased = require('../models/purchasedModel');
+const catchAsync = require('../utils/catchAsync');
 
 const createCourseSaleHistory = async (
   courseId,
@@ -36,7 +37,7 @@ const createEnrollment = async (courseId, customerId) => {
   }
 };
 
-exports.webhookEnrollmentCheckout = async (req, res, next) => {
+exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
 
   let event;
@@ -86,7 +87,6 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
       // Iterate over each purchased product
       await Promise.all(
         lineItems.data.map(async (item) => {
-
           const productId = item.price.product.metadata.product_id;
           const price = item.price.unit_amount / 100; // Convert from cents to dollars
           const total = price * item.quantity;
@@ -118,4 +118,4 @@ exports.webhookEnrollmentCheckout = async (req, res, next) => {
     }
   }
   res.status(200).json({ received: true });
-};
+});
