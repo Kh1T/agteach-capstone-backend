@@ -63,29 +63,6 @@ const createProductSaleHistory = async (
   }).catch((err) => console.log(`Something went wrong: ${err}`));
 };
 
-/**
- * Create a Purchased Detail record in the DB.
- * @param {number} purchasedId - Purchased ID
- * @param {number} productId - Product ID
- * @param {number} quantity - Quantity of products purchased
- * @param {number} price - Individual price of product
- * @param {number} total - Total price of purchased product (price * quantity)
- */
-async function createPurchasedDetail(
-  purchasedId,
-  productId,
-  quantity,
-  price,
-  total,
-) {
-  return await PurchasedDetail.create({
-    purchasedId,
-    productId,
-    quantity,
-    price,
-    total,
-  });
-}
 
 exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
@@ -141,13 +118,13 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
           const total = price * item.quantity;
 
           // Create a purchase detail entry for each product
-          const purchasedDetail = await createPurchasedDetail(
-            purchased.purchasedId,
-            productId,
-            item.quantity,
-            price,
-            total,
-          );
+          const purchasedDetail = await PurchasedDetail.create({
+            purchasedId: purchased.purchasedId,
+            productId: productId,
+            quantity: item.quantity,
+            price: price,
+            total: total,
+          });
 
           // Find the product's instructor
           const { instructorId } = await Product.findByPk(productId);
