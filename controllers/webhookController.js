@@ -101,14 +101,14 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
           });
 
           // Find the product's instructor
-          const product = await Product.findByPk(productId);
+          const { instructorId } = await Product.findByPk(productId);
 
           // Create an entry in product_sale_history
           await ProductSaleHistory.create({
             productId: productId,
             customerId: customerId,
             purchasedDetailId: purchasedDetail.purchasedDetailId,
-            instructorId: product.instructorId,
+            instructorId,
             isDelivered: false, // Set to true upon delivery
           });
         }),
