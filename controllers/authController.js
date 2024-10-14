@@ -140,12 +140,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     resetURL = resetURL.replace('agteach', 'teach.agteach');
   }
 
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm`;
-
   try {
     await sendEmail(user, {
       subject: 'Forgot password',
-      text: message,
       code: resetURL,
       templateId: process.env.FORGOT_PASSWORD_EMAIL_TEMPLATE_ID,
     });
@@ -228,6 +225,10 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   const verificationCode = user.createEmailVerifyCode();
+  await sendEmail(req.user, {
+    subject: 'Verify Email',
+    templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
+  });
 
   res.status(200).json({
     status: 'success',

@@ -13,7 +13,7 @@ const sendEmail = ({ email, emailVerifyCode, username }, options) => {
     dynamicTemplateData: {
       username: username,
       code,
-      text: options.text,
+      verificationCode: emailVerifyCode,
     },
   };
 
