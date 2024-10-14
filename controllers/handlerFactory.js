@@ -42,7 +42,6 @@ exports.getAll = (Model) =>
 exports.updateMe = (Model) =>
   catchAsync(async (req, res, next) => {
     // 1) Create error if user POSTs password data
-    // console.log(req.body);
     if (req.body.password || req.body.passwordConfirm) {
       return next(
         new AppError(
