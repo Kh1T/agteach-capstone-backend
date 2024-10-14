@@ -76,6 +76,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     client_reference_id: userUid,
     mode: 'payment',
     metadata: {
+      type:'course',
       courseId: courseId,
       instructorId: instructorId,
       customerId: customer.customerId,
