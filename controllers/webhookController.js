@@ -39,6 +39,53 @@ const createEnrollment = async (courseId, customerId) => {
   );
 };
 
+/**
+ * Create a Product Sale History record in the DB.
+ * @param {number} productId - product ID
+ * @param {number} customerId - customer ID
+ * @param {number} purchasedDetailId - Purchased Detail ID
+ * @param {number} instructorId - instructor ID
+ * @param {boolean} isDelivered - set to false initially and
+ * set to true when the product is delivered
+ */
+const createProductSaleHistory = async (
+  productId,
+  customerId,
+  purchasedDetailId,
+  instructorId,
+) => {
+  await ProductSaleHistory.create({
+    productId,
+    customerId,
+    purchasedDetailId,
+    instructorId,
+    isDelivered: false, // Set to true upon delivery
+  }).catch((err) => console.log(`Something went wrong: ${err}`));
+};
+
+/**
+ * Create a Purchased Detail record in the DB.
+ * @param {number} purchasedId - Purchased ID
+ * @param {number} productId - Product ID
+ * @param {number} quantity - Quantity of products purchased
+ * @param {number} price - Individual price of product
+ * @param {number} total - Total price of purchased product (price * quantity)
+ */
+const createPurchasedDetail = async (
+  purchasedId,
+  productId,
+  quantity,
+  price,
+  total,
+) =>
+  await PurchasedDetail.create({
+    purchasedId,
+    productId,
+    quantity,
+    price,
+    total,
+  });
+
 exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
 
@@ -54,7 +101,6 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
     console.log('Webhook signature verification failed', err);
     return res.status(400).send(`Webhook Error: ${err}`);
   }
-
   // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
@@ -94,25 +140,24 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
           const total = price * item.quantity;
 
           // Create a purchase detail entry for each product
-          const purchasedDetail = await PurchasedDetail.create({
-            purchasedId: purchased.purchasedId,
-            productId: productId,
-            quantity: item.quantity,
-            price: price,
-            total: total,
-          });
+          const purchasedDetail = await createPurchasedDetail(
+            purchased.purchasedId,
+            productId,
+            item.quantity,
+            price,
+            total,
+          );
 
           // Find the product's instructor
           const { instructorId } = await Product.findByPk(productId);
 
           // Create an entry in product_sale_history
-          await ProductSaleHistory.create({
-            productId: productId,
-            customerId: customerId,
-            purchasedDetailId: purchasedDetail.purchasedDetailId,
+          createProductSaleHistory(
+            productId,
+            customerId,
+            purchasedDetail.purchasedDetailId,
             instructorId,
-            isDelivered: false, // Set to true upon delivery
-          });
+          );
         }),
       );
 
