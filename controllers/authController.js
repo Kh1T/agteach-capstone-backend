@@ -225,6 +225,10 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   const verificationCode = user.createEmailVerifyCode();
+  await sendEmail(req.user, {
+    subject: 'Verify Email',
+    templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
+  });
 
   res.status(200).json({
     status: 'success',
