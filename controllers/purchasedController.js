@@ -1,4 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Customer = require('../models/customerModel');
+const ProductSaleHistory = require('../models/productSaleHistoryModel');
+const PurchasedDetail = require('../models/purchasedDetailModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -11,6 +14,22 @@ const REDIRECT_DOMAIN = 'https://agteach.site';
  * @param {function} next - Express next function
  * @returns {Promise<void>}
  */
+
+exports.getAllPurchased = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+
+  const productSaleHistory = await ProductSaleHistory.findAll({
+    where: { instructorId },
+    include: [
+      { model: Customer, attributes: ['firstName', 'lastName'] },
+      { model: PurchasedDetail, attributes: ['total'] },
+    ],
+    attributes: ['isDelivered', 'createdAt'],
+  });
+
+  res.status(200).json({ status: 'success', productSaleHistory });
+});
+
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { cartItems } = req.body;
   const { email, userUid } = req.user;
@@ -60,4 +79,3 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     message: 'success',
   });
 });
-

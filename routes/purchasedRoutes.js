@@ -1,13 +1,21 @@
 const express = require('express');
 const purchasedController = require('../controllers/purchasedController');
 const authController = require('../controllers/authController');
-const customerController = require('../controllers/customerController')
+const customerController = require('../controllers/customerController');
+const instructorController = require('../controllers/instructorController');
 
 const router = express.Router();
 
+router.use(authController.protect);
+
+router.get(
+  '/getInstructorPurchased',
+  instructorController.fetchInstructor,
+  purchasedController.getAllPurchased,
+);
+
 router.post(
   '/productCheckoutSession',
-  authController.protect,
   customerController.fetchCustomer,
   purchasedController.getCheckoutSession,
 );
