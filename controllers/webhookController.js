@@ -71,20 +71,21 @@ const createProductSaleHistory = async (
  * @param {number} price - Individual price of product
  * @param {number} total - Total price of purchased product (price * quantity)
  */
-const createPurchasedDetail = async (
+async function createPurchasedDetail(
   purchasedId,
   productId,
   quantity,
   price,
   total,
-) =>
-  await PurchasedDetail.create({
+) {
+  return await PurchasedDetail.create({
     purchasedId,
     productId,
     quantity,
     price,
     total,
   });
+}
 
 exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
