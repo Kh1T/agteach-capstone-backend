@@ -37,8 +37,12 @@ const resizeUplaodCourseThumbail = catchAsync(
     // options{ courseId, files: videos[], thumnailUrl[] }
     const url = process.env.AWS_S3_BUCKET_URL;
     const filename = `courses/${currentCourse.courseId}/thumbnail.jpeg`;
+    // const thumbnailFile = options.files.thumbnailUrl[0]
+    const thumbnailFile = options.files.find(
+      (file) => file.fieldname === `thumbnailUrl`,
+    );
 
-    const buffer = await sharp(options.files.thumbnailUrl[0].buffer)
+    const buffer = await sharp(thumbnailFile.buffer)
       .resize(500, 500)
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
@@ -92,7 +96,7 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     } else {
       lecture.videoUrl = url + filename;
     }
-    options.videoIndex += 1
+    options.videoIndex += 1;
     await lecture.save();
   });
   await Promise.all(lecturePromises);
@@ -103,4 +107,3 @@ module.exports = {
   resizeUplaodCourseThumbail,
   uploadCourseVideos,
 };
-

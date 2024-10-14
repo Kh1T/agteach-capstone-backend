@@ -14,7 +14,7 @@ router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
-router.use(uploadCourseVideos);
+router.use(uploadCourseVideos.any());
 
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
