@@ -9,7 +9,6 @@ router.get(
   '/getInstructorDetail/:id',
   instructorController.getInstructorDetail,
 );
-router.get("/searchData", instructorController.searchData);
 
 router.use(authController.protect);
 

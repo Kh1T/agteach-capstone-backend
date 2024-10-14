@@ -9,4 +9,6 @@ router.use(authController.protect, authController.restrictTo('admin'));
 
 router.get('/getAdminInfo', userController.getMe, adminController.getAdminInfo);
 
+router.get('/getAllInstructors', adminController.getAllInstructor);
+
 module.exports = router;

@@ -1,5 +1,7 @@
 const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
+const handleFactory = require('./handlerFactory');
+const Instructor = require('../models/instructorModel');
 
 exports.getAdminInfo = catchAsync(async (req, res, next) => {
   const { role } = req.user;
@@ -30,3 +32,6 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
     data: admin,
   });
 });
+
+exports.getAllInstructor = handleFactory.getAll(Instructor);
+
