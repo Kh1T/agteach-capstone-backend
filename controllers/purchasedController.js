@@ -4,6 +4,13 @@ const catchAsync = require('../utils/catchAsync');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
+/**
+ * Creates a Stripe checkout session for a product purchase
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {function} next - Express next function
+ * @returns {Promise<void>}
+ */
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { cartItems } = req.body;
   const { email, userUid } = req.user;
@@ -13,6 +20,14 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError('Customer not found', 404));
   }
 
+  /**
+   * Create a Stripe checkout session for a product purchase
+   * @param {Object[]} cartItems - Items in the cart to purchase
+   * @param {string} email - Customer email
+   * @param {string} userUid - User unique identifier
+   * @param {string} customerId - Customer identifier
+   * @returns {Promise<Stripe.Checkout.Session>}
+   */
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: cartItems.map((item) => ({
@@ -22,10 +37,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
           name: item.name,
           images: [item.imageUrl],
           metadata: {
-            product_id: item.productId, // Attach product ID to product metadata
+            product_id: item.productId,
           },
         },
-        unit_amount: item.price * 100, // amount in cents
+        unit_amount: item.price * 100,
       },
       quantity: item.quantity,
     })),
@@ -33,7 +48,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     client_reference_id: userUid,
     mode: 'payment',
     metadata: {
-      type: 'product', // Mark the session as a product purchase
+      type: 'product',
       customerId,
     },
     success_url: `${REDIRECT_DOMAIN}/success-payment?session_id={CHECKOUT_SESSION_ID}`,
@@ -45,3 +60,4 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     message: 'success',
   });
 });
+
