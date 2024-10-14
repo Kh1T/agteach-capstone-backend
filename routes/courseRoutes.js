@@ -18,16 +18,19 @@ router.use(uploadCourseVideos.any());
 
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
+router.patch(
+  '/:id',
+  instructorController.fetchInstructor,
+  courseController.updateCourse,
+);
 
-router.patch('/:id', instructorController.fetchInstructor, courseController.updateCourse);
-
+router.patch('/:id', courseController.updateCourse);
 
 router.post(
   '/uploadCourse',
   instructorController.fetchInstructor,
   courseController.uploadCourse,
 );
-
 
 // router.post('/uploadCourse', courseController.uploadCourse);
 // router.get('/sortData', courseController.sortData);

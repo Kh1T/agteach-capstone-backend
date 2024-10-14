@@ -29,10 +29,14 @@ exports.getOne = catchAsync(async (req, res, next) => {
   const course = await Course.findOne({
     where: { courseId: req.params.id },
     include: [
-      { model: Section, include: [{ model: Lecture }] },
+      {
+        model: Section,
+        include: [{ model: Lecture }],
+      },
       { model: Instructor },
       { model: ProductSuggestion, include: [{ model: Product }] },
     ],
+    order: [[{ model: Section }, 'sectionId', 'ASC']],
   });
   res.status(200).json({
     status: 'success',
@@ -49,6 +53,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     allSection,
     thumbnailUrl,
     ProductSuggestionId,
+    totalDuration,
   } = req.body;
 
   const { instructorId } = req.memberData;
@@ -67,6 +72,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
       numberOfVideo: req.files.videos?.length,
       instructorId: req.instructorId,
       thumbnailUrl,
+      duration: totalDuration,
     },
     { files: req.files },
   );
@@ -252,6 +258,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
           transaction,
         });
       }
+
       // Resolve all delete and lecture creation/update promises
       await Promise.all([deletePromises, ...lecturePromises]);
     });
