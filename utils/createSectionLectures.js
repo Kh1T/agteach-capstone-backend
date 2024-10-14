@@ -20,12 +20,14 @@ exports.createSectionsLectures = async (
       instructorId,
     });
 
+    // console.log();
+
     const lectures = section.allLecture.map((lecture) => ({
       name: lecture.lectureName,
       instructorId,
       sectionId: newSection.sectionId,
       courseId,
-      duration: req.lectureDuration,
+      duration: req.body.lectureDuration,
     }));
 
     // Create lectures for this section
