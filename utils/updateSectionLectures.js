@@ -24,7 +24,13 @@ const processSection = async (section, courseId, instructorId, transaction) => {
 };
 
 // Helper function to handle lectures (creation, update, and deletion)
-const processLectures = async (courseId, section, updatedSection, req, transaction) => {
+const processLectures = async (
+  courseId,
+  section,
+  updatedSection,
+  req,
+  transaction,
+) => {
   const { allLecture } = section;
   const newLectures = [];
   const updateLectures = [];
@@ -47,9 +53,7 @@ const processLectures = async (courseId, section, updatedSection, req, transacti
   );
 
   // Handle each lecture
-  for (let index = 0; index < allLecture.length; index++) {
-    const lecture = allLecture[index];
-
+  allLecture.forEach((lecture) => {
     if (lecture.lectureId) {
       // Update existing lecture
       updateLectures.push({
@@ -64,10 +68,9 @@ const processLectures = async (courseId, section, updatedSection, req, transacti
         name: lecture.lectureName,
         videoUrl: lecture.videoUrl,
         duration: lecture.duration,
-        videoIndex: index,
       });
     }
-  }
+  });
 
   // Perform bulk creation of new lectures
   if (newLectures.length > 0) {

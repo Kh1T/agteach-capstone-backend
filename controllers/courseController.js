@@ -57,6 +57,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     allSection,
     thumbnailUrl,
+    numberOfVideo,
     ProductSuggestionId,
     totalDuration,
   } = req.body;
@@ -74,7 +75,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
       description,
       price,
       courseObjective,
-      numberOfVideo: req.files.videos?.length,
+      numberOfVideo,
       instructorId: req.instructorId,
       thumbnailUrl,
       duration: totalDuration,
@@ -128,16 +129,27 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     await deleteRemovedSections(sectionIdsFromRequest, id, transaction);
 
     // Step 3: Process sections and their respective lectures
-    for (const section of parsedSections) {
+    // for (const section of parsedSections) {
+    //   const updatedSection = await processSection(
+    //     section,
+    //     id,
+    //     req.memberData.instructorId,
+    //     transaction,
+    //   );
+    //   await processLectures(id, section, updatedSection, req, transaction);
+    // }
+    const sectionPromises = parsedSections.map(async (section) => {
       const updatedSection = await processSection(
         section,
         id,
         req.memberData.instructorId,
         transaction,
       );
-      await processLectures(id, section, updatedSection, req, transaction);
-    }
-
+      return processLectures(id, section, updatedSection, req, transaction);
+    });
+    
+    // Execute all section and lecture processing concurrently
+    await Promise.all(sectionPromises);
     // Step 4: Commit transaction
     await transaction.commit();
 

@@ -100,11 +100,6 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     createIndexMappings(currentLectures);
 
   let url = process.env.AWS_S3_BUCKET_URL;
-  let bucket = process.env.AWS_S3_ASSET_COURSE_BUCKET;
-
-    // There are many lecutre when create bulk
-  console.log('currentlecture', currentLectures);
-
 
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
 
@@ -115,6 +110,7 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     const videoFile = options.files.find(
       (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,
     );
+    console.log(videoFile)
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
 
     uploadToS3(filename, videoFile?.buffer);
