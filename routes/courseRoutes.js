@@ -19,7 +19,7 @@ router.use(uploadCourseVideos);
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
 
-router.patch('/:id', courseController.updateCourse);
+router.patch('/:id', instructorController.fetchInstructor, courseController.updateCourse);
 
 
 router.post(
