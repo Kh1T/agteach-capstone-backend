@@ -8,33 +8,35 @@ const PurchasedDetail = require('../models/purchasedDetailModel');
 const Purchased = require('../models/purchasedModel');
 const catchAsync = require('../utils/catchAsync');
 
+/**
+ * Create a Course Sale History record in the DB.
+ * @param {number} courseId - course ID
+ * @param {number} instructorId - instructor ID
+ * @param {number} customerId - customer ID
+ * @param {number} price - price of course
+ */
 const createCourseSaleHistory = async (
   courseId,
   instructorId,
   customerId,
   price,
 ) => {
-  try {
-    await CourseSaleHistory.create({
-      courseId,
-      instructorId,
-      customerId,
-      price,
-    });
-  } catch (err) {
-    console.log(`Somethin went wrong: ${err}`);
-  }
+  await CourseSaleHistory.create({
+    courseId,
+    instructorId,
+    customerId,
+    price,
+  }).catch((err) => console.log(`Something went wrong: ${err}`));
 };
-
+/**
+ * Create enrollment record in DB.
+ * @param {number} courseId - ID of Course enrolled in
+ * @param {number} customerId - ID of Customer enrolled in
+ */
 const createEnrollment = async (courseId, customerId) => {
-  try {
-    await Enroll.create({
-      courseId,
-      customerId,
-    });
-  } catch (err) {
-    console.log(`Somethin went wrong: ${err}`);
-  }
+  await Enroll.create({ courseId, customerId }).catch((err) =>
+    console.log(`Something went wrong: ${err}`),
+  );
 };
 
 exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
