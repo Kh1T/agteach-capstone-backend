@@ -22,7 +22,7 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
     where: { instructorId },
     include: [
       { model: Customer, attributes: ['firstName', 'lastName'] },
-      { model: PurchasedDetail, attributes: ['total'] },
+      // { model: PurchasedDetail, attributes: ['total'] },
     ],
     attributes: ['isDelivered', 'createdAt'],
   });
