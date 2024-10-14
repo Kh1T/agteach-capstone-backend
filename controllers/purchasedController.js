@@ -8,13 +8,9 @@ const REDIRECT_DOMAIN = 'https://agteach.site';
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { cartItems } = req.body;
   const { email, userUid } = req.user;
+  const { customerId } = req.memberData;
 
-  const customer = await Customer.findOne({
-    where: { userUid: userUid },
-    attribute: ['customerId'],
-  });
-
-  if (!customer) {
+  if (!customerId) {
     return next(new AppError('Customer not found', 404));
   }
 
@@ -39,7 +35,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     mode: 'payment',
     metadata: {
       type: 'product', // Mark the session as a product purchase
-      customerId: customer.customerId,
+      customerId,
     },
     success_url: `${REDIRECT_DOMAIN}/success-payment?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${REDIRECT_DOMAIN}/fail-payment`,
@@ -51,7 +47,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     data: {
       cartItems,
       email,
-      customerId: customer.customerId,
+      customerId,
     },
   });
 });
