@@ -1,5 +1,4 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const Customer = require('../models/customerModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
