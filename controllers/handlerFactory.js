@@ -51,7 +51,7 @@ exports.updateMe = (Model) =>
       );
     }
     // // 2) Filtered out unwanted fields names that are not allowed to be updated
-    if (req.file) req.body.imageUrl = req.file.filename ;
+    if (req.file) req.body.imageUrl = req.file.filename;
     const filteredBody = filterObj(
       req.body,
       'username',
@@ -184,7 +184,7 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
     });
   });
 
-exports.getUserItems = (Model1, Model2) =>
+exports.getUserItems = (Model1, Model2, cate) =>
   catchAsync(async (req, res, next) => {
     // Model 1 : Model For Finding Data
     // Model 2 : Model embedded ID  For Finding Model 1
@@ -193,12 +193,15 @@ exports.getUserItems = (Model1, Model2) =>
     const item = await Model1.findAll({
       where: { name: { [Op.iLike]: `%${name}%` } },
       order: [['createdAt', order || 'DESC']],
-      include: {
-        model: Model2,
-        where: {
-          userUid: req.user.userUid,
+      include: [
+        {
+          model: Model2,
+          where: {
+            userUid: req.user.userUid,
+          },
         },
-      },
+        cate,
+      ],
     });
 
     if (!item)

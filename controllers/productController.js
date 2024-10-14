@@ -5,6 +5,7 @@ const Instructor = require('../models/instructorModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const AppError = require('../utils/appError');
+const ProductCategory = require('../models/productCategoryModel');
 
 const {
   uploadCoverImage,
@@ -170,4 +171,6 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor);
+exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor, {
+  model: ProductCategory,
+});
