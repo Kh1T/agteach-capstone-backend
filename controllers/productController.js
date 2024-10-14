@@ -51,10 +51,11 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   validateImages(req.files.productImages, 'Product images', next);
 
   // Create the product without the image URL initially
+  const { instructorId } = req.memberData;
   const newProduct = await Product.create({
     ...req.body,
-    instructorId: req.instructorId,
-    imageUrl: '', // Placeholder for the cover image URL
+    instructorId,
+    imageUrl: '', 
   });
 
   // Upload product cover image
