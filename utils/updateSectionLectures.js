@@ -24,7 +24,7 @@ const processSection = async (section, courseId, instructorId, transaction) => {
 };
 
 // Helper function to handle lectures (creation, update, and deletion)
-const processLectures = async (section, updatedSection, req, transaction) => {
+const processLectures = async (courseId, section, updatedSection, req, transaction) => {
   const { allLecture } = section;
   const newLectures = [];
   const updateLectures = [];
@@ -71,7 +71,12 @@ const processLectures = async (section, updatedSection, req, transaction) => {
 
   // Perform bulk creation of new lectures
   if (newLectures.length > 0) {
-    await Lecture.bulkCreate(newLectures, { transaction });
+    await Lecture.bulkCreate(newLectures, {
+      courseId: courseId,
+      files: req.files,
+      isUpdated: true,
+      transaction,
+    });
   }
 
   // Update existing lectures

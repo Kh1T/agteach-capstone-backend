@@ -10,7 +10,11 @@ const { createSectionsLectures } = require('../utils/createSectionLectures');
 const AppError = require('../utils/appError');
 const sequelize = require('../config/db');
 const { json } = require('sequelize');
-const { processSection, deleteRemovedSections, processLectures } = require('../utils/updateSectionLectures');
+const {
+  processSection,
+  deleteRemovedSections,
+  processLectures,
+} = require('../utils/updateSectionLectures');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -100,7 +104,8 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
 
 exports.updateCourse = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { courseName, description, price, courseObjective, allSection } = req.body;
+  const { courseName, description, price, courseObjective, allSection } =
+    req.body;
   const parsedSections = JSON.parse(allSection);
   const transaction = await sequelize.transaction();
 
@@ -113,7 +118,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
 
     await course.update(
       { name: courseName, description, price, courseObjective },
-      { transaction }
+      { transaction },
     );
 
     // Step 2: Delete sections that are not in the request
@@ -124,8 +129,13 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
 
     // Step 3: Process sections and their respective lectures
     for (const section of parsedSections) {
-      const updatedSection = await processSection(section, id, req.memberData.instructorId, transaction);
-      await processLectures(section, updatedSection, req, transaction);
+      const updatedSection = await processSection(
+        section,
+        id,
+        req.memberData.instructorId,
+        transaction,
+      );
+      await processLectures(id, section, updatedSection, req, transaction);
     }
 
     // Step 4: Commit transaction
@@ -141,4 +151,3 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     return next(error);
   }
 });
-
