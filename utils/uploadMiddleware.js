@@ -58,7 +58,7 @@ const resizeUplaodCourseThumbail = catchAsync(
 
 const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   // If using HLS video give true else give false;
-  const isHlsVideo = true;
+  const isHlsVideo = false;
   if (!options.files) return;
 
   // options{ courseId, files: videos[], thumnail[] }
@@ -76,8 +76,8 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
     idx += options.videoIndex;
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
-    console.log('lecuture_name: ', lecture.name, 'video idx:', options.videoIndex);
-    console.log('video_file_name: ', options.files.videos[options.videoIndex].originalname);
+    // console.log('lecuture_name: ', lecture.name, 'video idx:', idx);
+    // console.log('video_file_name: ', options.files.videos[idx].originalname);
     // Upload to AWS
     const input = {
       Bucket: bucket,
@@ -93,7 +93,6 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
       lecture.videoUrl = url + filename;
     }
     options.videoIndex += 1
-    console.log(lecture);
     await lecture.save();
   });
   await Promise.all(lecturePromises);
@@ -104,3 +103,4 @@ module.exports = {
   resizeUplaodCourseThumbail,
   uploadCourseVideos,
 };
+
