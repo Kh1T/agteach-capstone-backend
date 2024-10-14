@@ -80,7 +80,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
 
       // Create a purchase record for the transaction
       const purchased = await Purchased.create({
-        customerId: customerId,
+        customerId,
         total: session.amount_total / 100,
       });
 
