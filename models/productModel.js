@@ -19,7 +19,7 @@ const Product = sequelize.define('product', {
   categoryId: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'product_categories', // Name of the referenced table
+      model: 'product_category', // Name of the referenced table
       key: 'categoryId',
     },
   },

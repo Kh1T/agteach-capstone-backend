@@ -1,14 +1,8 @@
 const sharp = require('sharp');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const path = require('path');
-const { getVideoDurationInSeconds } = require('get-video-duration');
-const fs = require('fs');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
-const Lecture = require('../models/lectureModel');
-const AppError = require('./appError');
-const Course = require('../models/courseModel');
 
 // Upload Profile Image
 // Need User role from protected route
@@ -36,76 +30,20 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   next();
 });
 
-const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
-  if (!options.videos) return;
-  let totalDuration = 0;
-  let videoPreviewUrl = '';
-  const url = process.env.AWS_S3_BUCKET_URL;
+// Upload Thumnail Course
+// This function will use in the after create course to get courseId
+const resizeUplaodCourseThumbail = catchAsync(
+  async (currentCourse, options) => {
+    // options{ courseId, files: videos[], thumnailUrl[] }
+    const url = process.env.AWS_S3_BUCKET_URL;
+    const filename = `courses/${currentCourse.courseId}/thumbnail.jpeg`;
 
-  const promiseSectionLecture = sectionLecture.map(async (section, idx) => {
-    const filename = `courses/${section.courseId}/section_${section.sectionId}/lecture-${section.lectureId}.mp4`;
-    // First Video as Preview
-    if (idx === 0) videoPreviewUrl = url + filename;
-
-    const input = {
-      Bucket: process.env.AWS_S3_BUCKET_URL,
-      Key: filename,
-      Body: options.videos[idx].buffer,
-      ContentType: 'video/mp4',
-    };
-    // Write buffer to temp file
-    // Path to the temporary directory
-    const tempDir = path.join('temp');
-
-    // Create the directory if it doesn't exist
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-    const tempFilePath = path.join(
-      'temp',
-      `${options.videos[idx].originalname}`,
-    );
-    let videoDuration;
-    fs.mkdir(tempDir, { recursive: true }, (err) => {
-      if (err) return new AppError('Error creating directory', 500);
-
-      // Write the file asynchronously
-      fs.writeFile(tempFilePath, options.videos[idx].buffer, () => {
-        // Get the video duration after writing the file
-        getVideoDurationInSeconds(tempFilePath)
-          .then((duration) => {
-            videoDuration = duration;
-            totalDuration += videoDuration;
-            // Optional: Clean up the temporary file if needed
-            fs.unlink(tempFilePath, () => {
-              if (err) throw err;
-            });
-          })
-          .catch(() => {
-            throw err;
-          });
-      });
-    });
-
-    const lecture = await Lecture.findByPk(section.lectureId);
-    if (lecture) {
-      lecture.videoUrl = url + filename;
-      lecture.duration = videoDuration;
-      await lecture.save();
-    }
-
-    // await s3Client.send(new PutObjectCommand(input));
-  });
-  await Promise.all(promiseSectionLecture);
-
-  const filename = `courses/${sectionLecture[0].courseId}/thumbnail.jpeg`;
-
-  if (options.thumbnails) {
-    const buffer = await sharp(options.thumbnails[0].buffer)
+    const buffer = await sharp(options.files.thumbnailUrl[0].buffer)
       .resize(500, 500)
       .toFormat('jpeg')
       .jpeg({ quality: 90 })
       .toBuffer();
+
     const input = {
       Bucket: process.env.AWS_S3_ASSET_BUCKET,
       Key: filename,
@@ -113,16 +51,56 @@ const uploadCourseVideosFile = catchAsync(async (sectionLecture, options) => {
       ContentType: 'image/jpeg',
     };
     await s3Client.send(new PutObjectCommand(input));
+    currentCourse.thumbnailUrl = url + filename;
+    await currentCourse.save();
+  },
+);
+
+const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
+  // If using HLS video give true else give false;
+  const isHlsVideo = false;
+  if (!options.files) return;
+
+  // options{ courseId, files: videos[], thumnail[] }
+  let url;
+  let bucket;
+  if (isHlsVideo) {
+    url = process.env.AWS_S3_BUCKET_TRANSCODE_URL;
+    bucket = process.env.AWS_S3_ASSET_COURSE_BUCKET;
+  } else {
+    url = process.env.AWS_S3_BUCKET_URL;
+    bucket = process.env.AWS_S3_ASSET_BUCKET;
   }
 
-  const course = await Course.findByPk(sectionLecture[0].courseId);
-  if (course) {
-    course.duration = totalDuration;
-    course.thumbnailUrl = url + filename;
-    await course.save();
-  }
+  // There are many lecutre when create bulk
+  const lecturePromises = currentLectures.map(async (lecture, idx) => {
+    idx += options.videoIndex;
+    const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
+    // console.log('lecuture_name: ', lecture.name, 'video idx:', idx);
+    // console.log('video_file_name: ', options.files.videos[idx].originalname);
+    // Upload to AWS
+    const input = {
+      Bucket: bucket,
+      Key: filename,
+      Body: options.files.videos[idx].buffer,
+    };
+    await s3Client.send(new PutObjectCommand(input));
+
+    if (isHlsVideo) {
+      // Split to get filename without extension
+      lecture.videoUrl = `${url}${filename.split('.')[0]}/master.m3u8`;
+    } else {
+      lecture.videoUrl = url + filename;
+    }
+    options.videoIndex += 1
+    await lecture.save();
+  });
+  await Promise.all(lecturePromises);
 });
+
 module.exports = {
   resizeUploadProfileImage,
-  uploadCourseVideosFile,
+  resizeUplaodCourseThumbail,
+  uploadCourseVideos,
 };
+

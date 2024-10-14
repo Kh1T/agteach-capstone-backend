@@ -14,6 +14,7 @@ const Enroll = require('../models/enrollModel');
 const Purchased = require('../models/purchasedModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
+const ProductCategory = require('../models/productCategoryModel');
 
 // Account Associations
 
@@ -28,6 +29,9 @@ Product.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
 Product.hasMany(ProductImage, { foreignKey: 'productId' });
 ProductImage.belongsTo(Product, { foreignKey: 'productId' });
+
+ProductCategory.hasMany(Product, { foreignKey: 'categoryId' });
+Product.belongsTo(ProductCategory, { foreignKey: 'categoryId' });
 
 // Product Suggestion
 
