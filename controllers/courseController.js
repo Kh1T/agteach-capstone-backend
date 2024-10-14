@@ -29,10 +29,14 @@ exports.getOne = catchAsync(async (req, res, next) => {
   const course = await Course.findOne({
     where: { courseId: req.params.id },
     include: [
-      { model: Section, include: [{ model: Lecture }] },
+      {
+        model: Section,
+        include: [{ model: Lecture }],
+      },
       { model: Instructor },
       { model: ProductSuggestion, include: [{ model: Product }] },
     ],
+    order: [[{ model: Section }, 'sectionId', 'ASC']],
   });
   res.status(200).json({
     status: 'success',
