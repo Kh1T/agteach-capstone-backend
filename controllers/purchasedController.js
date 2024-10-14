@@ -42,11 +42,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     id: session.id,
-    message: 'Hello World',
-    data: {
-      cartItems,
-      email,
-      customerId,
-    },
+    message: 'success',
   });
 });
