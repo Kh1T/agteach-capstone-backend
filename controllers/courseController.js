@@ -54,6 +54,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     allSection,
     thumbnailUrl,
     ProductSuggestionId,
+    numberOfVideo,
     totalDuration,
   } = req.body;
 
@@ -70,7 +71,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
       description,
       price,
       courseObjective,
-      numberOfVideo: req.files.videos?.length,
+      numberOfVideo,
       instructorId: req.instructorId,
       thumbnailUrl,
       duration: totalDuration,
@@ -107,24 +108,26 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Step 1: Update the course details
+    //Update the course details
     const course = await Course.findByPk(id);
     if (!course) {
       return next(new AppError('Course not found', 404));
     }
 
     const { instructorId } = req.memberData;
+    console.log('instructorId', instructorId);
     await course.update(
       {
         name: courseName,
         description,
         price,
         courseObjective,
+        instructorId
       },
       { transaction },
     );
 
-    // Step 2: Get existing sections for comparison
+    // Get existing sections for comparison
     const sectionIdsFromRequest = parseAllSection
       .map((section) => section.sectionId)
       .filter((id) => !!id);
@@ -138,7 +141,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       (section) => section.sectionId,
     );
 
-    // Step 3: Delete sections that are not in the request
+    //  Delete sections that are not in the request
     const sectionsToDelete = existingSectionIds.filter(
       (id) => !sectionIdsFromRequest.includes(id),
     );
@@ -150,9 +153,15 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     }
 
     const { newLectures, updateLectures, lecturesToDelete } =
-      await processLectures(id, req, parseAllSection, instructorId, transaction);
-    
-    // Step 6: Bulk create new lectures
+      await processLectures(
+        id,
+        req,
+        parseAllSection,
+        instructorId,
+        transaction,
+      );
+
+    // Bulk create new lectures
     if (newLectures.length > 0) {
       await Lecture.bulkCreate(newLectures, {
         courseId: id,
@@ -163,7 +172,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       // console.log('videoIndex', newLectures)
     }
 
-    // Step 7: Bulk update lectures
+    // Bulk update lectures
     if (updateLectures.length > 0) {
       await Promise.all(
         updateLectures.map((lecture) => {
@@ -179,7 +188,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       );
     }
 
-    // Step 8: Delete lectures that were not in the request
+    // Delete lectures that were not in the request
     if (lecturesToDelete.length > 0) {
       await Lecture.destroy({
         where: { lectureId: lecturesToDelete },
@@ -187,7 +196,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       });
     }
 
-    // Step 9: Commit transaction
+    //  Commit transaction
     await transaction.commit();
 
     res.status(200).json({
