@@ -121,6 +121,7 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     const videoFile = options.files.find(
       (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,
     );
+    console.log(videoFile)
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
 
     // console.log('index', options.videoIndex);

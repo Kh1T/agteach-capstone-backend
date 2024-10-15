@@ -115,14 +115,12 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     }
 
     const { instructorId } = req.memberData;
-    console.log('instructorId', instructorId);
     await course.update(
       {
         name: courseName,
         description,
         price,
         courseObjective,
-        instructorId
       },
       { transaction },
     );
@@ -153,14 +151,8 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     }
 
     const { newLectures, updateLectures, lecturesToDelete } =
-      await processLectures(
-        id,
-        req,
-        parseAllSection,
-        instructorId,
-        transaction,
-      );
-
+      await processLectures(id, req, parseAllSection, instructorId, transaction);
+    
     // Bulk create new lectures
     if (newLectures.length > 0) {
       await Lecture.bulkCreate(newLectures, {
