@@ -7,7 +7,6 @@ const AppError = require('./appError');
 
 const uploadToS3 = catchAsync(async (filename, body) => {
   if (!body) return new AppError('There is no body to upload to', 400);
-  const url = process.env.AWS_S3_BUCKET_URL;
   const input = {
     Bucket: process.env.AWS_S3_ASSET_BUCKET,
     Key: filename,
@@ -121,7 +120,6 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     const videoFile = options.files.find(
       (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,
     );
-    console.log(videoFile)
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
 
     // console.log('index', options.videoIndex);
@@ -130,9 +128,13 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
       uploadToS3(filename, videoFile.buffer);
     }
     lectureIndexMapping[sectionId] += 1;
+
     lecture.videoUrl = url + filename;
+    // console.log(lecture.videoUrl)
     // options.videoIndex += 1;
-    await lecture.save();
+
+    await lecture.update({ videoUrl: url + filename }, { ...options });
+    // await lecture.update();
   });
   await Promise.all(lecturePromises);
 });
