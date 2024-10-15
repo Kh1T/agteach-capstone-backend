@@ -14,7 +14,8 @@ const uploadToS3 = catchAsync(async (filename, body) => {
     Body: body,
   };
   // await s3Client.send(new PutObjectCommand(input));
-  return url + filename;
+  // console.log(response)
+  // return response
 });
 // Upload Profile Image
 // Need User role from protected route
@@ -222,4 +223,5 @@ module.exports = {
   resizeUploadProfileImage,
   resizeUplaodCourseThumbail,
   uploadCourseVideos,
+  uploadToS3,
 };
