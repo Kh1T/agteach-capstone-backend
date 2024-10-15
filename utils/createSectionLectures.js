@@ -35,11 +35,11 @@ exports.createSectionsLectures = async (
       courseId,
       files: req.files,
       videoIndex: videoIndex,
+      isUpdated: false,
     });
 
     // videoIndex += section.allLecture.length;
     videoIndex += 1;
-    console.log('videoIndex: ', videoIndex);
 
     // Return a resolved promise for the next iteration
     return Promise.resolve();

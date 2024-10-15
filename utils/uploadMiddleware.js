@@ -173,15 +173,19 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     // const assignedIndex = sectionIndexMapping[sectionId];
     // const sectionId = lecture.dataValues.sectionId;
     const sectionId = lecture.dataValues.sectionId;
-    const sectionIdx = sectionIndexMapping[sectionId];
+    let sectionIdx = sectionIndexMapping[sectionId];
     const lectureIdx = lectureIndexMapping[sectionId];
 
     console.log(
       `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
     );
 
-    let videoIndex = 0;
-    let fieldName = '';
+    // let videoIndex = 0;
+    // let fieldName = '';
+    // console.log('options:', options);
+    if (!options.isUpdated) {
+      sectionIdx = options.videoIndex;
+    }
 
     const videoFile = options.files.find(
       (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,
