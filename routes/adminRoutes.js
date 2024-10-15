@@ -11,4 +11,12 @@ router.get('/getAdminInfo', userController.getMe, adminController.getAdminInfo);
 
 router.get('/getAllInstructors', adminController.getAllInstructor);
 
+//Categories
+router.get('/getAllCategories', adminController.getAllCategories);
+router.get('/getCategory/:id', adminController.getCategory);
+router.post('/createCategory', adminController.createCategory);
+router.patch('/updateCategory/:id', adminController.updateCategory);
+router.delete('/deleteCategory/:id', adminController.deleteCategory);
+
+
 module.exports = router;
