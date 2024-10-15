@@ -1,3 +1,4 @@
+const { json } = require('sequelize');
 const Course = require('../models/courseModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
 const Product = require('../models/productModel');
@@ -9,7 +10,11 @@ const handleFactory = require('./handlerFactory');
 const { createSectionsLectures } = require('../utils/createSectionLectures');
 const AppError = require('../utils/appError');
 const sequelize = require('../config/db');
-const { json } = require('sequelize');
+const {
+  processSection,
+  deleteRemovedSections,
+  processLectures,
+} = require('../utils/updateSectionLectures');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -52,6 +57,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     allSection,
     thumbnailUrl,
+    numberOfVideo,
     ProductSuggestionId,
     totalDuration,
   } = req.body;
@@ -69,7 +75,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
       description,
       price,
       courseObjective,
-      numberOfVideo: req.files.videos?.length,
+      numberOfVideo,
       instructorId: req.instructorId,
       thumbnailUrl,
       duration: totalDuration,
@@ -101,8 +107,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { courseName, description, price, courseObjective, allSection } =
     req.body;
-
-  const parseAllSection = JSON.parse(allSection);
+  const parsedSections = JSON.parse(allSection);
   const transaction = await sequelize.transaction();
 
   try {
@@ -112,25 +117,35 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       return next(new AppError('Course not found', 404));
     }
 
-    const { instructorId } = req.memberData;
     await course.update(
-      {
-        name: courseName,
-        description,
-        price,
-        courseObjective,
-      },
+      { name: courseName, description, price, courseObjective },
       { transaction },
     );
 
-    // Step 2: Get existing sections for comparison
-    const sectionIdsFromRequest = parseAllSection
+    // Step 2: Delete sections that are not in the request
+    const sectionIdsFromRequest = parsedSections
       .map((section) => section.sectionId)
-      .filter((id) => !!id);
+      .filter(Boolean);
+    await deleteRemovedSections(sectionIdsFromRequest, id, transaction);
 
-    const existingSections = await Section.findAll({
-      where: { courseId: id },
-      transaction,
+    // Step 3: Process sections and their respective lectures
+    // for (const section of parsedSections) {
+    //   const updatedSection = await processSection(
+    //     section,
+    //     id,
+    //     req.memberData.instructorId,
+    //     transaction,
+    //   );
+    //   await processLectures(id, section, updatedSection, req, transaction);
+    // }
+    const sectionPromises = parsedSections.map(async (section) => {
+      const updatedSection = await processSection(
+        section,
+        id,
+        req.memberData.instructorId,
+        transaction,
+      );
+      return processLectures(id, section, updatedSection, req, transaction);
     });
 
     const existingSectionIds = existingSections.map(
@@ -273,7 +288,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       message: course,
     });
   } catch (error) {
-    // Rollback the transaction in case of error
+    // Rollback transaction on error
     await transaction.rollback();
     return next(error);
   }
