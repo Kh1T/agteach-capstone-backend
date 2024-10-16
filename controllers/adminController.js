@@ -3,6 +3,10 @@ const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const Instructor = require('../models/instructorModel');
 const Category = require('../models/categoryModel');
+const Product = require('../models/productModel');
+const ProductSaleHistory = require('../models/productSaleHistoryModel');
+const PurchasedDetail = require('../models/purchasedDetailModel');
+const sequelize = require('../config/db');
 
 exports.getAdminInfo = catchAsync(async (req, res, next) => {
   const { role } = req.user;
@@ -69,3 +73,12 @@ exports.updateCategory = catchAsync(async (req, res, next) => {
   });
 });
 exports.deleteCategory = handleFactory.deleteOne(Category);
+
+// Top 5 Sales
+exports.getProductTopSales = catchAsync(async (req, res, next) => {
+
+  res.status(200).json({
+    status: 'success',
+    data: 3,
+  });
+});
