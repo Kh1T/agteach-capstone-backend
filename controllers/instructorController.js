@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize, col, fn } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const Instructor = require('../models/instructorModel');
 const Course = require('../models/courseModel');
@@ -12,7 +12,6 @@ const AppError = require('../utils/appError');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const Customer = require('../models/customerModel');
-
 
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
 exports.searchData = factory.SearchData(Instructor);
@@ -127,12 +126,17 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
         model: Customer, // Include the Customer model
         attributes: [], // Select only the name field
       },
+      { model: Course,
+        attributes: [],
+       },
     ],
     attributes: {
       exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
       include: [
-        [Sequelize.col('course_sale_history.created_at'), 'saleDate'],
-        [Sequelize.col('customer.last_name'), 'customerName'], // Include customer's name directly in the course object
+        // [fn('date_format', col('course_sale_history.created_at'), '%Y-%m-%d'), 'saleDate'],
+        [col('course_sale_history.created_at'), 'saleDate'],
+        [col('customer.last_name'), 'customerName'], // Include customer's name directly in the course object
+        [col('course.name'), 'courseName'], // Include course's name directly in the course object
       ],
     },
     raw: true,
