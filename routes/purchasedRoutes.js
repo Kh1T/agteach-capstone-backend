@@ -14,6 +14,12 @@ router.get(
   purchasedController.getAllPurchased,
 );
 
+router.get(
+  '/purchasedDetail',
+  instructorController.fetchInstructor,
+  purchasedController.getPurchaseDetail,
+);
+
 router.post(
   '/productCheckoutSession',
   customerController.fetchCustomer,
