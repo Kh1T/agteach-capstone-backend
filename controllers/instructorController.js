@@ -135,8 +135,8 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
       include: [
         // [fn('date_format', col('course_sale_history.created_at'), '%Y-%m-%d'), 'saleDate'],
         [col('course_sale_history.created_at'), 'saleDate'],
-        [col('customer.last_name'), 'customerName'], // Include customer's name directly in the course object
-        [col('course.name'), 'courseName'], // Include course's name directly in the course object
+        // [fn("concat", col("firstname"), col("lastname"),[col('course.name'), 'courseName'], // Include course's name directly in the course object
+        [fn('concat', col('customer.first_name'), ' ', col('customer.last_name')), 'customerName'],
       ],
     },
     raw: true,
