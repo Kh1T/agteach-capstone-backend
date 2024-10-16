@@ -164,7 +164,7 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
     attributes: {
       exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
       include: [
-        [col('course_sale_history.created_at'), 'saleDate'],
+        [fn('DATE',col('course_sale_history.created_at')), 'saleDate'],
         [col('course.name'), 'courseName'],
         [
           fn(
@@ -177,7 +177,7 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
         ],
       ],
     },
-
+    order: [[col('course_sale_history.created_at'), order || 'DESC']],
     raw: true,
   });
 
