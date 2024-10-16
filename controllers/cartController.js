@@ -13,12 +13,30 @@ exports.getCartItems = catchAsync(async (req, res, next) => {
     where: {
       productId: productIds, // Fetch products by their IDs
     },
+    attributes: ['productId', 'name', 'imageUrl', 'price'],
   });
-  
-  // Check if all products exist
-  if(products.length !== productIds.length) {
-    return next(new AppError('No product found with that ID', 404));
-  }
 
-  res.status(200).json({ status: 'success', productIds, products });
+  // Create a map for quick product lookup
+  const productMap = new Map(
+    products.map((product) => [product.productId, product]),
+  );
+
+  // Map cart items with correct prices from the database
+  const items = cartItems.map((item) => {
+    const product = productMap.get(item.productId);
+
+    if (!product) {
+      return next(new AppError('No product found with that ID', 404));
+    }
+
+    return {
+      productId: product.productId,
+      name: product.name,
+      imageUrl: product.imageUrl,
+      price: product.price,
+      quantity: item.quantity,
+    };
+  });
+
+  res.status(200).json({ status: 'success', items });
 });
