@@ -1,3 +1,4 @@
+const { Sequelize } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const Instructor = require('../models/instructorModel');
 const Course = require('../models/courseModel');
@@ -10,6 +11,8 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
+const Customer = require('../models/customerModel');
+
 
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
 exports.searchData = factory.SearchData(Instructor);
@@ -80,7 +83,7 @@ exports.getInstructorData = catchAsync(async (req, res, next) => {
 
 exports.getBalance = catchAsync(async (req, res, next) => {
   // const { instructorId } = req.memberData;
-const instructorId = 61
+  const instructorId = 61;
   const purchasedDetail = await PurchasedDetail.sum('total', {
     include: [
       {
@@ -93,21 +96,49 @@ const instructorId = 61
     ],
     group: ['product.instructor_id'], // Group by instructor_id
   });
-  const courseSaleHistory = await CourseSaleHistory.sum('course_sale_history.price', {
-    include: [
-      {
-        model: Course,
-        attributes: [], // Exclude all product attributes
-        where: {
-          instructorId, // Use the dynamic instructorId from req.memberData
+  const courseSaleHistory = await CourseSaleHistory.sum(
+    'course_sale_history.price',
+    {
+      include: [
+        {
+          model: Course,
+          attributes: [], // Exclude all product attributes
+          where: {
+            instructorId, // Use the dynamic instructorId from req.memberData
+          },
         },
-      },
-    ],
-    group: ['course.instructor_id'], // Group by instructor_id
-  });
+      ],
+      group: ['course.instructor_id'], // Group by instructor_id
+    },
+  );
   res.status(200).json({
     status: 'success',
     data: { course: purchasedDetail, product: courseSaleHistory },
   });
 });
 
+exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+
+  const courseSaleHistory = await CourseSaleHistory.findAll({
+    where: { instructorId: 61 },
+    include: [
+      {
+        model: Customer, // Include the Customer model
+        attributes: [], // Select only the name field
+      },
+    ],
+    attributes: {
+      exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
+      include: [
+        [Sequelize.col('course_sale_history.created_at'), 'saleDate'],
+        [Sequelize.col('customer.last_name'), 'customerName'], // Include customer's name directly in the course object
+      ],
+    },
+    raw: true,
+  });
+  res.status(200).json({
+    status: 'success',
+    data: { course: courseSaleHistory },
+  });
+});
