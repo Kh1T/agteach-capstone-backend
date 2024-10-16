@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const Product = require('../models/productModel');
 const ProductImage = require('../models/productImageModel');
 const Location = require('../models/locationModel');
@@ -14,6 +15,7 @@ const {
   handleAddUpdateAdditionalImages,
   fetchProductImages,
 } = require('../utils/imagesOperator');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.getAll = handleFactory.getAll(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
@@ -131,7 +133,24 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor, {
-  model: ProductCategory,
-  attributes: ['name'],
+exports.getInstructorProduct = catchAsync(async (req, res, next) => {
+  // Model 1 : Model For Finding Data
+  // Model 2 : Model embedded ID  For Finding Model 1
+
+  const features = new APIFeatures(Product, req.query, Instructor)
+    .search()
+    .sort()
+    .userItems(req.user.userUid);
+
+  const item = await features.execute();
+
+  res.status(200).json({
+    status: 'success',
+    item,
+  });
 });
+
+// handleFactory.getUserItems(Product, Instructor, {
+//   model: ProductCategory,
+//   attributes: ['name'],
+// });
