@@ -39,6 +39,11 @@ router.get(
   instructorController.fetchInstructor,
   instructorController.getAllCourseBalance,
 );
+router.get(
+  '/getAllProductBalance',
+  instructorController.fetchInstructor,
+  instructorController.getAllCourseBalance,
+);
 
 
 module.exports = router;

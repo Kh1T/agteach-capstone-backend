@@ -12,6 +12,8 @@ const AppError = require('../utils/appError');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const Customer = require('../models/customerModel');
+const Purchased = require('../models/purchasedModel');
+const ProductSaleHistory = require('../models/productSaleHistoryModel');
 
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
 exports.searchData = factory.SearchData(Instructor);
@@ -126,9 +128,7 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
         model: Customer, // Include the Customer model
         attributes: [], // Select only the name field
       },
-      { model: Course,
-        attributes: [],
-       },
+      { model: Course, attributes: [] },
     ],
     attributes: {
       exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
@@ -141,8 +141,22 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
     },
     raw: true,
   });
+  const productSaleHistory = await ProductSaleHistory.findAll({
+    where: { instructorId: 75 },
+    include: [
+      {
+        model: PurchasedDetail, // Include the Customer model
+        attributes: [], // Select only the name field
+      },
+    ],
+    attributes: {
+      // exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
+      include: [[col('purchased_detail.total'), 'purchasedPrice']],
+    },
+    raw: true,
+  });
   res.status(200).json({
     status: 'success',
-    data: { course: courseSaleHistory },
+    data: { course: courseSaleHistory, product: productSaleHistory },
   });
 });
