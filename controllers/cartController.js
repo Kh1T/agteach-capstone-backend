@@ -16,7 +16,7 @@ exports.getCartItems = catchAsync(async (req, res, next) => {
         [Op.in]: productIds,
       }, // Fetch products by their IDs
     },
-    attributes: ['productId', 'name', 'imageUrl', 'price'],
+    attributes: ['productId', 'name', 'imageUrl', 'price', 'quantity'],
   });
 
     // Create a map for quick product lookup
@@ -30,6 +30,10 @@ exports.getCartItems = catchAsync(async (req, res, next) => {
 
       if (!product) {
         return next(new AppError('No product found with that ID', 404));
+      }
+
+      if(item.quantity > product.quantity){
+        return next(new AppError('Insufficient quantity', 404));
       }
 
       return {
