@@ -72,7 +72,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
       price,
       courseObjective,
       numberOfVideo,
-      instructorId: req.instructorId,
+      instructorId,
       thumbnailUrl,
       duration: totalDuration,
     },
@@ -101,12 +101,18 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
 
 exports.updateCourse = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { courseName, description, price, courseObjective, allSection } =
-    req.body;
+  const {
+    courseName,
+    description,
+    price,
+    courseObjective,
+    allSection,
+    totalDuration,
+  } = req.body;
 
   const parseAllSection = JSON.parse(allSection);
   const transaction = await sequelize.transaction();
-
+  console.log(totalDuration);
   try {
     //Update the course details
     const course = await Course.findByPk(id);
@@ -120,6 +126,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         name: courseName,
         description,
         price,
+        duration: totalDuration,
         courseObjective,
       },
       { transaction },
@@ -151,8 +158,14 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     }
 
     const { newLectures, updateLectures, lecturesToDelete } =
-      await processLectures(id, req, parseAllSection, instructorId, transaction);
-    
+      await processLectures(
+        id,
+        req,
+        parseAllSection,
+        instructorId,
+        transaction,
+      );
+
     // Bulk create new lectures
     if (newLectures.length > 0) {
       await Lecture.bulkCreate(newLectures, {
