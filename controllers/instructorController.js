@@ -1,4 +1,4 @@
-const { Sequelize, col, fn } = require('sequelize');
+const { Sequelize, col, fn, Op } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const Instructor = require('../models/instructorModel');
 const Course = require('../models/courseModel');
@@ -83,8 +83,10 @@ exports.getInstructorData = catchAsync(async (req, res, next) => {
 });
 
 exports.getBalance = catchAsync(async (req, res, next) => {
-  // const { instructorId } = req.memberData;
-  const instructorId = 61;
+  const { instructorId } = req.memberData;
+  //
+  //  const instructorId = 61;
+  console.log(instructorId);
   const purchasedDetail = await PurchasedDetail.sum('total', {
     include: [
       {
@@ -118,31 +120,11 @@ exports.getBalance = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
+exports.getAllProductBalance = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
-  const courseSaleHistory = await CourseSaleHistory.findAll({
-    where: { instructorId: 61 },
-    include: [
-      {
-        model: Customer, // Include the Customer model
-        attributes: [], // Select only the name field
-      },
-      { model: Course, attributes: [] },
-    ],
-    attributes: {
-      exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
-      include: [
-        // [fn('date_format', col('course_sale_history.created_at'), '%Y-%m-%d'), 'saleDate'],
-        [col('course_sale_history.created_at'), 'saleDate'],
-        // [fn("concat", col("firstname"), col("lastname"),[col('course.name'), 'courseName'], // Include course's name directly in the course object
-        [fn('concat', col('customer.first_name'), ' ', col('customer.last_name')), 'customerName'],
-      ],
-    },
-    raw: true,
-  });
   const productSaleHistory = await ProductSaleHistory.findAll({
-    where: { instructorId: 75 },
+    where: { instructorId },
     include: [
       {
         model: PurchasedDetail, // Include the Customer model
@@ -155,8 +137,52 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
     },
     raw: true,
   });
+
   res.status(200).json({
     status: 'success',
-    data: { course: courseSaleHistory, product: productSaleHistory },
+    data: productSaleHistory,
+  });
+});
+
+exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+  const { name, order } = req.query;
+
+  console.log('name:', name);
+  const courseSaleHistory = await CourseSaleHistory.findAll({
+    where: {
+      instructorId: 61,
+      ...(name && { '$course.name$': { [Op.iLike]: `%${name}%` } }),
+    },
+    include: [
+      {
+        model: Customer, // Include the Customer model
+        attributes: [], // Select only the name field
+      },
+      { model: Course, attributes: [] },
+    ],
+    attributes: {
+      exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
+      include: [
+        [col('course_sale_history.created_at'), 'saleDate'],
+        [col('course.name'), 'courseName'],
+        [
+          fn(
+            'concat',
+            col('customer.first_name'),
+            ' ',
+            col('customer.last_name'),
+          ),
+          'customerName',
+        ],
+      ],
+    },
+
+    raw: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: courseSaleHistory,
   });
 });
