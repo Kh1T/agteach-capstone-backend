@@ -33,7 +33,7 @@ exports.getCartItems = catchAsync(async (req, res, next) => {
       productId: product.productId,
       name: product.name,
       imageUrl: product.imageUrl,
-      price: product.price,
+      price: parseFloat(product.price),
       quantity: item.quantity,
     };
   });
