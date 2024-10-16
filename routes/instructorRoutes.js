@@ -9,7 +9,7 @@ router.get(
   '/getInstructorDetail/:id',
   instructorController.getInstructorDetail,
 );
-router.get("/searchData", instructorController.searchData);
+router.get('/searchData', instructorController.searchData);
 
 router.use(authController.protect);
 
@@ -28,5 +28,12 @@ router.patch(
 );
 
 router.get('/getInstructor/data', instructorController.getInstructorData);
+
+router.get(
+  '/balance',
+  instructorController.fetchInstructor,
+  instructorController.getBalance,
+);
+
 
 module.exports = router;

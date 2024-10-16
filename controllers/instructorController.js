@@ -8,6 +8,8 @@ const { uploadProfileImage } = require('../utils/multerConfig');
 const { resizeUploadProfileImage } = require('../utils/uploadMiddleware');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const PurchasedDetail = require('../models/purchasedDetailModel');
+const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
 exports.searchData = factory.SearchData(Instructor);
@@ -75,3 +77,37 @@ exports.getInstructorData = catchAsync(async (req, res, next) => {
     data: instructor,
   });
 });
+
+exports.getBalance = catchAsync(async (req, res, next) => {
+  // const { instructorId } = req.memberData;
+const instructorId = 61
+  const purchasedDetail = await PurchasedDetail.sum('total', {
+    include: [
+      {
+        model: Product,
+        attributes: [], // Exclude all product attributes
+        where: {
+          instructorId, // Use the dynamic instructorId from req.memberData
+        },
+      },
+    ],
+    group: ['product.instructor_id'], // Group by instructor_id
+  });
+  const courseSaleHistory = await CourseSaleHistory.sum('course_sale_history.price', {
+    include: [
+      {
+        model: Course,
+        attributes: [], // Exclude all product attributes
+        where: {
+          instructorId, // Use the dynamic instructorId from req.memberData
+        },
+      },
+    ],
+    group: ['course.instructor_id'], // Group by instructor_id
+  });
+  res.status(200).json({
+    status: 'success',
+    data: { course: purchasedDetail, product: courseSaleHistory },
+  });
+});
+
