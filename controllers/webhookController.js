@@ -128,7 +128,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       const updates = products.map((product) => {
         console.log("I'm checking [Single product] here: ", product);
         const lineItem = productUpdates.find(
-          (item) => Number(item.productId)=== product.dataValues.productId,
+          (item) => Number(item.productId) === product.dataValues.productId,
         );
 
         console.log("I'm checking [lineItem] here: ", lineItem);
@@ -147,26 +147,27 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       });
 
       console.log("I'm checking [updates] here: ", updates);
-      
-      console.log("I'm checking [Insufficient stock] here: ", insufficientStock);
-      
+
+      console.log(
+        "I'm checking [Insufficient stock] here: ",
+        insufficientStock,
+      );
+
       if (insufficientStock.length > 0) {
         return res
           .status(400)
           .json({ status: 'fail', message: 'Insufficient stock' });
       }
 
-
-      try {
-        await Promise.all(
-          updates.map(({ productId, newQuantity }) =>
-            Product.update({ quantity: newQuantity }, { where: { productId } }),
-          ),
-        );
-      } catch (error) {
-        console.log('Error updating product quantities:', error);
-        return res.status(500).json({ status: 'error', message: error.message });
-      }
+      await Promise.all(
+        updates.map(
+          async ({ productId, newQuantity }) =>
+            await Product.update(
+              { quantity: newQuantity },
+              { where: { productId } },
+            ),
+        ),
+      );
 
       // Create a purchase record for the transaction
       const purchased = await Purchased.create({
