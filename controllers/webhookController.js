@@ -126,7 +126,8 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
 
       const insufficientStock = [];
       const updates = products.map((product) => {
-        const lineItem = productUpdates.filter(
+        console.log("I'm checking [Single product] here: ", product);
+        const lineItem = productUpdates.find(
           (item) => item.productId === product.productId,
         );
 
