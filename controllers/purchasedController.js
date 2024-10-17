@@ -6,7 +6,7 @@ const PurchasedDetail = require('../models/purchasedDetailModel');
 
 const Purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
-const { fn, col, Op } = require('sequelize');
+const { fn, col, Op, or } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Product = require('../models/productModel');
 const { raw } = require('express');
@@ -81,11 +81,11 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
     whereClause['$last_name$'] = { [Op.iLike]: `%${name}%` };
   }
 
-  if (order === undefined) {
-    whereClause['$is_delivered$'] = !!order;
+  if (order === 'true') {
+    whereClause['$is_delivered$'] = true;
+  } else if (order === 'false') {
+    whereClause['$is_delivered$'] = false;
   }
-
-  console.log(whereClause);
 
   const data = await ProductSaleHistory.findAll({
     include: [
