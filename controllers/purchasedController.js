@@ -77,7 +77,7 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
     whereClause['$last_name$'] = { [Op.iLike]: `%${name}%` };
   }
 
-  if (order !== undefined) {
+  if (order === undefined) {
     whereClause['$is_delivered$'] = !!order;
   }
 
