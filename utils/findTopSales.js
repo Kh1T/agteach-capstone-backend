@@ -1,12 +1,14 @@
+const { QueryTypes } = require('sequelize');
+const sequelize = require('../config/db');
 const Instructor = require('../models/instructorModel');
 const Category = require('../models/categoryModel');
 const Product = require('../models/productModel');
-const Course = require('../models/courseModel');
+const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const { fn, col } = require('../config/db');
 
-const getUniqueSalesTotals = async (model, idField, includeModel) => {
+const getProductSalesTotals = async (model, idField, includeModel) => {
   const salesTotals = await model.findAll({
     attributes: [
       idField,
@@ -62,4 +64,31 @@ const getUniqueSalesTotals = async (model, idField, includeModel) => {
   }, []);
 };
 
-module.exports = { getUniqueSalesTotals };
+const getCourseTopSales = async () => {
+  const salesCourseTotals = await sequelize.query(
+    `
+  SELECT 
+    "course"."course_id",
+    "course"."name",
+    'Course' AS "category",
+    COALESCE(SUM("course_sale_history"."price"), 0) AS "totalSales"
+  FROM 
+    "course"
+  LEFT OUTER JOIN 
+    "course_sale_history" ON "course"."course_id" = "course_sale_history"."course_id"
+  GROUP BY 
+    "course"."course_id", "course"."name"
+  ORDER BY 
+    "totalSales" DESC
+  LIMIT 5;
+`,
+    {
+      type: QueryTypes.SELECT,
+    },
+  );
+  return salesCourseTotals.map((course) => ({
+    ...course,
+    totalSales: parseFloat(course.totalSales), // Convert string to number
+  }));
+};
+module.exports = { getProductSalesTotals, getCourseTopSales };

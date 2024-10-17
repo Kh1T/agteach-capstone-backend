@@ -20,5 +20,6 @@ router.delete('/deleteCategory/:id', adminController.deleteCategory);
 
 //Top 5 Sales
 router.get('/getProductTopSales', adminController.getProductTopSales);
+router.get('/getCourseTopSales', adminController.getCourseTopSales);
 
 module.exports = router;
