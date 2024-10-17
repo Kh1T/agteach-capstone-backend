@@ -160,13 +160,13 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       }
 
       await Promise.all(
-        updates.map(
-          async ({ productId, newQuantity }) =>
-            await Product.update(
-              { quantity: newQuantity },
-              { where: { productId } },
-            ),
-        ),
+        updates.map(async ({ productId, newQuantity }) => {
+          console.log('XXXXXXX',productId, newQuantity);
+          await Product.update(
+            { quantity: newQuantity },
+            { where: { productId } },
+          );
+        }),
       );
 
       // Create a purchase record for the transaction
