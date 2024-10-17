@@ -159,7 +159,9 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         updates.map(({ productId, newQuantity }) =>
           Product.update({ quantity: newQuantity }, { where: { productId } }),
         ),
-      );
+      ).catch((err) => {
+        console.log(`Something went wrong: ${err}`);
+      });
 
       // Create a purchase record for the transaction
       const purchased = await Purchased.create({
