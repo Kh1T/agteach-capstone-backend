@@ -8,6 +8,7 @@ const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const Purchased = require('../models/purchasedModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 /**
  * Create a Course Sale History record in the DB.
@@ -137,9 +138,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       });
 
       if (insufficientStock.length > 0) {
-        return res
-          .status(400)
-          .json({ status: 'fail', message: 'Insufficient stock' });
+        return next(new AppError('Insufficient stock', 400));
       }
 
       await Promise.all(
