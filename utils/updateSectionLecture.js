@@ -82,14 +82,14 @@ exports.processLectures = async (
             updateLectures.push({
               lectureId: lecture.lectureId,
               name: lecture.lectureName,
-              duration: lecture.duration,
+              duration: lecture.lectureDuration,
             });
           } else {
             newLectures.push({
               sectionId: updatedSection.sectionId,
               name: lecture.lectureName,
               videoUrl: lecture.videoUrl,
-              duration: lecture.duration,
+              duration: lecture.lectureDuration,
             });
           }
         }),

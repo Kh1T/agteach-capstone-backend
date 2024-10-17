@@ -20,15 +20,15 @@ exports.createSectionsLectures = async (
       instructorId,
     });
 
-    // console.log();
-
-    const lectures = section.allLecture.map((lecture) => ({
-      name: lecture.lectureName,
-      instructorId,
-      sectionId: newSection.sectionId,
-      courseId,
-      duration: req.body.lectureDuration,
-    }));
+    const lectures = section.allLecture.map((lecture) => {
+      return {
+        name: lecture.lectureName,
+        instructorId,
+        sectionId: newSection.sectionId,
+        courseId,
+        duration: lecture.lectureDuration,
+      };
+    });
 
     // Create lectures for this section
     await Lecture.bulkCreate(lectures, {

@@ -10,7 +10,7 @@ const { createSectionsLectures } = require('../utils/createSectionLectures');
 const AppError = require('../utils/appError');
 const sequelize = require('../config/db');
 const { json } = require('sequelize');
-const { processLectures } = require('../utils/updateSectionLecutre');
+const { processLectures } = require('../utils/updateSectionLecture');
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -58,6 +58,8 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     totalDuration,
   } = req.body;
 
+  // let allLecture = JSON.parse(req.body.allSection)
+  // console.log('lecture', allLecture[0].allLecture)
   const { instructorId } = req.memberData;
 
   const parsedSections = JSON.parse(allSection);
@@ -185,7 +187,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
             {
               name: lecture.name,
               videoUrl: lecture.videoUrl,
-              duration: lecture.duration,
+              duration: lecture.lectureDuration,
             },
             { where: { lectureId: lecture.lectureId }, transaction },
           );
