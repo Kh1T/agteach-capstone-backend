@@ -71,8 +71,15 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
   const { name, order } = req.query;
+  const whereClause = { instructorId };
 
-  console.log(name, 'testiing');
+  if (name) {
+    whereClause['$last_name$'] = { [Op.iLike]: `%${name}%` };
+  }
+
+  if (order !== undefined) {
+    whereClause['$is_delivered$'] = !!order;
+  }
 
   const data = await ProductSaleHistory.findAll({
     include: [
@@ -87,8 +94,9 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
       'purchased_detail.purchased_id',
       'customer_id',
       [fn('SUM', col('purchased_detail.total')), 'total_sum'],
-      'is_delivered',
+      [col('product_sale_history.is_delivered'), 'is_delivered'],
       [col('customer.last_name'), 'last_name'],
+      [col('purchased_detail.purchased_id'), 'purchased_id'],
     ],
 
     group: [
@@ -99,10 +107,7 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
       'first_name',
       'last_name',
     ],
-    where: {
-      instructorId,
-      $last_name$: { [Op.iLike]: `%${name}%` },
-    },
+    where: whereClause,
   });
   res.status(200).json({ status: 'success', result: data.length, data });
 });
