@@ -222,17 +222,16 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const isCooldownActive = cooldownRespond(user.updatedAt, 'email verify', res);
 
   if (isCooldownActive) return;
-  await user.save({ validateBeforeSave: false });
-
-  const verificationCode = user.createEmailVerifyCode();
-  await sendEmail(req.user, {
+  await user.createEmailVerifyCode();
+  await user.save();
+  await sendEmail(user, {
     subject: 'Verify Email',
     templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
   });
 
   res.status(200).json({
     status: 'success',
-    message: `Verification code resent successfully: ${verificationCode}`,
+    message: `Verification code resent successfully: ${user.emailVerifyCode}`,
   });
 });
 

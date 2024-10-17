@@ -15,7 +15,6 @@ const Customer = require('../models/customerModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
-exports.searchData = factory.SearchData(Instructor);
 
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [

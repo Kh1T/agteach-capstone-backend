@@ -124,12 +124,12 @@ UserAccount.prototype.createPasswordResetToken = function () {
   return resetToken;
 };
 
-// Create email verify code & Send Email
+// Create email verify code 
 UserAccount.prototype.createEmailVerifyCode = async function () {
   const verificationCode = getDigitalCode(6).toString('utf8');
   this.emailVerifyCode = verificationCode;
 
-  this.updatedAt = Date.now();
+  this.updatedAt = new Date();
   await this.save();
   return verificationCode;
 };

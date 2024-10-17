@@ -1,53 +1,63 @@
 const { DataTypes } = require('sequelize');
+const PurchasedDetail = require('./purchasedDetailModel');
 const sequelize = require('../config/db');
+const { ObjectAttributes } = require('@aws-sdk/client-s3');
 
-const ProductSaleHistory = sequelize.define('product_sale_history', {
-  productSaleHistoryId: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  productId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'product',
-      key: 'productId',
+const ProductSaleHistory = sequelize.define(
+  'product_sale_history',
+  {
+    productSaleHistoryId: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    productId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'product',
+        key: 'productId',
+      },
+    },
+    customerId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'customer',
+        key: 'customerId',
+      },
+    },
+    purchasedDetailId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'purchasedDetail',
+        key: 'purchasedDetailId',
+      },
+    },
+    instructorId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'instructor',
+        key: 'instructorId',
+      },
+    },
+    isDelivered: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      default: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
   },
-  customerId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'customer',
-      key: 'customerId',
+  {
+    defaultScope: {
+      include: [{ model: PurchasedDetail, attributes: ['total'] }],
     },
   },
-  purchasedDetailId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'purchasedDetail',
-      key: 'purchasedDetailId',
-    },
-  },
-  instructorId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: 'instructor',
-      key: 'instructorId',
-    },
-  },
-  isDelivered: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    default: false,
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-});
+);
 
 module.exports = ProductSaleHistory;

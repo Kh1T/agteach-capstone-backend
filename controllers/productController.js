@@ -5,6 +5,7 @@ const Instructor = require('../models/instructorModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const AppError = require('../utils/appError');
+const ProductCategory = require('../models/productCategoryModel');
 
 const {
   validateImages,
@@ -55,7 +56,7 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   const newProduct = await Product.create({
     ...req.body,
     instructorId,
-    imageUrl: '', 
+    imageUrl: '',
   });
 
   // Upload product cover image
@@ -130,4 +131,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor);
+exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor, {
+  model: ProductCategory,
+  attributes: ['name'],
+});
