@@ -1,4 +1,4 @@
-const { Sequelize, col, fn, Op } = require('sequelize');
+const { col, fn, Op } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const Instructor = require('../models/instructorModel');
 const Course = require('../models/courseModel');
@@ -12,7 +12,6 @@ const AppError = require('../utils/appError');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const Customer = require('../models/customerModel');
-const Purchased = require('../models/purchasedModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
@@ -90,9 +89,9 @@ exports.getBalance = catchAsync(async (req, res, next) => {
     include: [
       {
         model: Product,
-        attributes: [], // Exclude all product attributes
+        attributes: [],
         where: {
-          instructorId, // Use the dynamic instructorId from req.memberData
+          instructorId,
         },
       },
     ],
@@ -104,9 +103,9 @@ exports.getBalance = catchAsync(async (req, res, next) => {
       include: [
         {
           model: Course,
-          attributes: [], // Exclude all product attributes
+          attributes: [],
           where: {
-            instructorId, // Use the dynamic instructorId from req.memberData
+            instructorId,
           },
         },
       ],
@@ -129,18 +128,9 @@ exports.getAllProductBalance = catchAsync(async (req, res, next) => {
       ...(name && { $name$: { [Op.iLike]: `%${name}%` } }),
     },
     include: [
-      {
-        model: PurchasedDetail, // Include the Customer model
-        attributes: [], // Select only the name field
-      },
-      {
-        model: Product,
-        attributes: [],
-      },
-      {
-        model: Customer,
-        attributes: [],
-      },
+      { model: PurchasedDetail, attributes: [] },
+      { model: Product, attributes: [] },
+      { model: Customer, attributes: [] },
     ],
     attributes: [
       [fn('DATE', col('product_sale_history.created_at')), 'date'],
@@ -180,10 +170,7 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
       ...(name && { $name$: { [Op.iLike]: `%${name}%` } }),
     },
     include: [
-      {
-        model: Customer, // Include the Customer model
-        attributes: [], // Select only the name field
-      },
+      { model: Customer, attributes: [] },
       { model: Course, attributes: [] },
     ],
     attributes: [
@@ -216,31 +203,35 @@ exports.getRecentTransations = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
   const courseSaleHistory = await CourseSaleHistory.findAll({
-    include: [
-      {
-        model: Customer, // Include the Customer model
-        attributes: [], // Don't include all customer attributes, only the concatenated name
-      },
-    ],
+    where: { instructorId },
+    include: [{ model: Customer, attributes: [] }],
     attributes: [
       [fn('DATE', col('course_sale_history.created_at')), 'date'],
-      [
-        fn(
-          'concat',
-          col('customer.first_name'),
-          ' ',
-          col('customer.last_name'),
-        ),
-        'name',
-      ],
+      [col('customer.last_name'), 'name'],
       'price',
     ],
     order: [[col('course_sale_history.created_at'), 'DESC']], // Order by created_at in descending order
+    limit: 5,
+    raw: true, // Return plain objects instead of Sequelize models
+  });
+  const productSaleHistory = await ProductSaleHistory.findAll({
+    where: { instructorId },
+    include: [
+      { model: Customer, attributes: [] },
+      { model: PurchasedDetail, attributes: [] },
+    ],
+    attributes: [
+      [fn('DATE', col('product_sale_history.created_at')), 'date'],
+      [col('customer.last_name'), 'name'],
+      [col('purchased_detail.total'), 'price'],
+    ],
+    order: [[col('product_sale_history.created_at'), 'DESC']], // Order by created_at in descending order
+    limit: 5,
     raw: true, // Return plain objects instead of Sequelize models
   });
 
   res.status(200).json({
     status: 'success',
-    data: courseSaleHistory,
+    data: { course: courseSaleHistory, product: productSaleHistory },
   });
 });

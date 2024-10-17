@@ -45,7 +45,7 @@ router.get(
   instructorController.getAllProductBalance,
 );
 router.get(
-  '/recentTransaction',
+  '/getRecentTransaction',
   instructorController.fetchInstructor,
   instructorController.getRecentTransations,
 );
