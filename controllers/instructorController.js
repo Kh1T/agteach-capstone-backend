@@ -137,14 +137,34 @@ exports.getAllProductBalance = catchAsync(async (req, res, next) => {
         model: Product,
         attributes: [],
       },
+      {
+        model: Customer,
+        attributes: [],
+      },
     ],
-    attributes: {
-      exclude: ['productSaleHistoryId', 'createdAt', 'updatedAt'],
-      include: [
-        [col('product.name'), 'productName'],
-        [col('purchased_detail.total'), 'purchasedPrice'],
+    // attributes: {
+    //   exclude: ['productSaleHistoryId', 'createdAt', 'updatedAt'],
+    //   include: [
+    //     [col('product.name'), 'productName'],
+    //     [col('purchased_detail.total'), 'purchasedPrice'],
+    //   ],
+    // },
+    attributes: [
+      [fn('DATE', col('product_sale_history.created_at')), 'Date'],
+      [col('product.name'), 'productName'],
+      [
+        fn(
+          'concat',
+          col('customer.first_name'),
+          ' ',
+          col('customer.last_name'),
+        ),
+        'Customer Name',
       ],
-    },
+      [col('purchased_detail.quantity'), 'quantity'],
+      [col('purchased_detail.price'), 'price'],
+      [col('purchased_detail.total'), 'purchasedPrice'],
+    ],
     order: [[col('product_sale_history.created_at'), order || 'DESC']],
     raw: true,
   });
@@ -173,10 +193,9 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
       },
       { model: Course, attributes: [] },
     ],
-    attributes: 
-    [
-      [fn('DATE', col('course_sale_history.created_at')), 'Sale Date'],
-      [col('course.name'), 'Course Name'],
+    attributes: [
+      [fn('DATE', col('course_sale_history.created_at')), 'date'],
+      [col('course.name'), 'courseName'],
       [
         fn(
           'concat',
@@ -184,12 +203,10 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
           ' ',
           col('customer.last_name'),
         ),
-        'Customer Name',
+        'customerName',
       ],
-      [col('course_sale_history.price'), 'Sale Price'],
+      [col('course_sale_history.price'), 'salePrice'],
     ],
-
-
     order: [[col('course_sale_history.created_at'), order || 'DESC']],
     limit, // Apply the limit for pagination
     offset, // Apply the offset for pagination
