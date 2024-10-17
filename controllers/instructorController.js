@@ -85,7 +85,7 @@ exports.getInstructorData = catchAsync(async (req, res, next) => {
 exports.getBalance = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   //
-  //  const instructorId = 61;
+  //  const instructorId = 75;
   const purchasedDetail = await PurchasedDetail.sum('total', {
     include: [
       {
@@ -115,7 +115,7 @@ exports.getBalance = catchAsync(async (req, res, next) => {
   );
   res.status(200).json({
     status: 'success',
-    data: { course: purchasedDetail, product: courseSaleHistory },
+    data: { course: courseSaleHistory, product: purchasedDetail },
   });
 });
 
@@ -188,22 +188,7 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
       ],
       [col('course_sale_history.price'), 'Sale Price'],
     ],
-    // {
-    //   // attributes: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
-    //   include: [
-    //     [fn('DATE', col('course_sale_history.created_at')), 'saleDate'],
-    //     [col('course.name'), 'courseName'],
-    //     [
-    //       fn(
-    //         'concat',
-    //         col('customer.first_name'),
-    //         ' ',
-    //         col('customer.last_name'),
-    //       ),
-    //       'customerName',
-    //     ],
-    //   ],
-    // },
+
 
     order: [[col('course_sale_history.created_at'), order || 'DESC']],
     limit, // Apply the limit for pagination
