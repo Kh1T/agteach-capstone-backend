@@ -12,6 +12,14 @@ const sequelize = require('../config/db');
 const { json } = require('sequelize');
 const { processLectures } = require('../utils/updateSectionLecture');
 
+const createProductSuggestions = (courseId, instructorId, productIds) => {
+  return productIds.map((productId) => ({
+    courseId,
+    productId,
+    instructorId,
+  }));
+};
+
 exports.searchData = handleFactory.SearchData(Course);
 
 exports.getAll = handleFactory.getAll(Course);
@@ -80,12 +88,15 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     },
     { files: req.files },
   );
+  // createProductSuggestions;
 
-  await ProductSuggestion.bulkCreate({
-    courseId: newCourse.courseId,
-    productId: parsedProductSuggestions,
+  const suggestions = createProductSuggestions(
+    newCourse.courseId,
     instructorId,
-  });
+    parsedProductSuggestions,
+  );
+
+  await ProductSuggestion.bulkCreate(suggestions);
 
   await createSectionsLectures(
     parsedSections,
