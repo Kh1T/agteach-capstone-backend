@@ -1,5 +1,5 @@
 const sharp = require('sharp');
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
@@ -37,6 +37,7 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
     Body: buffer,
     ContentType: 'image/jpeg',
   };
+  await s3Client.send(new DeleteObjectCommand(input));
   await s3Client.send(new PutObjectCommand(input));
   req.file.filename = process.env.AWS_S3_BUCKET_URL + req.file.filename;
   next();
