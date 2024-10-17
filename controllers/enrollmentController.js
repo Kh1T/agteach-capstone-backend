@@ -1,8 +1,9 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { col, fn } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
-const Enroll = require('../models/enrollModel');
+const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const AppError = require('../utils/appError');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
@@ -76,7 +77,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     client_reference_id: userUid,
     mode: 'payment',
     metadata: {
-      type:'course',
+      type: 'course',
       courseId: courseId,
       instructorId: instructorId,
       customerId: customer.customerId,
@@ -85,4 +86,22 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     cancel_url: `${REDIRECT_DOMAIN}/fail-payment`,
   });
   res.status(200).json({ status: 'success', id: session.id });
+});
+
+exports.getEnrollment = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+
+  const courseSaleHistory = await CourseSaleHistory.findAll({
+    include: [{ model: Course, where: { instructorId }, attributes: [] }],
+    attributes: [
+      [col('course.name'), 'CourseName'],
+      [col('course.price'), 'price'],
+      [col('course.created_at'), 'CreatedAt'],
+      [fn('COUNT', col('course.course_id')), 'TotalAmount'],
+    ],
+    group: ['course.course_id'],
+    raw: true,
+  });
+
+  res.status(200).json({ status: 'success', courseSaleHistory });
 });
