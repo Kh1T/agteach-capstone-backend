@@ -128,7 +128,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       const updates = products.map((product) => {
         console.log("I'm checking [Single product] here: ", product);
         const lineItem = productUpdates.find(
-          (item) => item.productId === product.dataValues.productId,
+          (item) => Number(item.productId)=== product.dataValues.productId,
         );
 
         console.log("I'm checking [lineItem] here: ", lineItem);
