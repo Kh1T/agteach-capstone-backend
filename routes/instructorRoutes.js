@@ -35,14 +35,14 @@ router.get(
   instructorController.getBalance,
 );
 router.get(
-  '/getAllCourseBalance',
+  '/searchCourseBalance',
   instructorController.fetchInstructor,
   instructorController.getAllCourseBalance,
 );
 router.get(
-  '/getAllProductBalance',
+  '/searchProductBalance',
   instructorController.fetchInstructor,
-  instructorController.getAllCourseBalance,
+  instructorController.getAllProductBalance,
 );
 
 

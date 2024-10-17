@@ -86,7 +86,6 @@ exports.getBalance = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   //
   //  const instructorId = 61;
-  console.log(instructorId);
   const purchasedDetail = await PurchasedDetail.sum('total', {
     include: [
       {
@@ -122,19 +121,31 @@ exports.getBalance = catchAsync(async (req, res, next) => {
 
 exports.getAllProductBalance = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
+  const { name, order } = req.query;
 
   const productSaleHistory = await ProductSaleHistory.findAll({
-    where: { instructorId },
+    where: {
+      instructorId,
+      ...(name && { $name$: { [Op.iLike]: `%${name}%` } }),
+    },
     include: [
       {
         model: PurchasedDetail, // Include the Customer model
         attributes: [], // Select only the name field
       },
+      {
+        model: Product,
+        attributes: [],
+      },
     ],
     attributes: {
-      // exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
-      include: [[col('purchased_detail.total'), 'purchasedPrice']],
+      exclude: ['productSaleHistoryId', 'createdAt', 'updatedAt'],
+      include: [
+        [col('product.name'), 'productName'],
+        [col('purchased_detail.total'), 'purchasedPrice'],
+      ],
     },
+    order: [[col('product_sale_history.created_at'), order || 'DESC']],
     raw: true,
   });
 
@@ -146,13 +157,14 @@ exports.getAllProductBalance = catchAsync(async (req, res, next) => {
 
 exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
-  const { name, order } = req.query;
+  const { name, order, page = 1, pageSize = 10 } = req.query;
+  const limit = parseInt(pageSize, 10); // Number of items per page
+  const offset = (page - 1) * limit; // Calculate the offset
 
-  console.log('name:', name);
   const courseSaleHistory = await CourseSaleHistory.findAll({
     where: {
-      instructorId: 61,
-      ...(name && { '$course.name$': { [Op.iLike]: `%${name}%` } }),
+      instructorId,
+      ...(name && { $name$: { [Op.iLike]: `%${name}%` } }),
     },
     include: [
       {
@@ -161,23 +173,41 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
       },
       { model: Course, attributes: [] },
     ],
-    attributes: {
-      exclude: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
-      include: [
-        [fn('DATE',col('course_sale_history.created_at')), 'saleDate'],
-        [col('course.name'), 'courseName'],
-        [
-          fn(
-            'concat',
-            col('customer.first_name'),
-            ' ',
-            col('customer.last_name'),
-          ),
-          'customerName',
-        ],
+    attributes: 
+    [
+      [fn('DATE', col('course_sale_history.created_at')), 'Sale Date'],
+      [col('course.name'), 'Course Name'],
+      [
+        fn(
+          'concat',
+          col('customer.first_name'),
+          ' ',
+          col('customer.last_name'),
+        ),
+        'Customer Name',
       ],
-    },
+      [col('course_sale_history.price'), 'Sale Price'],
+    ],
+    // {
+    //   // attributes: ['courseSaleHistoryId', 'createdAt', 'updatedAt'],
+    //   include: [
+    //     [fn('DATE', col('course_sale_history.created_at')), 'saleDate'],
+    //     [col('course.name'), 'courseName'],
+    //     [
+    //       fn(
+    //         'concat',
+    //         col('customer.first_name'),
+    //         ' ',
+    //         col('customer.last_name'),
+    //       ),
+    //       'customerName',
+    //     ],
+    //   ],
+    // },
+
     order: [[col('course_sale_history.created_at'), order || 'DESC']],
+    limit, // Apply the limit for pagination
+    offset, // Apply the offset for pagination
     raw: true,
   });
 
