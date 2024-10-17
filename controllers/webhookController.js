@@ -129,7 +129,13 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         const lineItem = productUpdates.find(
           (item) => item.productId === product.productId,
         );
+
+        console.log("I'm checking [lineItem] here: ", lineItem);
+
         const newQuantity = product.quantity - lineItem.quantity;
+
+        console.log("I'm checking [newQuantity] here: ", newQuantity);
+
         if (newQuantity < 0) {
           insufficientStock.push(product.productId);
         }
