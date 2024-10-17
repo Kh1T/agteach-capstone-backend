@@ -19,31 +19,45 @@ exports.getCartItems = catchAsync(async (req, res, next) => {
     attributes: ['productId', 'name', 'imageUrl', 'price', 'quantity'],
   });
 
-    // Create a map for quick product lookup
-    const productMap = new Map(
-      products.map((product) => [product.productId, product]),
-    );
+  // Create a map for quick product lookup
+  const productMap = new Map(
+    products.map((product) => [product.productId, product]),
+  );
 
-    // Map cart items with correct prices from the database
-    const items = cartItems.map((item) => {
-      const product = productMap.get(item.productId);
+  let status = 'success';
+  let statusCode = 200;
+  let message = 'Cart items fetched successfully';
 
-      if (!product) {
-        return next(new AppError('No product found with that ID', 404));
-      }
+  // Map cart items with correct prices from the database
+  const items = cartItems.map((item) => {
+    const product = productMap.get(item.productId);
 
-      if(item.quantity > product.quantity){
-        return next(new AppError('Insufficient quantity', 404));
-      }
+    if (!product) {
+      status = 'fail';
+      message = 'Product not found';
+      statusCode = 404;
+      return;
+    }
 
-      return {
-        productId: product.productId,
-        name: product.name,
-        imageUrl: product.imageUrl,
-        price: parseFloat(product.price),
-        quantity: item.quantity,
-      };
-    });
+    if (item.quantity > product.quantity) {
+      status = 'fail';
+      message = 'Not enough quantity in stock';
+      statusCode = 404;
+      return;
+    }
 
-  res.status(200).json({ status: 'success', items });
+    return {
+      productId: product.productId,
+      name: product.name,
+      imageUrl: product.imageUrl,
+      price: parseFloat(product.price),
+      quantity: item.quantity,
+    };
+  });
+
+  if (productIds.length !== items.length) {
+    return next(new AppError('Some products not found', 404));
+  }
+
+  res.status(statusCode).json({ status, message, items });
 });
