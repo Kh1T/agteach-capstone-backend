@@ -105,13 +105,16 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         },
       );
 
+      // Fetch productId and quantity from the lineItems
       const productUpdates = lineItems.data.map((item) => ({
         productId: item.price.product.metadata.product_id,
         quantity: item.quantity,
       }));
 
+      // Get only the product IDs from the productUpdates
       const productIds = productUpdates.map((item) => item.productId);
 
+      // Fetch products from the database by IDs
       const products = await Product.findAll({
         where: {
           productId: {
@@ -120,14 +123,18 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         },
       });
 
+      // Calculate the new quantity for each product
       const insufficientStock = [];
       const updates = products.map((product) => {
+
+        // Find the product in the productUpdates
         const lineItem = productUpdates.find(
           (item) => Number(item.productId) === product.dataValues.productId,
         );
 
         const newQuantity = product.quantity - lineItem.quantity;
 
+        // Check if the new quantity is less than 0
         if (newQuantity < 0) {
           insufficientStock.push(product.productId);
         }
@@ -137,10 +144,12 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         };
       });
 
+      // If there are insufficient stock, return an error
       if (insufficientStock.length > 0) {
         return next(new AppError('Insufficient stock', 400));
       }
 
+      // Update the quantity for each product
       await Promise.all(
         updates.map(async ({ productId, newQuantity }) => {
           await Product.update(
