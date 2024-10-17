@@ -44,6 +44,12 @@ router.get(
   instructorController.fetchInstructor,
   instructorController.getAllProductBalance,
 );
+router.get(
+  '/recentTransaction',
+  instructorController.fetchInstructor,
+  instructorController.getRecentTransations,
+);
+
 
 
 module.exports = router;

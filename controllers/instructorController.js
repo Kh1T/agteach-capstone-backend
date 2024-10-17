@@ -211,3 +211,36 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
     data: courseSaleHistory,
   });
 });
+
+exports.getRecentTransations = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+
+  const courseSaleHistory = await CourseSaleHistory.findAll({
+    include: [
+      {
+        model: Customer, // Include the Customer model
+        attributes: [], // Don't include all customer attributes, only the concatenated name
+      },
+    ],
+    attributes: [
+      [fn('DATE', col('course_sale_history.created_at')), 'date'],
+      [
+        fn(
+          'concat',
+          col('customer.first_name'),
+          ' ',
+          col('customer.last_name'),
+        ),
+        'name',
+      ],
+      'price',
+    ],
+    order: [[col('course_sale_history.created_at'), 'DESC']], // Order by created_at in descending order
+    raw: true, // Return plain objects instead of Sequelize models
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: courseSaleHistory,
+  });
+});
