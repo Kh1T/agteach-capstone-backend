@@ -145,7 +145,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         duration: totalDuration,
         courseObjective,
       },
-      { transaction },
+      { files: req.files, transaction },
     );
 
     if (parseUpdateProductSuggestions) {
