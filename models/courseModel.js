@@ -73,3 +73,4 @@ Course.afterUpdate(async (course, options) => {
   if (!options.files) return;
   resizeUplaodCourseThumbail(course, options);
 });
+

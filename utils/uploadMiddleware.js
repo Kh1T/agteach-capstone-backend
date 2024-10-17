@@ -61,7 +61,8 @@ const resizeUplaodCourseThumbail = catchAsync(
     const thumbnailFile = options.files.find(
       (file) => file.fieldname === `thumbnailUrl`,
     );
-
+    console.log('file:', options.files)
+    if (!thumbnailFile) return;
     const buffer = await sharp(thumbnailFile.buffer)
       .resize(500, 500)
       .toFormat('jpeg')
