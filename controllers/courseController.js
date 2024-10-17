@@ -119,13 +119,16 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     description,
     price,
     courseObjective,
+    ProductSuggestionId,
     allSection,
     totalDuration,
+    thumbnailUrl,
   } = req.body;
 
   const parseAllSection = JSON.parse(allSection);
   const transaction = await sequelize.transaction();
   console.log(totalDuration);
+  const parseUpdateProductSuggestions = JSON.parse(ProductSuggestionId);
   try {
     //Update the course details
     const course = await Course.findByPk(id);
@@ -144,6 +147,38 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
       },
       { transaction },
     );
+
+    if (parseUpdateProductSuggestions) {
+      // Find existing product suggestions for the course
+      const existingSuggestions = await ProductSuggestion.findAll({
+        where: { courseId: id },
+      });
+
+      // Delete existing suggestions not in the updated list
+      const existingSuggestionIds = existingSuggestions.map(
+        (suggestion) => suggestion.productSuggestionId,
+      );
+      const suggestionsToDelete = existingSuggestionIds.filter(
+        (suggestionId) => !parseUpdateProductSuggestions.includes(suggestionId),
+      );
+
+      if (suggestionsToDelete.length > 0) {
+        await ProductSuggestion.destroy({
+          where: { productSuggestionId: suggestionsToDelete },
+        });
+      }
+
+      // Add or update new suggestions
+      const newSuggestions = parseUpdateProductSuggestions.map((productId) => ({
+        courseId: id,
+        productId,
+        instructorId,
+      }));
+
+      await ProductSuggestion.bulkCreate(newSuggestions, {
+        updateOnDuplicate: ['productId', 'courseId', 'instructorId'], // Fields to update if a record already exists
+      });
+    }
 
     // Get existing sections for comparison
     const sectionIdsFromRequest = parseAllSection
