@@ -121,6 +121,8 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
 exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
+  const customer = await Customer.findByPk(req.params.cid);
+
   const purchasedDetails = await PurchasedDetail.findAll({
     where: { purchasedId: req.params.id },
     include: [
@@ -130,28 +132,11 @@ exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
         attributes: ['productId', 'categoryId', 'name', 'price', 'imageUrl'],
         include: {
           model: ProductCategory,
-          attributes: ['categoryId', 'name', 'description'],
-        },
-      },
-      {
-        model: Purchased,
-        attributes: ['purchasedId', 'total', 'createdAt'],
-        include: {
-          model: Customer,
-          attributes: [
-            'customerId',
-            'firstName',
-            'lastName',
-            'email',
-            'phone',
-            'imageUrl',
-          ],
+          attributes: ['name'],
         },
       },
     ],
-    attributes: ['purchasedDetailId', 'quantity', 'price', 'total'],
-    raw: true,
   });
 
-  res.status(200).json({ status: 'success', purchasedDetails });
+  res.status(200).json({ status: 'success', purchasedDetails, customer });
 });
