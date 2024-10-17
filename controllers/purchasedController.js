@@ -2,10 +2,12 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Customer = require('../models/customerModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
-const purchased = require('../models/purchasedModel');
+
+// const Purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
 const { fn, col, Op } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
+const Product = require('../models/productModel');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
@@ -113,10 +115,10 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
 });
 
 exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
-  const { instructorId } = req.memberData;
-  const productSaleHistory = await purchased.findAll({
-    include: { model: ProductSaleHistory },
+  console.log(req.params.id);
+  const productDetail = await PurchasedDetail.findAll({
+    include: { model: Product },
   });
 
-  res.status(200).json({ status: 'success', productSaleHistory });
+  res.status(200).json({ status: 'success', productDetail });
 });

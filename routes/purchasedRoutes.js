@@ -15,7 +15,7 @@ router.get(
 );
 
 router.get(
-  '/purchasedDetail',
+  '/purchasedDetail/:id',
   instructorController.fetchInstructor,
   purchasedController.getPurchaseDetail,
 );
