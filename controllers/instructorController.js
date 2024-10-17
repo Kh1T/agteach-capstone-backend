@@ -142,15 +142,8 @@ exports.getAllProductBalance = catchAsync(async (req, res, next) => {
         attributes: [],
       },
     ],
-    // attributes: {
-    //   exclude: ['productSaleHistoryId', 'createdAt', 'updatedAt'],
-    //   include: [
-    //     [col('product.name'), 'productName'],
-    //     [col('purchased_detail.total'), 'purchasedPrice'],
-    //   ],
-    // },
     attributes: [
-      [fn('DATE', col('product_sale_history.created_at')), 'Date'],
+      [fn('DATE', col('product_sale_history.created_at')), 'date'],
       [col('product.name'), 'productName'],
       [
         fn(
@@ -159,7 +152,7 @@ exports.getAllProductBalance = catchAsync(async (req, res, next) => {
           ' ',
           col('customer.last_name'),
         ),
-        'Customer Name',
+        'customerName',
       ],
       [col('purchased_detail.quantity'), 'quantity'],
       [col('purchased_detail.price'), 'price'],
