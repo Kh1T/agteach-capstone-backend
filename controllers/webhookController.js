@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
@@ -63,7 +64,6 @@ const createProductSaleHistory = async (
   }).catch((err) => console.log(`Something went wrong: ${err}`));
 };
 
-
 exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
 
@@ -102,6 +102,47 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         {
           expand: ['data.price.product'],
         },
+      );
+
+      const productUpdates = lineItems.data.map((item) => ({
+        productId: item.price.product.metadata.product_id,
+        quantity: item.quantity,
+      }));
+
+      const productIds = productUpdates.map((item) => item.productId);
+      const products = await Product.findAll({
+        where: {
+          productId: {
+            [Op.in]: productIds,
+          },
+        },
+      });
+
+      const insufficientStock = [];
+      const updates = products.map((product) => {
+        const lineItem = productUpdates.find(
+          (item) => item.productId === product.productId,
+        );
+        const newQuantity = product.quantity - lineItem.quantity;
+        if (newQuantity < 0) {
+          insufficientStock.push(product.productId);
+        }
+        return {
+          productId: product.productId,
+          quantity: newQuantity,
+        };
+      });
+
+      if (insufficientStock.length > 0) {
+        return res
+          .status(400)
+          .json({ status: 'fail', message: 'Insufficient stock' });
+      }
+
+      await Promise.all(
+        updates.map(({ productId, newQuantity }) =>
+          Product.update({ quantity: newQuantity }, { where: { productId } }),
+        ),
       );
 
       // Create a purchase record for the transaction
