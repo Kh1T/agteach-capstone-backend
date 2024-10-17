@@ -4,6 +4,7 @@ const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
+const { fn, col, Op } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
@@ -69,16 +70,41 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 exports.getAllPurchased = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
-  const productSaleHistory = await ProductSaleHistory.findAll({
-    where: { instructorId },
-    include: [
-      { model: Customer, attributes: ['firstName', 'lastName', 'customerId'] },
-      // { model: PurchasedDetail, attributes: ['total'] },
-    ],
-    attributes: ['isDelivered', 'createdAt'],
-  });
+  const { name, order } = req.query;
 
-  res.status(200).json({ status: 'success', productSaleHistory });
+  console.log(name, 'testiing');
+
+  const data = await ProductSaleHistory.findAll({
+    include: [
+      {
+        model: PurchasedDetail,
+        attributes: [],
+      },
+      { model: Customer, attributes: [] },
+    ],
+    attributes: [
+      [fn('DATE', col('purchased_detail.created_at')), 'purchased_date'],
+      'purchased_detail.purchased_id',
+      'customer_id',
+      [fn('SUM', col('purchased_detail.total')), 'total_sum'],
+      'is_delivered',
+      [col('customer.last_name'), 'last_name'],
+    ],
+
+    group: [
+      fn('DATE', col('purchased_detail.created_at')),
+      'purchased_detail.purchased_id',
+      'product_sale_history.customer_id',
+      'is_delivered',
+      'first_name',
+      'last_name',
+    ],
+    where: {
+      instructorId,
+      $last_name$: { [Op.iLike]: `%${name}%` },
+    },
+  });
+  res.status(200).json({ status: 'success', result: data.length, data });
 });
 
 exports.getPurchaseDetail = catchAsync(async (req, res, next) => {

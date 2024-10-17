@@ -7,7 +7,7 @@ const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 const ProductCategory = require('../models/productCategoryModel');
-
+const APIFeatures = require('../utils/apiFeatures');
 const {
   validateImages,
   removeProductImages,
@@ -15,7 +15,6 @@ const {
   handleAddUpdateAdditionalImages,
   fetchProductImages,
 } = require('../utils/imagesOperator');
-const APIFeatures = require('../utils/apiFeatures');
 
 exports.getAll = handleFactory.getAll(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
@@ -134,9 +133,6 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
 });
 
 exports.getInstructorProduct = catchAsync(async (req, res, next) => {
-  // Model 1 : Model For Finding Data
-  // Model 2 : Model embedded ID  For Finding Model 1
-
   const features = new APIFeatures(Product, req.query, Instructor)
     .search()
     .sort()
@@ -146,11 +142,7 @@ exports.getInstructorProduct = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
+    result: item.length,
     item,
   });
 });
-
-// handleFactory.getUserItems(Product, Instructor, {
-//   model: ProductCategory,
-//   attributes: ['name'],
-// });

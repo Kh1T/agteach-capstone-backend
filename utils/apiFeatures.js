@@ -16,13 +16,10 @@ class APIFeatures {
   }
 
   sort() {
-    if (this.queryString.sort) {
-      const sortBy = this.queryString.sort
-        .split(',')
-        .map((field) => [field, 'ASC']);
-      this.queryOptions.order = sortBy;
-    } else {
+    if (this.queryString.order === 'DESC') {
       this.queryOptions.order = [['createdAt', 'DESC']];
+    } else if (this.queryString.order === 'ASC') {
+      this.queryOptions.order = [['createdAt', 'ASC']];
     }
     return this;
   }
