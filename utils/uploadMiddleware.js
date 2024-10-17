@@ -37,7 +37,14 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
     Body: buffer,
     ContentType: 'image/jpeg',
   };
-  await s3Client.send(new DeleteObjectCommand(input));
+
+  await s3Client.send(
+    new DeleteObjectCommand({
+      Bucket: process.env.AWS_S3_ASSET_BUCKET,
+      Key: req.file.filename,
+    }),
+  );
+
   await s3Client.send(new PutObjectCommand(input));
   req.file.filename = process.env.AWS_S3_BUCKET_URL + req.file.filename;
   next();
@@ -67,6 +74,14 @@ const resizeUplaodCourseThumbail = catchAsync(
       Body: buffer,
       ContentType: 'image/jpeg',
     };
+
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.AWS_S3_ASSET_BUCKET,
+        Key: filename,
+      }),
+    );
+    
     await s3Client.send(new PutObjectCommand(input));
     currentCourse.thumbnailUrl = url + filename;
     await currentCourse.save();
