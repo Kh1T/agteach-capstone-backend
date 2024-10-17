@@ -1,13 +1,15 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Customer = require('../models/customerModel');
+const ProductCategory = require('../models/productCategoryModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 
-// const Purchased = require('../models/purchasedModel');
+const Purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
 const { fn, col, Op } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Product = require('../models/productModel');
+const { raw } = require('express');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
@@ -83,6 +85,8 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
     whereClause['$is_delivered$'] = !!order;
   }
 
+  console.log(whereClause);
+
   const data = await ProductSaleHistory.findAll({
     include: [
       {
@@ -115,10 +119,39 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
 });
 
 exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
-  console.log(req.params.id);
-  const productDetail = await PurchasedDetail.findAll({
-    include: { model: Product },
+  const { instructorId } = req.memberData;
+
+  const purchasedDetails = await PurchasedDetail.findAll({
+    where: { purchasedId: req.params.id },
+    include: [
+      {
+        model: Product,
+        where: { instructorId },
+        attributes: ['productId', 'categoryId', 'name', 'price', 'imageUrl'],
+        include: {
+          model: ProductCategory,
+          attributes: ['categoryId', 'name', 'description'],
+        },
+      },
+      {
+        model: Purchased,
+        attributes: ['purchasedId', 'total', 'createdAt'],
+        include: {
+          model: Customer,
+          attributes: [
+            'customerId',
+            'firstName',
+            'lastName',
+            'email',
+            'phone',
+            'imageUrl',
+          ],
+        },
+      },
+    ],
+    attributes: ['purchasedDetailId', 'quantity', 'price', 'total'],
+    raw: true,
   });
 
-  res.status(200).json({ status: 'success', productDetail });
+  res.status(200).json({ status: 'success', purchasedDetails });
 });
