@@ -142,7 +142,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         }
         return {
           productId: product.productId,
-          quantity: newQuantity,
+          newQuantity,
         };
       });
 
@@ -161,7 +161,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
 
       await Promise.all(
         updates.map(async ({ productId, newQuantity }) => {
-          console.log('XXXXXXX',productId, newQuantity);
+          console.log('XXXXXXX', productId, newQuantity);
           await Product.update(
             { quantity: newQuantity },
             { where: { productId } },
