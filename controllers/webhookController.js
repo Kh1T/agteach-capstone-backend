@@ -109,7 +109,11 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         quantity: item.quantity,
       }));
 
+      console.log("I'm [productUpdates] checking here: ", productUpdates);
+
       const productIds = productUpdates.map((item) => item.productId);
+
+      console.log("I'm checking [productIds] here: ", productIds);
       const products = await Product.findAll({
         where: {
           productId: {
@@ -117,6 +121,8 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
           },
         },
       });
+
+      console.log("I'm checking [products] here: ", products);
 
       const insufficientStock = [];
       const updates = products.map((product) => {
@@ -132,6 +138,9 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
           quantity: newQuantity,
         };
       });
+
+      console.log("I'm checking [updates] here: ", updates);
+      
 
       if (insufficientStock.length > 0) {
         return res
