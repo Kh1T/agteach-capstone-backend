@@ -1,3 +1,4 @@
+const { fn, col, literal } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
@@ -47,10 +48,8 @@ exports.getCategory = handleFactory.getOne(Category);
 exports.getAllCategories = handleFactory.getAll(Category);
 
 exports.createCategory = catchAsync(async (req, res, next) => {
-  console.log({ reqBody: req.body });
   try {
     const category = await Category.create(req.body);
-    console.log({ category });
     res.status(201).json({
       status: 'success',
       data: category,
@@ -83,15 +82,11 @@ const {
 } = require('../utils/findTopSales');
 
 exports.getProductTopSales = catchAsync(async (req, res, next) => {
-  const uniqueSalesTotals = await getProductSalesTotals(
-    ProductSaleHistory,
-    'product_id',
-    PurchasedDetail,
-  );
+  const salesProductTotals = await getProductSalesTotals();
 
   res.status(200).json({
     status: 'success',
-    salesProductTotals: uniqueSalesTotals,
+    salesProductTotals,
   });
 });
 
