@@ -24,20 +24,14 @@ exports.getUserEnrollments = catchAsync(async (req, res, next) => {
 
 exports.checkEnrollment = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
+  const { customerId } = req.memberData;
 
-  const userId = req.user.userUid;
-
-  const customer = await Customer.findOne({
-    where: { userUid: userId },
-    attribute: ['customerId'],
-  });
-
-  if (!customer) {
+  if (!customerId) {
     return next(new AppError('Customer not found', 404));
   }
 
   const isEnrolled = await Enroll.findOne({
-    where: { courseId, customerId: customer.customerId },
+    where: { courseId, customerId },
   });
 
   if (isEnrolled) {
