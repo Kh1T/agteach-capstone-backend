@@ -144,7 +144,7 @@ exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
 
 exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
   // Get customerId from the request
-  const customerId = 132;
+  const { customerId } = req.memberData;
 
   const purchases = await sequelize.query(
     'SELECT * FROM get_customer_purchases(:customer_id)',
