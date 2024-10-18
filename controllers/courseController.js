@@ -29,7 +29,7 @@ exports.recommendCourse = handleFactory.recommendItems(
   Course,
   'courseId',
   'price',
-  ['instructorId', 'name', 'price', 'thumbnailUrl'],
+  ['instructorId', 'courseId', 'name', 'price', 'thumbnailUrl'],
 );
 
 exports.getInstructorCourse = handleFactory.getUserItems(Course, Instructor);

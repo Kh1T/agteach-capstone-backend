@@ -82,7 +82,6 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
 
   const url = req.headers['x-frontend-url'].split('/')[2] || req.url;
 
-  console.log(url);
   const isAuthorized =
     url.startsWith('localhost') ||
     url.includes('/login') ||
@@ -140,12 +139,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     resetURL = resetURL.replace('agteach', 'teach.agteach');
   }
 
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm`;
-
   try {
     await sendEmail(user, {
       subject: 'Forgot password',
-      text: message,
       code: resetURL,
       templateId: process.env.FORGOT_PASSWORD_EMAIL_TEMPLATE_ID,
     });
@@ -225,13 +221,16 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const isCooldownActive = cooldownRespond(user.updatedAt, 'email verify', res);
 
   if (isCooldownActive) return;
-  await user.save({ validateBeforeSave: false });
-
-  const verificationCode = user.createEmailVerifyCode();
+  await user.createEmailVerifyCode();
+  await user.save();
+  await sendEmail(user, {
+    subject: 'Verify Email',
+    templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
+  });
 
   res.status(200).json({
     status: 'success',
-    message: `Verification code resent successfully: ${verificationCode}`,
+    message: `Verification code resent successfully: ${user.emailVerifyCode}`,
   });
 });
 

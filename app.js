@@ -41,6 +41,8 @@ const courseRouter = require('./routes/courseRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const enrollmentRouter = require('./routes/enrollmentRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
+const purchasedRouter = require('./routes/purchasedRoutes');
+const cartRouter = require('./routes/cartRoutes')
 
 // app.use(authController.isLoginedIn);
 app.use('/webhook', webhookRoutes);
@@ -62,6 +64,8 @@ app.use('/api/view', viewRouter);
 app.use('/api/product', productRouter);
 app.use('/api/course', courseRouter);
 app.use('/api/enrollment', enrollmentRouter);
+app.use('/api/purchased', purchasedRouter);
+app.use('/api/cart', cartRouter)
 
 app.use(globalErrorHandler);
 

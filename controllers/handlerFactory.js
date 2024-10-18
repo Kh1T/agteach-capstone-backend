@@ -42,7 +42,6 @@ exports.getAll = (Model) =>
 exports.updateMe = (Model) =>
   catchAsync(async (req, res, next) => {
     // 1) Create error if user POSTs password data
-    // console.log(req.body);
     if (req.body.password || req.body.passwordConfirm) {
       return next(
         new AppError(
@@ -87,13 +86,9 @@ exports.additionalInfo = (Model) =>
       data.email = req.user.email;
       const userData = await Model.create(data);
 
-      const userAccount = await Model.findOne({
-        where: { userUid: req.user.userUid },
-      });
-      await sendEmail(userAccount, {
+      await sendEmail(req.user, {
         templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
         subject: 'Your account has been created',
-        text: `Your verification code is ${req.user.verificationCode}. Please enter this code on the verification page to complete your registration.`,
       });
 
       res.json({
@@ -199,10 +194,11 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
 exports.getUserItems = (Model1, Model2, cate) =>
   catchAsync(async (req, res, next) => {
     // Model 1 : Model For Finding Data
+    console.log('hi');
     // Model 2 : Model embedded ID  For Finding Model 1
     const { name, order } = req.query;
 
-    const item = await Model1.findAll({
+    const queryOption = {
       where: { name: { [Op.iLike]: `%${name}%` } },
       order: [['createdAt', order || 'DESC']],
       include: [
@@ -212,9 +208,14 @@ exports.getUserItems = (Model1, Model2, cate) =>
             userUid: req.user.userUid,
           },
         },
-        cate,
       ],
-    });
+    };
+
+    if (cate) {
+      queryOption.include.push(cate);
+    }
+
+    const item = await Model1.findAll(queryOption);
 
     if (!item)
       return next(new AppError("This User doesn't have any items", 404));
