@@ -27,7 +27,6 @@ const uploadProfileImage = multer({
 });
 
 const videoFilter = (req, file, cb) => {
-  console.log('hello')
   if (
     (!req.file && file.mimetype.startsWith('video')) ||
     file.mimetype.startsWith('image')
@@ -44,10 +43,7 @@ const uploadCourseVideos = multer({
   limits: {
     fileSize: 200 * 1024 * 1024, // 200MB limit
   },
-}).fields([
-  { name: 'videos', minCount: 1 },
-  { name: 'thumbnailUrl', maxCount: 1 },
-]);
+});
 
 module.exports = {
   uploadProfileImage,

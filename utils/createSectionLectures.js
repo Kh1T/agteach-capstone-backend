@@ -20,25 +20,26 @@ exports.createSectionsLectures = async (
       instructorId,
     });
 
-    // console.log();
-
-    const lectures = section.allLecture.map((lecture) => ({
-      name: lecture.lectureName,
-      instructorId,
-      sectionId: newSection.sectionId,
-      courseId,
-      duration: req.body.lectureDuration,
-    }));
+    const lectures = section.allLecture.map((lecture) => {
+      return {
+        name: lecture.lectureName,
+        instructorId,
+        sectionId: newSection.sectionId,
+        courseId,
+        duration: lecture.lectureDuration,
+      };
+    });
 
     // Create lectures for this section
     await Lecture.bulkCreate(lectures, {
       courseId,
       files: req.files,
       videoIndex: videoIndex,
+      isUpdated: false,
     });
 
-    videoIndex += section.allLecture.length;
-    console.log('videoIndex: ', videoIndex);
+    // videoIndex += section.allLecture.length;
+    videoIndex += 1;
 
     // Return a resolved promise for the next iteration
     return Promise.resolve();

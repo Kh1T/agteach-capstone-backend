@@ -68,3 +68,9 @@ Course.afterCreate(async (course, options) => {
   if (!options.files) return;
   resizeUplaodCourseThumbail(course, options);
 });
+
+Course.afterUpdate(async (course, options) => {
+  if (!options.files) return;
+  resizeUplaodCourseThumbail(course, options);
+});
+
