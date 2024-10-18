@@ -6,10 +6,11 @@ const PurchasedDetail = require('../models/purchasedDetailModel');
 
 const Purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
-const { fn, col, Op, or } = require('sequelize');
+const sequelize = require('../config/db');
+const { fn, col, Op, or, query, QueryTypes } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Product = require('../models/productModel');
-const { raw } = require('express');
+// const { raw } = require('express');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
@@ -144,13 +145,32 @@ exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
 exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
   // const { customerId } = req.memberData;
 
-  const id = 132;
+  // Raw SQL query to fetch data
+  //   const data = `
+  //   SELECT
+  //     pd.purchased_id,
+  //     SUM(pd.total) AS total_price,
+  //     SUM(pd.quantity) AS total_quantity,
+  //     json_agg(json_build_object('product_id', pd.product_id, 'quantity', pd.quantity, 'price', pd.price, 'total', pd.total)) AS products
+  //   FROM
+  //     purchased_detail pd
+  //   JOIN
+  //     purchased p ON p.purchased_id = pd.purchased_id
+  //   WHERE
+  //     p.customer_id = :customer_id
+  //   GROUP BY
+  //     pd.purchased_id
+  //   ORDER BY
+  //     pd.purchased_id ASC;
+  // `;
+  // const customerId = 132; // Example customer ID
+  const customerId = 132; // Example customer ID
+  const [results, metadata] = await sequelize.query(
+    'CALL get_customer_purchased(:customer_id)',
+    {
+      replacements: { customer_id: customerId },
+    },
+  );
 
-  const purchase = await Purchased.findAll();
-
-  const products = await PurchasedDetail.findAll({
-    include: [{ model: Purchased }],
-  });
-
-  res.status(200).json({ products });
+  res.status(200).json({ results });
 });
