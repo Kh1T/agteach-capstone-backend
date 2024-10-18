@@ -1,5 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { col, fn } = require('sequelize');
+const { col, Op, fn } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
@@ -90,16 +90,25 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
 exports.getEnrollment = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
+  const { name, order = 'ASC' } = req.query;
+
+  // Validate the order parameter to only allow 'ASC' or 'DESC'
+  const sortOrder = ['DESC', 'ASC'].includes(order.toUpperCase())
+    ? order.toUpperCase()
+    : 'ASC';
 
   const courseSaleHistory = await CourseSaleHistory.findAll({
+    where: { $name$: { [Op.iLike]: `%${name}%` } },
     include: [{ model: Course, where: { instructorId }, attributes: [] }],
     attributes: [
+      [col('course.course_id'), 'courseId'],
       [col('course.name'), 'CourseName'],
       [col('course.price'), 'price'],
       [col('course.created_at'), 'CreatedAt'],
       [fn('COUNT', col('course.course_id')), 'TotalAmount'],
     ],
-    group: ['course.course_id'],
+    group: ['course.course_id', 'course.name', 'course.created_at'],
+    order: [[col('course.created_at'), sortOrder]], // Sort by course.created_at
     raw: true,
   });
 
