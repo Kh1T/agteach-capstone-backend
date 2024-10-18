@@ -21,7 +21,8 @@ const uploadCoverImage = async (productId, productCoverBuffer) => {
 
   await s3Client.send(new PutObjectCommand(input));
 
-  const imageUrl = `http://${process.env.AWS_S3_URL}/${productCoverName}`;
+  const imageUrl = process.env.AWS_S3_BUCKET_URL + productCoverName;
+
   return imageUrl;
 };
 
@@ -75,7 +76,7 @@ const uploadAdditionalImages = async (
 
       // Upload the image to S3
       await s3Client.send(new PutObjectCommand(input));
-      const imageUrl = `http://${process.env.AWS_S3_URL}/${filename}`;
+      const imageUrl = process.env.AWS_S3_BUCKET_URL + filename;
 
       // Push the image URL to the array
       imageUrls.push(imageUrl);

@@ -143,34 +143,20 @@ exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
 });
 
 exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
-  // const { customerId } = req.memberData;
+  // Get customerId from the request
+  const { customerId } = req.memberData;
 
-  // Raw SQL query to fetch data
-  //   const data = `
-  //   SELECT
-  //     pd.purchased_id,
-  //     SUM(pd.total) AS total_price,
-  //     SUM(pd.quantity) AS total_quantity,
-  //     json_agg(json_build_object('product_id', pd.product_id, 'quantity', pd.quantity, 'price', pd.price, 'total', pd.total)) AS products
-  //   FROM
-  //     purchased_detail pd
-  //   JOIN
-  //     purchased p ON p.purchased_id = pd.purchased_id
-  //   WHERE
-  //     p.customer_id = :customer_id
-  //   GROUP BY
-  //     pd.purchased_id
-  //   ORDER BY
-  //     pd.purchased_id ASC;
-  // `;
-  // const customerId = 132; // Example customer ID
-  const customerId = 132; // Example customer ID
-  const [results, metadata] = await sequelize.query(
-    'CALL get_customer_purchased(:customer_id)',
+  const purchases = await sequelize.query(
+    'SELECT * FROM get_customer_purchases(:customer_id)',
     {
       replacements: { customer_id: customerId },
+      type: QueryTypes.SELECT,
     },
   );
 
-  res.status(200).json({ results });
+  res.status(200).json({
+    status: 'success',
+    result: purchases.length,
+    products: purchases,
+  });
 });

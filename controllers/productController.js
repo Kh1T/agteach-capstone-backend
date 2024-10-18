@@ -85,14 +85,15 @@ exports.getProductImages = catchAsync(async (req, res, next) => {
       status: 'creating',
       images: [],
     });
+  } else {
+    const images = await ProductImage.findAll({
+      where: { productId: req.params.id },
+    });
+    res.status(200).json({
+      status: 'success',
+      images,
+    });
   }
-  const images = await ProductImage.findAll({
-    where: { productId: req.params.id },
-  });
-  res.status(200).json({
-    status: 'success',
-    images,
-  });
 });
 
 exports.updateProduct = catchAsync(async (req, res, next) => {
