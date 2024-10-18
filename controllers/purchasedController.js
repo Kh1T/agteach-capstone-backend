@@ -1,13 +1,12 @@
+const { fn, col, Op, QueryTypes } = require('sequelize');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Customer = require('../models/customerModel');
 const ProductCategory = require('../models/productCategoryModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 
-const Purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
 const sequelize = require('../config/db');
-const { fn, col, Op, or, query, QueryTypes } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Product = require('../models/productModel');
 // const { raw } = require('express');
