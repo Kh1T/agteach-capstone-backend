@@ -1,15 +1,14 @@
-const { fn, col, literal } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const Instructor = require('../models/instructorModel');
 const Category = require('../models/categoryModel');
-const Product = require('../models/productModel');
-const Course = require('../models/courseModel');
-const enroll = require('../models/enrollModel');
-const ProductSaleHistory = require('../models/productSaleHistoryModel');
-const CourseSaleHistory = require('../models/courseSaleHistoryModel');
-const PurchasedDetail = require('../models/purchasedDetailModel');
+
+const {
+  getProductSalesTotals,
+  getCourseTopSales,
+  getSalesOverview,
+} = require('../utils/findTopSales');
 
 exports.getAdminInfo = catchAsync(async (req, res, next) => {
   const { role } = req.user;
@@ -75,12 +74,7 @@ exports.updateCategory = catchAsync(async (req, res, next) => {
 });
 exports.deleteCategory = handleFactory.deleteOne(Category);
 
-// Top 5 Sales
-const {
-  getProductSalesTotals,
-  getCourseTopSales,
-} = require('../utils/findTopSales');
-
+// Dashboard
 exports.getProductTopSales = catchAsync(async (req, res, next) => {
   const salesProductTotals = await getProductSalesTotals();
 
@@ -96,5 +90,13 @@ exports.getCourseTopSales = catchAsync(async (req, res, next) => {
   return res.status(200).json({
     status: 'success',
     salesCourseTotals,
+  });
+});
+
+exports.getSalesOverview = catchAsync(async (req, res, next) => {
+  const salesData = await getSalesOverview();
+  return res.status(200).json({
+    status: 'success',
+    salesData,
   });
 });

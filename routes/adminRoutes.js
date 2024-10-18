@@ -18,8 +18,9 @@ router.post('/createCategory', adminController.createCategory);
 router.patch('/updateCategory/:id', adminController.updateCategory);
 router.delete('/deleteCategory/:id', adminController.deleteCategory);
 
-//Top 5 Sales
+//Dashboard
 router.get('/getProductTopSales', adminController.getProductTopSales);
 router.get('/getCourseTopSales', adminController.getCourseTopSales);
+router.get('/getSalesOverview', adminController.getSalesOverview);
 
 module.exports = router;
