@@ -265,7 +265,6 @@ exports.logout = (req, res) => {
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
-
   if (req.cookies.jwt) {
     token = req.cookies.jwt;
   } else if (
