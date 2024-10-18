@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const PurchasedDetail = require('./purchasedDetailModel');
 const sequelize = require('../config/db');
-const { ObjectAttributes } = require('@aws-sdk/client-s3');
 
 const ProductSaleHistory = sequelize.define('product_sale_history', {
   productSaleHistoryId: {
