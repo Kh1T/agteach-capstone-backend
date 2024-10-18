@@ -10,7 +10,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
-exports.searchData = factory.SearchData(Instructor);
 
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [
