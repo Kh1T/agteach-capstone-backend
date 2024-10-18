@@ -28,27 +28,10 @@ router.patch(
 
 router.get('/getInstructor/data', instructorController.getInstructorData);
 
-router.get(
-  '/balance',
-  instructorController.fetchInstructor,
-  instructorController.getBalance,
-);
-router.get(
-  '/searchCourseBalance',
-  instructorController.fetchInstructor,
-  instructorController.getAllCourseBalance,
-);
-router.get(
-  '/searchProductBalance',
-  instructorController.fetchInstructor,
-  instructorController.getAllProductBalance,
-);
-router.get(
-  '/getRecentTransaction',
-  instructorController.fetchInstructor,
-  instructorController.getRecentTransations,
-);
-
-
+router.use(instructorController.fetchInstructor);
+router.get('/balance', instructorController.getBalance);
+router.get('/searchCourseBalance', instructorController.getAllCourseBalance);
+router.get('/searchProductBalance', instructorController.getAllProductBalance);
+router.get('/getRecentTransaction', instructorController.getRecentTransations);
 
 module.exports = router;
