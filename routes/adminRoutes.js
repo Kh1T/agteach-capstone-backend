@@ -5,7 +5,7 @@ const adminController = require('../controllers/adminController');
 
 const router = express.Router();
 
-router.use(authController.protect, authController.restrictTo('admin'));
+// router.use(authController.protect, authController.restrictTo('admin'));
 
 router.get('/getAdminInfo', userController.getMe, adminController.getAdminInfo);
 
@@ -18,7 +18,9 @@ router.post('/createCategory', adminController.createCategory);
 router.patch('/updateCategory/:id', adminController.updateCategory);
 router.delete('/deleteCategory/:id', adminController.deleteCategory);
 
-//Top 5 Sales
+//Dashboard
 router.get('/getProductTopSales', adminController.getProductTopSales);
+router.get('/getCourseTopSales', adminController.getCourseTopSales);
+router.get('/getSalesOverview', adminController.getSalesOverview);
 
 module.exports = router;
