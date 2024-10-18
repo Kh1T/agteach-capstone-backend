@@ -114,3 +114,39 @@ exports.getEnrollment = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ status: 'success', courseSaleHistory });
 });
+
+exports.getEnrollmentDetail = catchAsync(async (req, res, next) => {
+  const courseId = req.params.id;
+
+  const course = await Course.findByPk(courseId);
+
+  if (!course) {
+    return next(new AppError('Course Not Found', 404));
+  }
+
+  const students = await CourseSaleHistory.findAll({
+    where: { courseId },
+    attributes: [
+      col('customer.first_name'),
+      col('customer.last_name'),
+      col('customer.email'),
+      col('customer.phone'),
+      col('customer.image_url'),
+      col('course_sale_history.price'),
+      col('course_sale_history.created_at'),
+    ],
+    include: [
+      {
+        model: Customer,
+        attributes: [],
+      },
+      {
+        model: Course,
+        attributes: [],
+      },
+    ],
+    raw: true,
+  });
+
+  res.status(200).json({ status: 'success', students, course });
+});

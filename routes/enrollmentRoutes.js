@@ -13,6 +13,11 @@ router.get(
   enrollmentController.getEnrollment,
 );
 
+router.get(
+  '/getEnrollmentDetail/:id',
+  enrollmentController.getEnrollmentDetail,
+);
+
 router.post(
   '/checkoutSession',
   enrollmentController.checkEnrollment,
