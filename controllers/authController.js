@@ -82,7 +82,6 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
 
   const url = req.headers['x-frontend-url'].split('/')[2] || req.url;
 
-  console.log(url);
   const isAuthorized =
     url.startsWith('localhost') ||
     url.includes('/login') ||
