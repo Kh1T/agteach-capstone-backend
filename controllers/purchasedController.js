@@ -164,11 +164,9 @@ exports.updateDeliver = catchAsync(async (req, res, next) => {
   const { purchasedId } = req.body;
 
   const productSaleHistory = await ProductSaleHistory.update(
-    { is_delivered: true },
+    { isDelivered: true },
     { where: { purchasedId } },
   );
-
-  console.log(productSaleHistory);
 
   res.status(204).json({ status: 'success', data: productSaleHistory });
 });
