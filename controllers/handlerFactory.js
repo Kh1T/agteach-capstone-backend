@@ -31,10 +31,24 @@ exports.getOne = (Model, options = {}) =>
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    const data = await Model.findAll();
+    let queryOption = {};
+    const { page = 1, limit = 20 } = req.query;
+
+    if (req.query.page) {
+      const offset = (page - 1) * limit;
+
+      queryOption = {
+        offset: Number(offset),
+        limit: Number(limit),
+      };
+    }
+
+    const data = await Model.findAll(queryOption);
+
     res.status(200).json({
       status: 'success',
       results: data.length,
+      page: Number(page),
       data,
     });
   });
