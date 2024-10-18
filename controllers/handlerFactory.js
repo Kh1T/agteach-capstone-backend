@@ -194,10 +194,11 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
 exports.getUserItems = (Model1, Model2, cate) =>
   catchAsync(async (req, res, next) => {
     // Model 1 : Model For Finding Data
+    console.log('hi');
     // Model 2 : Model embedded ID  For Finding Model 1
     const { name, order } = req.query;
 
-    const item = await Model1.findAll({
+    const queryOption = {
       where: { name: { [Op.iLike]: `%${name}%` } },
       order: [['createdAt', order || 'DESC']],
       include: [
@@ -207,9 +208,14 @@ exports.getUserItems = (Model1, Model2, cate) =>
             userUid: req.user.userUid,
           },
         },
-        cate,
       ],
-    });
+    };
+
+    if (cate) {
+      queryOption.include.push(cate);
+    }
+
+    const item = await Model1.findAll(queryOption);
 
     if (!item)
       return next(new AppError("This User doesn't have any items", 404));
