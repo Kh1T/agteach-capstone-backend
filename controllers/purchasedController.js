@@ -1,3 +1,5 @@
+const { fn, col, Op, or } = require('sequelize');
+const { raw } = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Customer = require('../models/customerModel');
 const ProductCategory = require('../models/productCategoryModel');
@@ -6,10 +8,8 @@ const PurchasedDetail = require('../models/purchasedDetailModel');
 
 const Purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
-const { fn, col, Op, or } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Product = require('../models/productModel');
-const { raw } = require('express');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
