@@ -9,6 +9,19 @@ const AppError = require('../utils/appError');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
+exports.getUserEnrollments = catchAsync(async (req, res, next) => {
+  const { customerId } = req.memberData;
+
+  const enrollments = await Enroll.findAll({
+    where: { customerId },
+    include: [{ model: Course, attributes: ['courseId'] }],
+  });
+
+  const courseIds = enrollments.map((enrollment) => enrollment.courseId);
+
+  res.status(200).json({ status: 'success', courseIds });
+});
+
 exports.checkEnrollment = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
 
