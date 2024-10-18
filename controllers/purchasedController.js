@@ -140,3 +140,17 @@ exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ status: 'success', purchasedDetails, customer });
 });
+
+exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
+  // const { customerId } = req.memberData;
+
+  const id = 132;
+
+  const purchase = await Purchased.findAll();
+
+  const products = await PurchasedDetail.findAll({
+    include: [{ model: Purchased }],
+  });
+
+  res.status(200).json({ products });
+});

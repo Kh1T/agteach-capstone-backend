@@ -9,6 +9,12 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get(
+  '/getCustomerPurchased',
+  customerController.fetchCustomer,
+  purchasedController.getCustomerPurchased,
+);
+
+router.get(
   '/getInstructorPurchased',
   instructorController.fetchInstructor,
   purchasedController.getAllPurchased,
