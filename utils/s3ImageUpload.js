@@ -13,7 +13,7 @@ const uploadCoverImage = async (productId, productCoverBuffer) => {
   const productCoverName = `products/${productId}/product-cover-image.jpeg`;
 
   const input = {
-    Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
+    Bucket: process.env.AWS_S3_ASSET_BUCKET,
     Key: productCoverName,
     Body: resizedImageBuffer, // Use the resized image buffer
     ContentType: 'image/jpeg',
@@ -68,7 +68,7 @@ const uploadAdditionalImages = async (
         .toBuffer();
 
       const input = {
-        Bucket: process.env.AWS_S3_PRODUCT_ASSET_BUCKET,
+        Bucket: process.env.AWS_S3_ASSET_BUCKET,
         Key: filename,
         Body: resizedImageBuffer,
         ContentType: 'image/jpeg',
