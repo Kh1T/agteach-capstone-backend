@@ -191,10 +191,9 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
     });
   });
 
-exports.getUserItems = (Model1, Model2, cate) =>
+exports.getUserItems = (Model1, Model2, category) =>
   catchAsync(async (req, res, next) => {
     // Model 1 : Model For Finding Data
-    console.log('hi');
     // Model 2 : Model embedded ID  For Finding Model 1
     const { name, order } = req.query;
 
@@ -211,8 +210,8 @@ exports.getUserItems = (Model1, Model2, cate) =>
       ],
     };
 
-    if (cate) {
-      queryOption.include.push(cate);
+    if (category) {
+      queryOption.include.push(category);
     }
 
     const item = await Model1.findAll(queryOption);
