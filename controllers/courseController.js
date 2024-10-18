@@ -68,8 +68,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     totalDuration,
   } = req.body;
 
-  // let allLecture = JSON.parse(req.body.allSection)
-  // console.log('lecture', allLecture[0].allLecture)
+
   const { instructorId } = req.memberData;
 
   const parsedSections = JSON.parse(allSection);
@@ -124,12 +123,10 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     ProductSuggestionId,
     allSection,
     totalDuration,
-    thumbnailUrl,
   } = req.body;
 
   const parseAllSection = JSON.parse(allSection);
   const transaction = await sequelize.transaction();
-  console.log(totalDuration);
   const parseUpdateProductSuggestions = JSON.parse(ProductSuggestionId);
   try {
     //Update the course details
@@ -223,8 +220,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         files: req.files,
         isUpdated: true,
         transaction,
-      });
-      // console.log('videoIndex', newLectures)
+      }); 
     }
 
     // Bulk update lectures

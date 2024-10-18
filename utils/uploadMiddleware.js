@@ -12,9 +12,8 @@ const uploadToS3 = catchAsync(async (filename, body) => {
     Key: filename,
     Body: body,
   };
-  // await s3Client.send(new PutObjectCommand(input));
-  // console.log(response)
-  // return response
+  await s3Client.send(new PutObjectCommand(input));
+
 });
 // Upload Profile Image
 // Need User role from protected route
@@ -54,14 +53,11 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 // This function will use in the after create course to get courseId
 const resizeUplaodCourseThumbail = catchAsync(
   async (currentCourse, options) => {
-    // options{ courseId, files: videos[], thumnailUrl[] }
     const url = process.env.AWS_S3_BUCKET_URL;
     const filename = `courses/${currentCourse.courseId}/thumbnail.jpeg`;
-    // const thumbnailFile = options.files.thumbnailUrl[0]
     const thumbnailFile = options.files.find(
       (file) => file.fieldname === `thumbnailUrl`,
     );
-    console.log('file:', options.files)
     if (!thumbnailFile) return;
     const buffer = await sharp(thumbnailFile.buffer)
       .resize(500, 500)
@@ -118,19 +114,17 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   const { sectionIndexMapping, lectureIndexMapping } =
     createIndexMappings(currentLectures);
 
-  // options{ courseId, files: videos[], thumnail[] }
+
   const url = process.env.AWS_S3_BUCKET_URL;
 
   const lecturePromises = currentLectures.map(async (lecture) => {
-    // idx += options.videoIndex;
+
 
     const { sectionId } = lecture.dataValues;
     let sectionIdx = sectionIndexMapping[sectionId];
     const lectureIdx = lectureIndexMapping[sectionId];
 
-    console.log(
-      `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
-    );
+      // `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
     if (!options.isUpdated) {
       sectionIdx = options.videoIndex;
     }
@@ -139,19 +133,14 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     );
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
 
-    // console.log('index', options.videoIndex);
-    // console.log('videoFile:', videoFile);
+
     if (videoFile) {
       uploadToS3(filename, videoFile.buffer);
     }
     lectureIndexMapping[sectionId] += 1;
 
     lecture.videoUrl = url + filename;
-    // console.log(lecture.videoUrl)
-    // options.videoIndex += 1;
-
     await lecture.update({ videoUrl: url + filename }, { ...options });
-    // await lecture.update();
   });
   await Promise.all(lecturePromises);
 });
