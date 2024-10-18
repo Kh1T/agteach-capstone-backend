@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const Product = require('../models/productModel');
 const ProductImage = require('../models/productImageModel');
 const Location = require('../models/locationModel');
@@ -6,7 +7,7 @@ const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 const ProductCategory = require('../models/productCategoryModel');
-
+const APIFeatures = require('../utils/apiFeatures');
 const {
   validateImages,
   removeProductImages,
@@ -131,7 +132,17 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getInstructorProduct = handleFactory.getUserItems(Product, Instructor, {
-  model: ProductCategory,
-  attributes: ['name'],
+exports.getInstructorProduct = catchAsync(async (req, res, next) => {
+  const features = new APIFeatures(Product, req.query, Instructor)
+    .search()
+    .sort()
+    .userItems(req.user.userUid);
+
+  const item = await features.execute();
+
+  res.status(200).json({
+    status: 'success',
+    result: item.length,
+    item,
+  });
 });
