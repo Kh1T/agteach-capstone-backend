@@ -121,7 +121,7 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
 exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
-  const customer = await Customer.findByPk(req.params.cid);
+  const customer = await Customer.findByPk(req.query.cid);
 
   const purchasedDetails = await PurchasedDetail.findAll({
     where: { purchasedId: req.params.id },
