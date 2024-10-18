@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
@@ -7,6 +8,7 @@ const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 const Purchased = require('../models/purchasedModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 /**
  * Create a Course Sale History record in the DB.
@@ -63,7 +65,6 @@ const createProductSaleHistory = async (
   }).catch((err) => console.log(`Something went wrong: ${err}`));
 };
 
-
 exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
 
@@ -102,6 +103,60 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         {
           expand: ['data.price.product'],
         },
+      );
+
+      // Fetch productId and quantity from the lineItems
+      const productUpdates = lineItems.data.map((item) => ({
+        productId: item.price.product.metadata.product_id,
+        quantity: item.quantity,
+      }));
+
+      // Get only the product IDs from the productUpdates
+      const productIds = productUpdates.map((item) => item.productId);
+
+      // Fetch products from the database by IDs
+      const products = await Product.findAll({
+        where: {
+          productId: {
+            [Op.in]: productIds,
+          },
+        },
+      });
+
+      // Calculate the new quantity for each product
+      const insufficientStock = [];
+      const updates = products.map((product) => {
+
+        // Find the product in the productUpdates
+        const lineItem = productUpdates.find(
+          (item) => Number(item.productId) === product.dataValues.productId,
+        );
+
+        const newQuantity = product.quantity - lineItem.quantity;
+
+        // Check if the new quantity is less than 0
+        if (newQuantity < 0) {
+          insufficientStock.push(product.productId);
+        }
+        return {
+          productId: product.productId,
+          newQuantity,
+        };
+      });
+
+      // If there are insufficient stock, return an error
+      if (insufficientStock.length > 0) {
+        return next(new AppError('Insufficient stock', 400));
+      }
+
+      // Update the quantity for each product
+      await Promise.all(
+        updates.map(async ({ productId, newQuantity }) => {
+          await Product.update(
+            { quantity: newQuantity },
+            { where: { productId } },
+          );
+        }),
       );
 
       // Create a purchase record for the transaction
