@@ -9,6 +9,19 @@ const AppError = require('../utils/appError');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
+/**
+ * Handles Stripe Webhooks
+ * @module controllers/enrollmentController
+ */
+
+/**
+ * Fetches all enrollments of a customer
+ * @function getUserEnrollments
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {function} next - Express next function
+ * @returns {Promise<void>}
+ */
 exports.getUserEnrollments = catchAsync(async (req, res, next) => {
   const { customerId } = req.memberData;
 
