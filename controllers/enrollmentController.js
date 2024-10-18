@@ -45,7 +45,6 @@ exports.checkEnrollment = catchAsync(async (req, res, next) => {
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
-  // Get user email from req.user (set by authController.protect)
   const { email, userUid } = req.user;
   const { customerId } = req.memberData;
 
