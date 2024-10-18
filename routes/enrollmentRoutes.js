@@ -13,6 +13,8 @@ router.get(
   enrollmentController.getEnrollment,
 );
 
+router.get('/getCustomerEnrollment', enrollmentController.getCustomerEnrollemt);
+
 router.get(
   '/getEnrollmentDetail/:id',
   enrollmentController.getEnrollmentDetail,

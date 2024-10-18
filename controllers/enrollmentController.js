@@ -6,6 +6,7 @@ const Customer = require('../models/customerModel');
 const Enroll = require('../models/enrollModel');
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const AppError = require('../utils/appError');
+const Instructor = require('../models/instructorModel');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
@@ -150,4 +151,30 @@ exports.getEnrollmentDetail = catchAsync(async (req, res, next) => {
   });
 
   res.status(200).json({ status: 'success', students, course });
+});
+
+exports.getCustomerEnrollemt = catchAsync(async (req, res, next) => {
+  // const { customerId } = req.params;
+
+  const customerId = 132;
+
+  const enrollments = await Enroll.findAll({
+    where: { customerId },
+    attributes: [
+      col('course.course_id'),
+      col('course.name'),
+      col('course.instructor.first_name'),
+      col('course.instructor.last_name'),
+    ],
+    include: [
+      {
+        model: Course,
+        attributes: [],
+        include: { model: Instructor, attributes: [] },
+      },
+    ],
+    raw: true,
+  });
+
+  res.status(200).json({ status: 'success', enrollments });
 });
