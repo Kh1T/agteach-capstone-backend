@@ -1,3 +1,4 @@
+const { json } = require('sequelize');
 const Course = require('../models/courseModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
 const Product = require('../models/productModel');
@@ -9,16 +10,14 @@ const handleFactory = require('./handlerFactory');
 const { createSectionsLectures } = require('../utils/createSectionLectures');
 const AppError = require('../utils/appError');
 const sequelize = require('../config/db');
-const { json } = require('sequelize');
 const { processLectures } = require('../utils/updateSectionLecture');
 
-const createProductSuggestions = (courseId, instructorId, productIds) => {
-  return productIds.map((productId) => ({
+const createProductSuggestions = (courseId, instructorId, productIds) =>
+  productIds.map((productId) => ({
     courseId,
     productId,
     instructorId,
   }));
-};
 
 exports.searchData = handleFactory.SearchData(Course);
 
@@ -45,7 +44,10 @@ exports.getOne = catchAsync(async (req, res, next) => {
       { model: Instructor },
       { model: ProductSuggestion, include: [{ model: Product }] },
     ],
-    order: [[{ model: Section }, 'sectionId', 'ASC']],
+    order: [
+      [{ model: Section }, 'sectionId', 'ASC'],
+      [Section, { model: Lecture }, 'lectureId', 'ASC'],
+    ],
   });
   res.status(200).json({
     status: 'success',
@@ -228,16 +230,16 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     // Bulk update lectures
     if (updateLectures.length > 0) {
       await Promise.all(
-        updateLectures.map((lecture) => {
-          return Lecture.update(
+        updateLectures.map((lecture) =>
+          Lecture.update(
             {
               name: lecture.name,
               videoUrl: lecture.videoUrl,
               duration: lecture.lectureDuration,
             },
             { where: { lectureId: lecture.lectureId }, transaction },
-          );
-        }),
+          ),
+        ),
       );
     }
 
