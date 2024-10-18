@@ -3,6 +3,7 @@ const { col, Op, fn } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
+const Enroll = require('../models/enrollModel');
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const AppError = require('../utils/appError');
 
