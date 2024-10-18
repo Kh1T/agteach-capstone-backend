@@ -37,7 +37,7 @@ exports.checkEnrollment = catchAsync(async (req, res, next) => {
   if (isEnrolled) {
     return res.status(200).json({
       message: 'You are already enrolled in this course.',
-      redirectUrl: `/courses/${courseId}/watch`,
+      redirectUrl: `/courses/${courseId}/watch/overview`,
     });
   }
   next();
