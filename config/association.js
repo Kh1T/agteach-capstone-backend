@@ -125,6 +125,8 @@ ProductSaleHistory.belongsTo(Product, { foreignKey: 'productId' });
 Customer.hasMany(ProductSaleHistory, { foreignKey: 'customerId' });
 ProductSaleHistory.belongsTo(Customer, { foreignKey: 'customerId' });
 
+PurchasedDetail.belongsTo(ProductSaleHistory, { foreignKey: 'purchasedId' });
+
 PurchasedDetail.hasMany(ProductSaleHistory, {
   foreignKey: 'purchasedDetailId',
 });
