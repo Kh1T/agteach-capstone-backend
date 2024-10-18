@@ -1,8 +1,10 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { col, Op, fn } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
 const Enroll = require('../models/enrollModel');
+const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const AppError = require('../utils/appError');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
@@ -76,7 +78,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     client_reference_id: userUid,
     mode: 'payment',
     metadata: {
-      type:'course',
+      type: 'course',
       courseId: courseId,
       instructorId: instructorId,
       customerId: customer.customerId,
@@ -85,4 +87,67 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     cancel_url: `${REDIRECT_DOMAIN}/fail-payment`,
   });
   res.status(200).json({ status: 'success', id: session.id });
+});
+
+exports.getEnrollment = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+  const { name, order = 'ASC' } = req.query;
+
+  // Validate the order parameter to only allow 'ASC' or 'DESC'
+  const sortOrder = ['DESC', 'ASC'].includes(order.toUpperCase())
+    ? order.toUpperCase()
+    : 'ASC';
+
+  const courseSaleHistory = await CourseSaleHistory.findAll({
+    where: { $name$: { [Op.iLike]: `%${name}%` } },
+    include: [{ model: Course, where: { instructorId }, attributes: [] }],
+    attributes: [
+      [col('course.course_id'), 'courseId'],
+      [col('course.name'), 'CourseName'],
+      [col('course.price'), 'price'],
+      [col('course.created_at'), 'CreatedAt'],
+      [fn('COUNT', col('course.course_id')), 'student'],
+    ],
+    group: ['course.course_id', 'course.name', 'course.created_at'],
+    order: [[col('course.created_at'), sortOrder]], // Sort by course.created_at
+    raw: true,
+  });
+
+  res.status(200).json({ status: 'success', courseSaleHistory });
+});
+
+exports.getEnrollmentDetail = catchAsync(async (req, res, next) => {
+  const courseId = req.params.id;
+
+  const course = await Course.findByPk(courseId);
+
+  if (!course) {
+    return next(new AppError('Course Not Found', 404));
+  }
+
+  const students = await CourseSaleHistory.findAll({
+    where: { courseId },
+    attributes: [
+      col('customer.first_name'),
+      col('customer.last_name'),
+      col('customer.email'),
+      col('customer.phone'),
+      col('customer.image_url'),
+      col('course_sale_history.price'),
+      col('course_sale_history.created_at'),
+    ],
+    include: [
+      {
+        model: Customer,
+        attributes: [],
+      },
+      {
+        model: Course,
+        attributes: [],
+      },
+    ],
+    raw: true,
+  });
+
+  res.status(200).json({ status: 'success', students, course });
 });

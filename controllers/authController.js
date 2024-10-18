@@ -82,7 +82,6 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
 
   const url = req.headers['x-frontend-url'].split('/')[2] || req.url;
 
-  console.log(url);
   const isAuthorized =
     url.startsWith('localhost') ||
     url.includes('/login') ||
@@ -266,7 +265,6 @@ exports.logout = (req, res) => {
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
-
   if (req.cookies.jwt) {
     token = req.cookies.jwt;
   } else if (

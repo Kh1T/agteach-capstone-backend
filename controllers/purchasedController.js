@@ -1,9 +1,15 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Customer = require('../models/customerModel');
+const ProductCategory = require('../models/productCategoryModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
+
+const Purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
+const { fn, col, Op, or } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
+const Product = require('../models/productModel');
+const { raw } = require('express');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
@@ -14,21 +20,6 @@ const REDIRECT_DOMAIN = 'https://agteach.site';
  * @param {function} next - Express next function
  * @returns {Promise<void>}
  */
-
-exports.getAllPurchased = catchAsync(async (req, res, next) => {
-  const { instructorId } = req.memberData;
-
-  const productSaleHistory = await ProductSaleHistory.findAll({
-    where: { instructorId },
-    include: [
-      { model: Customer, attributes: ['firstName', 'lastName'] },
-      // { model: PurchasedDetail, attributes: ['total'] },
-    ],
-    attributes: ['isDelivered', 'createdAt'],
-  });
-
-  res.status(200).json({ status: 'success', productSaleHistory });
-});
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { cartItems } = req.body;
@@ -78,4 +69,88 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     id: session.id,
     message: 'success',
   });
+});
+
+exports.getAllPurchased = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+
+  const { name, order } = req.query;
+  const whereClause = { instructorId };
+
+  if (name) {
+    whereClause['$last_name$'] = { [Op.iLike]: `%${name}%` };
+  }
+
+  if (order === 'true') {
+    whereClause['$is_delivered$'] = true;
+  } else if (order === 'false') {
+    whereClause['$is_delivered$'] = false;
+  }
+
+  const data = await ProductSaleHistory.findAll({
+    include: [
+      {
+        model: PurchasedDetail,
+        attributes: [],
+      },
+      { model: Customer, attributes: [] },
+    ],
+    attributes: [
+      [fn('DATE', col('purchased_detail.created_at')), 'purchased_date'],
+      'purchased_detail.purchased_id',
+      'customer_id',
+      [fn('SUM', col('purchased_detail.total')), 'total_sum'],
+      [col('product_sale_history.is_delivered'), 'is_delivered'],
+      [col('customer.last_name'), 'last_name'],
+      [col('purchased_detail.purchased_id'), 'purchased_id'],
+    ],
+
+    group: [
+      fn('DATE', col('purchased_detail.created_at')),
+      'purchased_detail.purchased_id',
+      'product_sale_history.customer_id',
+      'is_delivered',
+      'first_name',
+      'last_name',
+    ],
+    where: whereClause,
+  });
+  res.status(200).json({ status: 'success', result: data.length, data });
+});
+
+exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+
+  const customer = await Customer.findByPk(req.query.cid);
+
+  const purchasedDetails = await PurchasedDetail.findAll({
+    where: { purchasedId: req.params.id },
+    include: [
+      {
+        model: Product,
+        where: { instructorId },
+        attributes: ['productId', 'categoryId', 'name', 'price', 'imageUrl'],
+        include: {
+          model: ProductCategory,
+          attributes: ['name'],
+        },
+      },
+    ],
+  });
+
+  res.status(200).json({ status: 'success', purchasedDetails, customer });
+});
+
+exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
+  // const { customerId } = req.memberData;
+
+  const id = 132;
+
+  const purchase = await Purchased.findAll();
+
+  const products = await PurchasedDetail.findAll({
+    include: [{ model: Purchased }],
+  });
+
+  res.status(200).json({ products });
 });
