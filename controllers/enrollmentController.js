@@ -47,6 +47,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
   // Get user email from req.user (set by authController.protect)
   const { email, userUid } = req.user;
+  const { customerId } = req.memberData;
 
   const course = await Course.findByPk(courseId);
 
@@ -55,12 +56,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError('Course Not Found', 404));
   }
 
-  const customer = await Customer.findOne({
-    where: { userUid: userUid },
-    attribute: ['customerId'],
-  });
 
-  if (!customer) {
+  if (!customerId) {
     return next(new AppError('Customer not found', 404));
   }
 
@@ -88,7 +85,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       type: 'course',
       courseId: courseId,
       instructorId: instructorId,
-      customerId: customer.customerId,
+      customerId,
     },
     success_url: `${REDIRECT_DOMAIN}/success-payment?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${REDIRECT_DOMAIN}/fail-payment`,
