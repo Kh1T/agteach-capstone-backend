@@ -9,37 +9,69 @@ const AppError = require('../utils/appError');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
-exports.checkEnrollment = catchAsync(async (req, res, next) => {
-  const { courseId } = req.body;
+/**
+ * Handles Stripe Webhooks
+ * @module controllers/enrollmentController
+ */
 
-  const userId = req.user.userUid;
+/**
+ * Fetches all enrollments of a customer
+ * @function getUserEnrollments
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {function} next - Express next function
+ * @returns {Promise<void>}
+ */
+exports.getUserEnrollments = catchAsync(async (req, res, next) => {
+  const { customerId } = req.memberData;
 
-  const customer = await Customer.findOne({
-    where: { userUid: userId },
-    attribute: ['customerId'],
+  const enrollments = await Enroll.findAll({
+    where: { customerId },
+    include: [{ model: Course, attributes: ['courseId'] }],
   });
 
-  if (!customer) {
+  const courseIds = enrollments.map((enrollment) => enrollment.courseId);
+
+  res.status(200).json({ status: 'success', courseIds });
+});
+
+/**
+ * Enrollment controller
+ * @namespace controllers/enrollmentController
+ */
+exports.checkEnrollment = catchAsync(async (req, res, next) => {
+  const { courseId } = req.body;
+  const { customerId } = req.memberData;
+
+  if (!customerId) {
     return next(new AppError('Customer not found', 404));
   }
 
   const isEnrolled = await Enroll.findOne({
-    where: { courseId, customerId: customer.customerId },
+    where: { courseId, customerId },
   });
 
   if (isEnrolled) {
     return res.status(200).json({
       message: 'You are already enrolled in this course.',
-      redirectUrl: `/courses/${courseId}/watch`,
+      redirectUrl: `/courses/${courseId}/watch/overview`,
     });
   }
   next();
 });
 
+/**
+ * @function getCheckoutSession
+ * @description Get checkout session from stripe
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
-  // Get user email from req.user (set by authController.protect)
   const { email, userUid } = req.user;
+  const { customerId } = req.memberData;
 
   const course = await Course.findByPk(courseId);
 
@@ -48,12 +80,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError('Course Not Found', 404));
   }
 
-  const customer = await Customer.findOne({
-    where: { userUid: userUid },
-    attribute: ['customerId'],
-  });
 
-  if (!customer) {
+  if (!customerId) {
     return next(new AppError('Customer not found', 404));
   }
 
@@ -81,7 +109,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       type: 'course',
       courseId: courseId,
       instructorId: instructorId,
-      customerId: customer.customerId,
+      customerId,
     },
     success_url: `${REDIRECT_DOMAIN}/success-payment?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${REDIRECT_DOMAIN}/fail-payment`,
