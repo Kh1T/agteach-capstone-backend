@@ -35,6 +35,10 @@ exports.getUserEnrollments = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', courseIds });
 });
 
+/**
+ * Enrollment controller
+ * @namespace controllers/enrollmentController
+ */
 exports.checkEnrollment = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
   const { customerId } = req.memberData;
@@ -56,6 +60,14 @@ exports.checkEnrollment = catchAsync(async (req, res, next) => {
   next();
 });
 
+/**
+ * @function getCheckoutSession
+ * @description Get checkout session from stripe
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const { courseId } = req.body;
   const { email, userUid } = req.user;
