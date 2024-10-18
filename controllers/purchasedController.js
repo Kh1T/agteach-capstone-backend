@@ -1,4 +1,4 @@
-const { fn, col, Op, or } = require('sequelize');
+// const { fn, col, Op, or } = require('sequelize');
 const { raw } = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Customer = require('../models/customerModel');
@@ -8,8 +8,11 @@ const PurchasedDetail = require('../models/purchasedDetailModel');
 
 const Purchased = require('../models/purchasedModel');
 const AppError = require('../utils/appError');
+const sequelize = require('../config/db');
+const { fn, col, Op, or, query, QueryTypes } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const Product = require('../models/productModel');
+// const { raw } = require('express');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
@@ -142,15 +145,20 @@ exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
 });
 
 exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
-  // const { customerId } = req.memberData;
+  // Get customerId from the request
+  const { customerId } = req.memberData;
 
-  const id = 132;
+  const purchases = await sequelize.query(
+    'SELECT * FROM get_customer_purchases(:customer_id)',
+    {
+      replacements: { customer_id: customerId },
+      type: QueryTypes.SELECT,
+    },
+  );
 
-  const purchase = await Purchased.findAll();
-
-  const products = await PurchasedDetail.findAll({
-    include: [{ model: Purchased }],
+  res.status(200).json({
+    status: 'success',
+    result: purchases.length,
+    products: purchases,
   });
-
-  res.status(200).json({ products });
 });

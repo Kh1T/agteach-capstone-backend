@@ -14,6 +14,7 @@ router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
+
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
 router.patch(
