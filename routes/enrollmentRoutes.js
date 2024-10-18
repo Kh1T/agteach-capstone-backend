@@ -21,6 +21,7 @@ router.get(
 
 router.post(
   '/checkoutSession',
+  customerController.fetchCustomer,
   enrollmentController.checkEnrollment,
   enrollmentController.getCheckoutSession,
 );
