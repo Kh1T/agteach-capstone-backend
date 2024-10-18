@@ -105,7 +105,7 @@ exports.getEnrollment = catchAsync(async (req, res, next) => {
       [col('course.name'), 'CourseName'],
       [col('course.price'), 'price'],
       [col('course.created_at'), 'CreatedAt'],
-      [fn('COUNT', col('course.course_id')), 'TotalAmount'],
+      [fn('COUNT', col('course.course_id')), 'student'],
     ],
     group: ['course.course_id', 'course.name', 'course.created_at'],
     order: [[col('course.created_at'), sortOrder]], // Sort by course.created_at
