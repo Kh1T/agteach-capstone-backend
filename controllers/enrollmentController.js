@@ -60,6 +60,23 @@ exports.checkEnrollment = catchAsync(async (req, res, next) => {
   next();
 });
 
+exports.checkCourseEnroll = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { customerId } = req.memberData;
+
+  if (!customerId) {
+    return next(new AppError('Customer not found', 404));
+  }
+
+  const isEnrolled = await Enroll.findOne({
+    where: { courseId: id, customerId },
+  });
+  if (!isEnrolled) {
+    return next(new AppError('You are not enrolled in this course', 404));
+  }
+  next();
+});
+
 /**
  * @function getCheckoutSession
  * @description Get checkout session from stripe
@@ -79,7 +96,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   if (!course) {
     return next(new AppError('Course Not Found', 404));
   }
-
 
   if (!customerId) {
     return next(new AppError('Customer not found', 404));
