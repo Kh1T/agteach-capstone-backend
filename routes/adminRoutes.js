@@ -5,9 +5,9 @@ const adminController = require('../controllers/adminController');
 
 const router = express.Router();
 
-// router.use(authController.protect, authController.restrictTo('admin'));
+router.use(authController.protect);
 
-router.get('/getAdminInfo', userController.getMe, adminController.getAdminInfo);
+router.get('/getAdminInfo', adminController.getAdminInfo);
 
 router.get('/getAllInstructors', adminController.getAllInstructor);
 

@@ -72,41 +72,50 @@ const getProductSalesTotals = async () => {
 const getSalesOverview = async () => {
   // const results = await sequelize.query('CALL sales_overview();');
   const salesOverview = await sequelize.query(
-    `SELECT 
-      DATE_TRUNC('day', sales.day) AS day,
-      SUM(sales."totalCourseSales") AS "totalCourseSales",
-      SUM(sales."totalProductSales") AS "totalProductSales"
-     FROM (
+    `WITH date_series AS (
+      SELECT generate_series(
+        NOW() - INTERVAL '6 days',
+        NOW(),
+        '1 day'::interval
+        )::date AS day
+      )
       SELECT 
-        DATE_TRUNC('day', "product_sale_history"."created_at") AS day,
-        0 AS "totalCourseSales",
-        SUM("purchased_detail"."total") AS "totalProductSales"
-      FROM 
-        "product_sale_history"
-      LEFT JOIN 
-        "purchased_detail" ON "product_sale_history"."purchased_detail_id" = "purchased_detail"."purchased_detail_id"
-      WHERE 
-        "product_sale_history"."created_at" >= NOW() - INTERVAL '7 days'
-      GROUP BY 
-        DATE_TRUNC('day', "product_sale_history"."created_at")
+        ds.day,
+        COALESCE(SUM(sales."totalCourseSales"), 0) AS "totalCourseSales",
+        COALESCE(SUM(sales."totalProductSales"), 0) AS "totalProductSales"
+      FROM date_series ds
+      LEFT JOIN (
+        SELECT 
+          DATE_TRUNC('day', "product_sale_history"."created_at") AS day,
+          0 AS "totalCourseSales",
+          SUM("purchased_detail"."total") AS "totalProductSales"
+        FROM 
+          "product_sale_history"
+        LEFT JOIN 
+          "purchased_detail" ON "product_sale_history"."purchased_detail_id" = "purchased_detail"."purchased_detail_id"
+        WHERE 
+          "product_sale_history"."created_at" >= NOW() - INTERVAL '7 days'
+        GROUP BY 
+          DATE_TRUNC('day', "product_sale_history"."created_at")
 
-      UNION ALL
+        UNION ALL
 
-      SELECT 
-        DATE_TRUNC('day', "course_sale_history"."created_at") AS day,
-        SUM("course_sale_history"."price") AS "totalCourseSales",
-        0 AS "totalProductSales"
-      FROM 
-        "course_sale_history"
-      WHERE 
-        "course_sale_history"."created_at" >= NOW() - INTERVAL '7 days'
+        SELECT 
+          DATE_TRUNC('day', "course_sale_history"."created_at") AS day,
+          SUM("course_sale_history"."price") AS "totalCourseSales",
+          0 AS "totalProductSales"
+        FROM 
+          "course_sale_history"
+        WHERE 
+          "course_sale_history"."created_at" >= NOW() - INTERVAL '7 days'
+        GROUP BY 
+          DATE_TRUNC('day', "course_sale_history"."created_at")
+      ) AS sales
+      ON ds.day = sales.day
       GROUP BY 
-        DATE_TRUNC('day', "course_sale_history"."created_at")
-    ) AS sales
-    GROUP BY 
-      day
-    ORDER BY 
-      day;
+        ds.day
+      ORDER BY 
+        ds.day;
     `,
     {
       type: QueryTypes.SELECT,

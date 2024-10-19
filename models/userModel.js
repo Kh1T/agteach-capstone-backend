@@ -54,10 +54,6 @@ const UserAccount = sequelize.define('user_account', {
     type: DataTypes.VIRTUAL,
     allowNull: false,
     validate: {
-      // len: {
-      //   args: [8, 30],
-      //   msg: "Password must be between 8 and 30 characters.",
-      // },
       notEmpty: true,
       isMatch(value) {
         if (value !== this.password) {
