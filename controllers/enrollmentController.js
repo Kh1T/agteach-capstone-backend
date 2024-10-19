@@ -81,7 +81,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError('Course Not Found', 404));
   }
 
-
   if (!customerId) {
     return next(new AppError('Customer not found', 404));
   }
@@ -181,10 +180,10 @@ exports.getEnrollmentDetail = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', students, course });
 });
 
-exports.getCustomerEnrollemt = catchAsync(async (req, res, next) => {
-  // const { customerId } = req.params;
+exports.getCustomerEnrollments = catchAsync(async (req, res, next) => {
+  const { customerId } = req.memberData;
 
-  const customerId = 132;
+  // const customerId = 132;
 
   const enrollments = await Enroll.findAll({
     where: { customerId },
@@ -193,6 +192,7 @@ exports.getCustomerEnrollemt = catchAsync(async (req, res, next) => {
       col('course.name'),
       col('course.instructor.first_name'),
       col('course.instructor.last_name'),
+      col('course.thumbnail_url'),
     ],
     include: [
       {

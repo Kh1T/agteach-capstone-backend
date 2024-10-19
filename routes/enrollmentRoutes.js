@@ -14,7 +14,11 @@ router.get(
   enrollmentController.getEnrollment,
 );
 
-router.get('/getCustomerEnrollment', enrollmentController.getCustomerEnrollemt);
+router.get(
+  '/getCustomerEnrollments',
+  customerController.fetchCustomer,
+  enrollmentController.getCustomerEnrollments,
+);
 
 router.get(
   '/getEnrollmentDetail/:id',
