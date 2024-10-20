@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const association = require('./config/association');
 
 const globalErrorHandler = require('./controllers/errorController');
@@ -48,6 +49,7 @@ const cartRouter = require('./routes/cartRoutes')
 app.use('/webhook', webhookRoutes);
 app.use(express.json());
 app.use(cookieParser());
+app.use(bodyParser.urlencoded( { extended: true, limit: '50mb' }));
 
 app.get('/', async (req, res) => {
   const all = await SectionLecture.findAll();
