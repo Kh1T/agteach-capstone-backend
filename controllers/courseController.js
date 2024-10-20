@@ -113,6 +113,11 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.timeConfig = async (req, res, next) => {
+  req.setTimeout(10 * 60 * 1000); // Set 10 minutes timeout for this route
+    next();
+}
+
 exports.updateCourse = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const {

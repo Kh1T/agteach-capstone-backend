@@ -28,6 +28,7 @@ router.patch('/:id', courseController.updateCourse);
 
 router.post(
   '/uploadCourse',
+  courseController.timeConfig,
   instructorController.fetchInstructor,
   courseController.uploadCourse,
 );
