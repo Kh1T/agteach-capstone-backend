@@ -10,13 +10,12 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
-// const allowedOrigins = [
-//   'http://localhost:3000',
-//   'https://agteach.site',
-//   'https://teach.agteach.site',
-//   'https://admin.agteach.site',
-// ];
-const allowedOrigins = ['https://agteach.site'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://agteach.site',
+  'https://teach.agteach.site',
+  'https://admin.agteach.site',
+];
 
 const corsOptions = {
   origin: allowedOrigins,
@@ -43,7 +42,7 @@ const viewRouter = require('./routes/viewRoutes');
 const enrollmentRouter = require('./routes/enrollmentRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const purchasedRouter = require('./routes/purchasedRoutes');
-const cartRouter = require('./routes/cartRoutes');
+const cartRouter = require('./routes/cartRoutes')
 
 // app.use(authController.isLoginedIn);
 app.use('/webhook', webhookRoutes);
@@ -66,7 +65,7 @@ app.use('/api/product', productRouter);
 app.use('/api/course', courseRouter);
 app.use('/api/enrollment', enrollmentRouter);
 app.use('/api/purchased', purchasedRouter);
-app.use('/api/cart', cartRouter);
+app.use('/api/cart', cartRouter)
 
 app.use(globalErrorHandler);
 
