@@ -49,6 +49,7 @@ const cartRouter = require('./routes/cartRoutes')
 app.use('/webhook', webhookRoutes);
 app.use(express.json());
 app.use(cookieParser());
+app.use(bodyParser.json({ limit: '200mb' }));
 app.use(bodyParser.urlencoded( { extended: true, limit: '200mb' }));
 
 app.get('/', async (req, res) => {
