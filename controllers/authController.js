@@ -15,7 +15,10 @@ const signToken = (id) =>
 
 const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user.userUid);
-  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+  let domain = 'localhost';
+  if (req.headers.origin)
+    domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
   const cookieOption = {
     expires: new Date(
       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
@@ -78,13 +81,12 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({
     where: { email: req.body.email },
   });
-  if (req.headers.host.includes('localhost')) return next();
 
+  if (!req.headers.origin) return next();
   if (!user?.role) return next();
 
   const url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
   const isAuthorized =
-    url.includes('localhost') ||
     (url.startsWith('teach') && user.role === 'instructor') ||
     (url.startsWith('admin') && user.role === 'admin') ||
     (url.startsWith('agteach') && user.role === 'guest');
@@ -268,7 +270,9 @@ exports.logout = (req, res) => {
 // Handle Protected Routes (Requires Authentication)
 
 exports.protect = catchAsync(async (req, res, next) => {
-  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+  let domain = 'localhost';
+  if (req.headers.origin)
+    domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
   let token;
   if (req.cookies[`jwt_${domain}`]) {
@@ -324,7 +328,9 @@ exports.customValidate = async (req, res, next) => {
 
 exports.isLoginedIn = async (req, res, next) => {
   try {
-    const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+    let domain = 'localhost';
+    if (req.headers.origin)
+      domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
     if (req.cookies[`jwt_${domain}`]) {
       // 2) Verification token
