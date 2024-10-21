@@ -4,7 +4,6 @@ const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const AppError = require('./appError');
-const Course = require('../models/courseModel');
 
 const uploadToS3 = catchAsync(async (filename, body) => {
   if (!body) return new AppError('There is no body to upload to', 400);
@@ -120,8 +119,10 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
     console.log('options', options.newLectures);
     const { sectionId } = lecture.dataValues;
-    let sectionIdx = sectionIndexMapping[sectionId];
-    const lectureIdx = lectureIndexMapping[sectionId];
+    // let sectionIdx = sectionIndexMapping[sectionId];
+    // let lectureIdx = lectureIndexMapping[sectionId];
+    let sectionIdx;
+    let lectureIdx;
 
     // if videos[234][0]
     // it mean new old section and new lecture 0
@@ -136,8 +137,10 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     // }
 
     if (options.isUpdated) {
-      sectionIdx = sectionId;
-      console.log('optionsIsupdate');
+      sectionIdx = options.newLectures[idx].updatedSections[0];
+      lectureIdx = options.newLectures[idx].updatedSections[1];
+
+      console.log('optionsIsupdate videos:', sectionIdx, lectureIdx);
     } else {
       sectionIdx = options.videoIndex;
     }
