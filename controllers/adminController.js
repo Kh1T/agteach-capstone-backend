@@ -2,6 +2,7 @@ const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const Instructor = require('../models/instructorModel');
+const Customer = require('../models/customerModel');
 const Category = require('../models/categoryModel');
 
 const {
@@ -11,40 +12,24 @@ const {
 } = require('../utils/findTopSales');
 
 exports.getAdminInfo = catchAsync(async (req, res, next) => {
-  const { role } = req.user;
-  if (role !== 'admin') {
-    return res.status(403).json({
-      status: 'fail',
-      message:
-        'Access denied. You are not authorized to view this information.',
-    });
-  }
-
   const admin = await UserAccount.findOne({
     where: {
-      userUid: req.user.userUid,
       role: 'admin',
     },
   });
-
-  if (!admin) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Admin not found.',
-    });
-  }
-
   res.status(200).json({
     status: 'success',
     data: admin,
-  });
+  })
 });
 
 exports.getAllInstructor = handleFactory.getAll(Instructor);
+exports.getAllCustomers = handleFactory.getAll(Customer);
 
 //Categories
 exports.getCategory = handleFactory.getOne(Category);
 exports.getAllCategories = handleFactory.getAll(Category);
+exports.searchCategory = handleFactory.SearchData(Category);
 
 exports.createCategory = catchAsync(async (req, res, next) => {
   try {

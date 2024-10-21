@@ -15,9 +15,16 @@ router.get(
 );
 
 router.get(
+  '/getCustomerEnrollments',
+  customerController.fetchCustomer,
+  enrollmentController.getCustomerEnrollments,
+);
+
+router.get(
   '/getEnrollmentDetail/:id',
   enrollmentController.getEnrollmentDetail,
 );
+router.get('/checkEnrollment', customerController.fetchCustomer, enrollmentController.checkEnrollment);
 
 router.post(
   '/checkoutSession',
