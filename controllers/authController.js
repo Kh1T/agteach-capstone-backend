@@ -20,7 +20,7 @@ const createSendToken = (user, statusCode, res, domain) => {
       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
     ),
     httpOnly: true,
-    sameSite: 'Strict',
+    sameSite: 'None',
     secure: true, // Add this line
     domain, // Uncomment and set if needed
   };
