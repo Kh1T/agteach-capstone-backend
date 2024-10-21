@@ -94,7 +94,6 @@ exports.processLectures = async (
             // update video to S3 when there is a new video
             if (videoFile) {
               const filename = `courses/${id}/section-${section.sectionId}/lecture-${lecture.lectureId}.mp4`;
-              // console.log('filename: ', filename);
               uploadToS3(filename, videoFile.buffer);
             }
 

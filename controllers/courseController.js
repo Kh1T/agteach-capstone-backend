@@ -1,4 +1,3 @@
-const { json } = require('sequelize');
 const Course = require('../models/courseModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
 const Product = require('../models/productModel');
@@ -130,7 +129,6 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
   const parseUpdateProductSuggestions = !!ProductSuggestionId
     ? JSON.parse(ProductSuggestionId)
     : null;
-  // const parseUpdateProductSuggestions = JSON.parse(ProductSuggestionId);
   try {
     //Update the course details
     const course = await Course.findByPk(id);

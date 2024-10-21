@@ -84,31 +84,23 @@ const resizeUplaodCourseThumbail = catchAsync(
   },
 );
 
-const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
-  // If using HLS video give true else give false;
-
+const uploadCourseVideos = async (currentLectures, options) => {
   if (!options.files) return;
 
   // Create section and lecture index mappings
   const url = process.env.AWS_S3_BUCKET_URL;
 
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
-    // const { sectionId } = lecture.dataValues;
-
     let sectionIdx;
     let lectureIdx;
-
-
 
     if (options.isUpdated) {
       sectionIdx = options.newLectures[idx].updatedSections[0];
       lectureIdx = options.newLectures[idx].updatedSections[1];
-
     } else {
       sectionIdx = options.videoIndex;
       lectureIdx = idx;
     }
-
 
     const videoFile = options.files.find(
       (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,
@@ -128,12 +120,11 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
       uploadToS3(filename, videoFile.buffer);
     }
 
-
     lecture.videoUrl = url + filename;
     await lecture.update({ videoUrl: url + filename }, { ...options });
   });
   await Promise.all(lecturePromises);
-});
+};
 
 module.exports = {
   resizeUploadProfileImage,
@@ -141,4 +132,3 @@ module.exports = {
   uploadCourseVideos,
   uploadToS3,
 };
-
