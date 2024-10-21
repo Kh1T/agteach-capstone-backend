@@ -26,6 +26,7 @@ exports.processLectures = async (
   const lecturesToDelete = [];
   // let videoIndex = 0;
   // Step 4: Process sections in parallel using Promise.all
+  let sectionIdx = 0;
   await Promise.all(
     parseAllSection.map(async (section) => {
       let updatedSection;
@@ -36,9 +37,10 @@ exports.processLectures = async (
         });
         if (updatedSection) {
           await updatedSection.update(
-            { name: section.sectionName ,isNewUpdateSection: false},
+            { name: section.sectionName },
             { transaction },
           );
+          updatedSection.isNewUpdateSection = false;
         }
       } else {
         updatedSection = await Section.create(
@@ -50,6 +52,9 @@ exports.processLectures = async (
           },
           { transaction },
         );
+        updatedSection.isNewUpdateSection = true;
+        updatedSection.sectionIdx = sectionIdx;
+        sectionIdx += 1;
       }
 
       // Step 5: Handle lectures for each section
@@ -74,6 +79,7 @@ exports.processLectures = async (
       );
 
       // Process lectures in parallel
+      let lectureIdx = 0;
       await Promise.all(
         section.allLecture.map(async (lecture) => {
           if (lecture.lectureId) {
@@ -85,6 +91,8 @@ exports.processLectures = async (
 
             // console.log('lecture:', lecture);
             // console.log('video:', videoFile);
+
+            // update video to S3 when there is a new video
             if (videoFile) {
               const filename = `courses/${id}/section-${section.sectionId}/lecture-${lecture.lectureId}.mp4`;
               // console.log('filename: ', filename);
@@ -95,16 +103,25 @@ exports.processLectures = async (
               lectureId: lecture.lectureId,
               name: lecture.lectureName,
               duration: lecture.lectureDuration,
-              isNewUpdateSection: updatedSection.isNewUpdateSection,
             });
           } else {
+            // [sectionIdx, lectureIdx]
+            let updatedSections = [];
+            // if new section use sectionIdx
+            if (updatedSection.isNewUpdateSection) {
+              updatedSections = [updatedSection.sectionIdx, lectureIdx];
+            } else {
+              updatedSections = [updatedSection.sectionId, lectureIdx];
+            }
             newLectures.push({
               sectionId: updatedSection.sectionId,
               name: lecture.lectureName,
               videoUrl: lecture.videoUrl,
               duration: lecture.lectureDuration,
               isNewUpdateSection: updatedSection.isNewUpdateSection,
+              updatedSections,
             });
+            lectureIdx += 1;
           }
         }),
       );

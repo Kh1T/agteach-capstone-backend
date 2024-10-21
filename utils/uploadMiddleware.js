@@ -113,20 +113,38 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   // Create section and lecture index mappings
   const { sectionIndexMapping, lectureIndexMapping } =
     createIndexMappings(currentLectures);
-
+  console.log('mapping:', createIndexMappings(currentLectures));
   const url = process.env.AWS_S3_BUCKET_URL;
-  console.log('currentLecture', options.isNewUpdateSection);
+  console.log('currentLecture', currentLectures);
 
-  const lecturePromises = currentLectures.map(async (lecture) => {
+  const lecturePromises = currentLectures.map(async (lecture, idx) => {
+    console.log('options', options.newLectures);
     const { sectionId } = lecture.dataValues;
     let sectionIdx = sectionIndexMapping[sectionId];
     const lectureIdx = lectureIndexMapping[sectionId];
+
+    // if videos[234][0]
+    // it mean new old section and new lecture 0
+    // true mean it is new section
+    // false mean it is old section
+    if (!options.newLectures[idx].isNewUpdateSection) {
+      const videoFile = options.files.find(
+        (file) =>
+          file.fieldname ===
+          `videos[${options.newLectures[idx].sectionId}][${lectureIdx}]`,
+      );
+    }
+
     if (options.isUpdated) {
       sectionIdx = sectionId;
       console.log('optionsIsupdate');
-    }else{
+    } else {
       sectionIdx = options.videoIndex;
     }
+
+    // if(options.newLecture[idx].updatedSection){
+    //   sectionIdx = options.updateSection;
+    // }
     console.log(
       `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
     );

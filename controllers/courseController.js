@@ -215,7 +215,8 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         instructorId,
         transaction,
       );
-
+    console.log('newlecutre', newLectures);
+    console.log('updateLectures', updateLectures);
     // Bulk create new lectures
     if (newLectures.length > 0) {
       await Lecture.bulkCreate(newLectures, {
@@ -223,7 +224,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         files: req.files,
         isUpdated: true,
         transaction,
-        isNewUpdateSection: newLectures.isNewUpdateSection,
+        newLectures,
       });
     }
 
