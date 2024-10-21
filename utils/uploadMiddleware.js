@@ -127,13 +127,13 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     // it mean new old section and new lecture 0
     // true mean it is new section
     // false mean it is old section
-    if (!options.newLectures[idx].isNewUpdateSection) {
-      const videoFile = options.files.find(
-        (file) =>
-          file.fieldname ===
-          `videos[${options.newLectures[idx].sectionId}][${lectureIdx}]`,
-      );
-    }
+    // if (!options.newLectures[idx].isNewUpdateSection) {
+    //   const videoFile = options.files.find(
+    //     (file) =>
+    //       file.fieldname ===
+    //       `videos[${options.newLectures[idx].sectionId}][${lectureIdx}]`,
+    //   );
+    // }
 
     if (options.isUpdated) {
       sectionIdx = sectionId;
