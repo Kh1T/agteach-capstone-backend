@@ -89,8 +89,7 @@ exports.processLectures = async (
                 `videos[${section.sectionId}][${lecture.lectureId}]`,
             );
 
-            // console.log('lecture:', lecture);
-            // console.log('video:', videoFile);
+
 
             // update video to S3 when there is a new video
             if (videoFile) {
