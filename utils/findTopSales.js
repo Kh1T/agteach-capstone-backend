@@ -11,7 +11,6 @@ const getCourseTopSales = async () => {
   );
   return salesCourseTotals.map((course) => ({
     ...course,
-    totalSales: parseFloat(course.totalSales), // Convert string to number
   }));
 };
 
@@ -24,7 +23,6 @@ const getProductSalesTotals = async () => {
   );
   return salesProductTotals.map((product) => ({
     ...product,
-    totalSales: parseFloat(product.totalSales), // Convert string to number
   }));
 };
 
@@ -38,8 +36,6 @@ const getSalesOverview = async () => {
   );
   return salesOverview.map((sales) => ({
     ...sales,
-    totalCourseSales: parseFloat(sales.totalCourseSales), // Convert string to number
-    totalProductSales: parseFloat(sales.totalProductSales),
   }));
 };
 
@@ -78,10 +74,7 @@ const getInstructorOverviewSales = async (instructorId) => {
     },
   );
   return instructorSalesOverview.map((sales) => ({
-    // ...sales,
-    day: sales.day,
-    totalCourseSales: parseFloat(sales.totalcoursesales), // Convert string to number
-    totalProductSales: parseFloat(sales.totalproductsales),
+    ...sales,
   }));
 };
 module.exports = {
