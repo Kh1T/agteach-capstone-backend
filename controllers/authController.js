@@ -22,7 +22,7 @@ const createSendToken = (user, statusCode, res, domain) => {
     httpOnly: true,
     sameSite: 'None',
     secure: true, // Add this line
-    domain, // Uncomment and set if needed
+    // domain, // Uncomment and set if needed
   };
   res.cookie('jwt', token, cookieOption);
   res.status(statusCode).json({
