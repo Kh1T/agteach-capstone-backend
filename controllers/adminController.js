@@ -27,6 +27,7 @@ exports.getAllInstructor = handleFactory.getAll(Instructor);
 //Categories
 exports.getCategory = handleFactory.getOne(Category);
 exports.getAllCategories = handleFactory.getAll(Category);
+exports.searchCategory = handleFactory.SearchData(Category);
 
 exports.createCategory = catchAsync(async (req, res, next) => {
   try {

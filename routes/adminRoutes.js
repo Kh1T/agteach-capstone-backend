@@ -14,6 +14,7 @@ router.get('/getAllInstructors', adminController.getAllInstructor);
 //Categories
 router.get('/getAllCategories', adminController.getAllCategories);
 router.get('/getCategory/:id', adminController.getCategory);
+router.get('/searchCategory', adminController.searchCategory);
 router.post('/createCategory', adminController.createCategory);
 router.patch('/updateCategory/:id', adminController.updateCategory);
 router.delete('/deleteCategory/:id', adminController.deleteCategory);
