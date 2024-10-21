@@ -7,3 +7,5 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get('/session/:sessionId', paymentController.getPaymentSession);
+
+module.exports = router;
