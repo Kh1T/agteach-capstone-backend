@@ -59,7 +59,6 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
@@ -82,9 +81,10 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
     where: { email: req.body.email },
   });
 
-  if (!req.headers.origin) return next();
+  if (req.headers.origin.includes('localhost') || !req.headers.origin)
+    return next();
   if (!user?.role) return next();
-
+  console.log(req.headers);
   const url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
   const isAuthorized =
     (url.startsWith('teach') && user.role === 'instructor') ||
