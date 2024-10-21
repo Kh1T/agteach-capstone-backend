@@ -13,8 +13,9 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSendToken = (user, statusCode, res, domain) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user.userUid);
+  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
   const cookieOption = {
     expires: new Date(
       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
@@ -38,7 +39,6 @@ const createSendToken = (user, statusCode, res, domain) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   // Create new user
-  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
   const newUser = await UserAccount.create({
     username: req.body.username,
     email: req.body.email,
@@ -49,16 +49,13 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   newUser.createEmailVerifyCode();
 
-  createSendToken(newUser, 201, res, domain);
+  createSendToken(newUser, 201, req, res);
 });
 
 // Handle Login User
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
-  console.log(req.headers.origin);
-  // console.log(domain);
 
   // 1) Check if email and password exist
   if (!email || !password) {
@@ -74,21 +71,20 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
   // 3) If everything ok, send token to client
-  createSendToken(user, 200, res, domain);
+  createSendToken(user, 200, req, res);
 });
 
 exports.roleRestrict = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({
     where: { email: req.body.email },
   });
+  if (req.headers.host.includes('localhost')) return next();
 
   if (!user?.role) return next();
 
   const url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
-
   const isAuthorized =
-    url.startsWith('localhost') ||
-    url.includes('/login') ||
+    url.includes('localhost') ||
     (url.startsWith('teach') && user.role === 'instructor') ||
     (url.startsWith('admin') && user.role === 'admin') ||
     (url.startsWith('agteach') && user.role === 'guest');
@@ -192,7 +188,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 // Update Current User Password
@@ -212,7 +208,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 // Handle Email Verification Code
@@ -272,9 +268,6 @@ exports.logout = (req, res) => {
 // Handle Protected Routes (Requires Authentication)
 
 exports.protect = catchAsync(async (req, res, next) => {
-  // console.log('s', 'test');
-  console.log(req.headers.origin, 'test');
-
   const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
   let token;
