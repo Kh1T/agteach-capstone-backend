@@ -81,8 +81,10 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
     where: { email: req.body.email },
   });
 
-  if (req.headers.origin.includes('localhost') || !req.headers.origin)
+  if (!req.headers.origin || req.headers.origin.includes('localhost')) {
     return next();
+  }
+
   if (!user?.role) return next();
   const url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
   const isAuthorized =
