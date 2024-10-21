@@ -1,4 +1,3 @@
-const { json } = require('sequelize');
 const Course = require('../models/courseModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
 const Product = require('../models/productModel');
@@ -68,7 +67,6 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     totalDuration,
   } = req.body;
 
-
   const { instructorId } = req.memberData;
 
   const parsedSections = JSON.parse(allSection);
@@ -103,6 +101,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     parsedSections,
     newCourse.courseId,
     instructorId,
+    newCourse,
     req,
   );
 
@@ -125,9 +124,11 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     totalDuration,
   } = req.body;
 
-  const parseAllSection = JSON.parse(allSection);
+  const parseAllSection = !!allSection ? JSON.parse(allSection) : null;
   const transaction = await sequelize.transaction();
-  const parseUpdateProductSuggestions = JSON.parse(ProductSuggestionId);
+  const parseUpdateProductSuggestions = !!ProductSuggestionId
+    ? JSON.parse(ProductSuggestionId)
+    : null;
   try {
     //Update the course details
     const course = await Course.findByPk(id);
@@ -182,7 +183,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     // Get existing sections for comparison
     const sectionIdsFromRequest = parseAllSection
       .map((section) => section.sectionId)
-      .filter((id) => !!id);
+      .filter((sectionId) => !!sectionId);
 
     const existingSections = await Section.findAll({
       where: { courseId: id },
@@ -195,7 +196,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
 
     //  Delete sections that are not in the request
     const sectionsToDelete = existingSectionIds.filter(
-      (id) => !sectionIdsFromRequest.includes(id),
+      (sectionId) => !sectionIdsFromRequest.includes(sectionId),
     );
     if (sectionsToDelete.length > 0) {
       await Section.destroy({
@@ -220,7 +221,8 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         files: req.files,
         isUpdated: true,
         transaction,
-      }); 
+        newLectures,
+      });
     }
 
     // Bulk update lectures

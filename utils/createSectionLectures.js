@@ -5,6 +5,7 @@ exports.createSectionsLectures = async (
   sections,
   courseId,
   instructorId,
+  newCourse,
   req,
 ) => {
   req.body.sectionNo = 0;
@@ -36,6 +37,7 @@ exports.createSectionsLectures = async (
       files: req.files,
       videoIndex: videoIndex,
       isUpdated: false,
+      newCourse,
     });
 
     // videoIndex += section.allLecture.length;

@@ -1,6 +1,7 @@
 const { col, fn, Op } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const Instructor = require('../models/instructorModel');
+const Location = require('../models/locationModel');
 const Course = require('../models/courseModel');
 const Product = require('../models/productModel');
 
@@ -32,10 +33,13 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
         'address',
         'firstName',
         'lastName',
-        'location_id',
         'dateOfBirth',
         'imageUrl',
       ],
+      include: {
+        model: Location,
+        attributes: ['locationId', 'name'],
+      },
     },
   ],
 });
