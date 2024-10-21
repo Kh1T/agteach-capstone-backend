@@ -113,10 +113,6 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.timeConfig = async (req, res, next) => {
-  req.setTimeout(10 * 60 * 1000); // Set 10 minutes timeout for this route
-    next();
-}
 
 exports.updateCourse = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -187,7 +183,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     // Get existing sections for comparison
     const sectionIdsFromRequest = parseAllSection
       .map((section) => section.sectionId)
-      .filter((id) => !!id);
+      .filter((sectionId) => !!sectionId);
 
     const existingSections = await Section.findAll({
       where: { courseId: id },
@@ -200,7 +196,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
 
     //  Delete sections that are not in the request
     const sectionsToDelete = existingSectionIds.filter(
-      (id) => !sectionIdsFromRequest.includes(id),
+      (sectionId) => !sectionIdsFromRequest.includes(sectionId),
     );
     if (sectionsToDelete.length > 0) {
       await Section.destroy({

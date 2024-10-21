@@ -4,6 +4,7 @@ const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const AppError = require('./appError');
+const Course = require('../models/courseModel');
 
 const uploadToS3 = catchAsync(async (filename, body) => {
   if (!body) return new AppError('There is no body to upload to', 400);
@@ -13,7 +14,6 @@ const uploadToS3 = catchAsync(async (filename, body) => {
     Body: body,
   };
   await s3Client.send(new PutObjectCommand(input));
-
 });
 // Upload Profile Image
 // Need User role from protected route
@@ -78,7 +78,7 @@ const resizeUplaodCourseThumbail = catchAsync(
         Key: filename,
       }),
     );
-    
+
     await s3Client.send(new PutObjectCommand(input));
     currentCourse.thumbnailUrl = url + filename;
     await currentCourse.save();
@@ -114,25 +114,29 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   const { sectionIndexMapping, lectureIndexMapping } =
     createIndexMappings(currentLectures);
 
-
   const url = process.env.AWS_S3_BUCKET_URL;
 
   const lecturePromises = currentLectures.map(async (lecture) => {
-
-
     const { sectionId } = lecture.dataValues;
     let sectionIdx = sectionIndexMapping[sectionId];
     const lectureIdx = lectureIndexMapping[sectionId];
 
-      // `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
+    // `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
     if (!options.isUpdated) {
       sectionIdx = options.videoIndex;
     }
     const videoFile = options.files.find(
-      (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,
+      (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,      
     );
+    
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
-
+    
+    // Updated preview Video
+    if(!options.isUpdated && sectionIdx === 0 && lectureIdx === 0) {
+      const course = await Course.findByPk(options.courseId);
+      course.update({previewVideoUrl: filename})
+      course.save();
+    }
 
     if (videoFile) {
       uploadToS3(filename, videoFile.buffer);

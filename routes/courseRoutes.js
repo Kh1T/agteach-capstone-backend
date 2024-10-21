@@ -2,7 +2,7 @@ const express = require('express');
 const courseController = require('../controllers/courseController');
 const authController = require('../controllers/authController');
 const instructorController = require('../controllers/instructorController');
-const { uploadCourseVideos } = require('../utils/multerConfig');
+const { uploadCourseVideosMulter } = require('../utils/multerConfig');
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
-router.use(uploadCourseVideos.any());
+router.use(uploadCourseVideosMulter.any());
 
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 
@@ -28,7 +28,6 @@ router.patch('/:id', courseController.updateCourse);
 
 router.post(
   '/uploadCourse',
-  courseController.timeConfig,
   instructorController.fetchInstructor,
   courseController.uploadCourse,
 );
