@@ -259,10 +259,13 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
 
 exports.logout = (req, res) => {
   const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
-  res.cookie(`jwt_${domain}`, 'loggedout', {
+  res.cookie(`jwt_${domain}`, 'logout', {
     expires: new Date(Date.now() + 10 * 1000), // make the cookie expire in 10 seconds
     httpOnly: true,
+    sameSite: 'None',
+    secure: true, // Add this line
   });
+
   res.status(200).json({ status: 'success' });
 };
 
