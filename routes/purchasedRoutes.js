@@ -14,6 +14,8 @@ router.get(
   purchasedController.getCustomerPurchased,
 );
 
+router.patch('/updateDeliver', purchasedController.updateDeliver);
+
 router.get(
   '/getInstructorPurchased',
   instructorController.fetchInstructor,

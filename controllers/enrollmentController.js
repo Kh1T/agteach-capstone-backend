@@ -6,6 +6,7 @@ const Customer = require('../models/customerModel');
 const Enroll = require('../models/enrollModel');
 const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const AppError = require('../utils/appError');
+const Instructor = require('../models/instructorModel');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
 
@@ -79,7 +80,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   if (!course) {
     return next(new AppError('Course Not Found', 404));
   }
-
 
   if (!customerId) {
     return next(new AppError('Customer not found', 404));
@@ -178,4 +178,31 @@ exports.getEnrollmentDetail = catchAsync(async (req, res, next) => {
   });
 
   res.status(200).json({ status: 'success', students, course });
+});
+
+exports.getCustomerEnrollments = catchAsync(async (req, res, next) => {
+  const { customerId } = req.memberData;
+
+  // const customerId = 132;
+
+  const enrollments = await Enroll.findAll({
+    where: { customerId },
+    attributes: [
+      col('course.course_id'),
+      col('course.name'),
+      col('course.instructor.first_name'),
+      col('course.instructor.last_name'),
+      col('course.thumbnail_url'),
+    ],
+    include: [
+      {
+        model: Course,
+        attributes: [],
+        include: { model: Instructor, attributes: [] },
+      },
+    ],
+    raw: true,
+  });
+
+  res.status(200).json({ status: 'success', enrollments });
 });
