@@ -83,26 +83,6 @@ const resizeUplaodCourseThumbail = catchAsync(
     await currentCourse.save();
   },
 );
-const createIndexMappings = (lectures) => {
-  const sectionIndexMapping = {};
-  const lectureIndexMapping = {};
-  let sectionIndex = 0;
-
-  lectures.forEach((lecture) => {
-    const { sectionId } = lecture.dataValues;
-
-    if (!(sectionId in sectionIndexMapping)) {
-      sectionIndexMapping[sectionId] = sectionIndex;
-      sectionIndex += 1;
-    }
-
-    if (!lectureIndexMapping[sectionId]) {
-      lectureIndexMapping[sectionId] = 0;
-    }
-  });
-
-  return { sectionIndexMapping, lectureIndexMapping };
-};
 
 const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   // If using HLS video give true else give false;
@@ -110,31 +90,16 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   if (!options.files) return;
 
   // Create section and lecture index mappings
-  const { sectionIndexMapping, lectureIndexMapping } =
-    createIndexMappings(currentLectures);
-  console.log('mapping:', createIndexMappings(currentLectures));
   const url = process.env.AWS_S3_BUCKET_URL;
-  console.log('currentLecture', currentLectures);
 
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
     console.log('options', options.newLectures);
     const { sectionId } = lecture.dataValues;
-    // let sectionIdx = sectionIndexMapping[sectionId];
-    // let lectureIdx = lectureIndexMapping[sectionId];
+
     let sectionIdx;
     let lectureIdx;
 
-    // if videos[234][0]
-    // it mean new old section and new lecture 0
-    // true mean it is new section
-    // false mean it is old section
-    // if (!options.newLectures[idx].isNewUpdateSection) {
-    //   const videoFile = options.files.find(
-    //     (file) =>
-    //       file.fieldname ===
-    //       `videos[${options.newLectures[idx].sectionId}][${lectureIdx}]`,
-    //   );
-    // }
+
 
     if (options.isUpdated) {
       sectionIdx = options.newLectures[idx].updatedSections[0];
@@ -143,11 +108,10 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
       console.log('optionsIsupdate videos:', sectionIdx, lectureIdx);
     } else {
       sectionIdx = options.videoIndex;
+      lectureIdx = idx;
     }
 
-    // if(options.newLecture[idx].updatedSection){
-    //   sectionIdx = options.updateSection;
-    // }
+
     console.log(
       `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
     );
@@ -165,14 +129,13 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
       console.log('currentCourse', newCourse);
 
       newCourse.previewVideoUrl = url + filename;
-      // course.update({ previewVideoUrl: filename });
       newCourse.save();
     }
 
     if (videoFile) {
       uploadToS3(filename, videoFile.buffer);
     }
-    lectureIndexMapping[sectionId] += 1;
+
 
     lecture.videoUrl = url + filename;
     await lecture.update({ videoUrl: url + filename }, { ...options });
@@ -186,101 +149,3 @@ module.exports = {
   uploadCourseVideos,
   uploadToS3,
 };
-
-// [
-//   {
-//       "sectionId": 1284,
-//       "instructorId": 71,
-//       "courseId": 785,
-//       "name": "updated section",
-//       "lectures": [
-//           {
-//               "lectureId": 1866,
-//               "instructorId": 71,
-//               "sectionId": 1284,
-//               "name": "Lecuter 1 updated",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1284/lecture-1866.mp4",
-//           },
-//           {
-//               "lectureId": 1867,
-//               "instructorId": 71,
-//               "sectionId": 1284,
-//               "name": "lecture 2",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1284/lecture-1867.mp4",
-//           }
-//       ]
-//   },
-//   {
-//       "sectionId": 1285,
-//       "instructorId": 71,
-//       "courseId": 785,
-//       "name": "section 2",
-//       "lectures": [
-//           {
-//               "lectureId": 1868,
-//               "instructorId": 71,
-//               "sectionId": 1285,
-//               "name": "lecture 1",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1285/lecture-1868.mp4",
-//           },
-//           {
-//               "lectureId": 1869,
-//               "instructorId": 71,
-//               "sectionId": 1285,
-//               "name": "lecture 2",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1285/lecture-1869.mp4",
-//           },
-//           {
-//               "lectureId": 1870,
-//               "instructorId": null,
-//               "sectionId": 1285,
-//               "name": "3",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1285/lecture-1870.mp4",
-//           }
-//       ]
-//   },
-//   {
-//       "sectionId": 1286,
-//       "instructorId": 71,
-//       "courseId": 785,
-//       "name": "section 3",
-//       "lectures": [
-//           {
-//               "lectureId": 1871,
-//               "instructorId": null,
-//               "sectionId": 1286,
-//               "name": "lecture 1",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1286/lecture-1871.mp4",
-//           },
-//           {
-//               "lectureId": 1872,
-//               "instructorId": null,
-//               "sectionId": 1286,
-//               "name": "lecture 2",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1286/lecture-1872.mp4",
-//           },
-//           {
-//               "lectureId": 1873,
-//               "instructorId": null,
-//               "sectionId": 1286,
-//               "name": "lecture 3",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1286/lecture-1873.mp4",
-//           }
-//       ]
-//   },
-//   {
-//       "sectionId": 1287,
-//       "instructorId": 71,
-//       "courseId": 785,
-//       "name": "section 4",
-//       "lectures": [
-//           {
-//               "lectureId": 1874,
-//               "instructorId": null,
-//               "sectionId": 1287,
-//               "name": "lecture 1",
-//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1287/lecture-1874.mp4",
-//           }
-//       ]
-//   }
-// ]

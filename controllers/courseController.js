@@ -215,8 +215,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         instructorId,
         transaction,
       );
-    console.log('newlecutre', newLectures);
-    console.log('updateLectures', updateLectures);
+
     // Bulk create new lectures
     if (newLectures.length > 0) {
       await Lecture.bulkCreate(newLectures, {
@@ -246,7 +245,6 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
 
     // Delete lectures that were not in the request
     if (lecturesToDelete.length > 0) {
-      console.log('lecturesToDelete', lecturesToDelete);
       await Lecture.destroy({
         where: { lectureId: lecturesToDelete },
         transaction,

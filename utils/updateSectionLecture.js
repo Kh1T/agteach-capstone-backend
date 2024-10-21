@@ -131,7 +131,6 @@ exports.processLectures = async (
           const lecture = existingLectures.find(
             (lec) => lec.lectureId === lectureId,
           );
-          console.log('lecture to delete in s3:', lecture);
           if (lecture && lecture.videoUrl) {
             const filename = lecture.videoUrl.replace(
               process.env.AWS_S3_BUCKET_URL,
