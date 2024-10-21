@@ -236,7 +236,11 @@ exports.getRecentTransations = catchAsync(async (req, res, next) => {
 });
 
 // Dashboard
-const { getInstructorOverviewSales } = require('../utils/findTopSales');
+const {
+  getInstructorOverviewSales,
+  getInstructorProductTopSales,
+  getInstructorCourseTopSales,
+} = require('../utils/findTopSales');
 
 exports.getInstructorOverviewSales = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
@@ -247,5 +251,27 @@ exports.getInstructorOverviewSales = catchAsync(async (req, res, next) => {
     status: 'success',
     length: instructorOverviewSales.length,
     data: instructorOverviewSales,
+  });
+});
+
+exports.getInstructorProductTopSales = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+  const productTopSales = await getInstructorProductTopSales(instructorId);
+
+  res.status(200).json({
+    status: 'success',
+    length: productTopSales.length,
+    data: productTopSales,
+  });
+});
+
+exports.getInstructorCourseTopSales = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+  const courseTopSales = await getInstructorCourseTopSales(instructorId);
+
+  res.status(200).json({
+    status: 'success',
+    length: courseTopSales.length,
+    data: courseTopSales,
   });
 });

@@ -46,7 +46,27 @@ const getSalesOverview = async () => {
 // for instructor
 
 const getInstructorCourseTopSales = async (instructorId) => {
-  const instructorCourseSales = `SELECT * FROM get_instructor_course_topsales(${instructorId})`;
+  const instructorCourseSales = await sequelize.query(
+    `SELECT * FROM get_instructor_course_topsales(${instructorId})`,
+    {
+      type: QueryTypes.SELECT,
+    },
+  );
+  return instructorCourseSales.map((course) => ({
+    ...course,
+  }));
+};
+
+const getInstructorProductTopSales = async (instructorId) => {
+  const instructorProductSales = await sequelize.query(
+    `SELECT * FROM get_instructor_product_topsales(${instructorId})`,
+    {
+      type: QueryTypes.SELECT,
+    },
+  );
+  return instructorProductSales.map((product) => ({
+    ...product,
+  }));
 };
 
 const getInstructorOverviewSales = async (instructorId) => {
@@ -59,7 +79,7 @@ const getInstructorOverviewSales = async (instructorId) => {
   );
   return instructorSalesOverview.map((sales) => ({
     // ...sales,
-    day: (sales.day),
+    day: sales.day,
     totalCourseSales: parseFloat(sales.totalcoursesales), // Convert string to number
     totalProductSales: parseFloat(sales.totalproductsales),
   }));
@@ -69,4 +89,6 @@ module.exports = {
   getCourseTopSales,
   getSalesOverview,
   getInstructorOverviewSales,
+  getInstructorProductTopSales,
+  getInstructorCourseTopSales,
 };

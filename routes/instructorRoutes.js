@@ -36,4 +36,6 @@ router.get('/getRecentTransaction', instructorController.getRecentTransations);
 
 //Dashboard
 router.get('/getInstructorOverviewSales', instructorController.getInstructorOverviewSales);
+router.get('/getInstructorProductTopSales', instructorController.getInstructorProductTopSales);
+router.get('/getInstructorCourseTopSales', instructorController.getInstructorCourseTopSales);
 module.exports = router;
