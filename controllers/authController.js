@@ -24,7 +24,7 @@ const createSendToken = (user, statusCode, res, domain) => {
     secure: true, // Add this line
     // domain, // Uncomment and set if needed
   };
-  res.cookie('jwt', token, cookieOption);
+  res.cookie(`jwt_${domain}`, token, cookieOption);
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -38,7 +38,7 @@ const createSendToken = (user, statusCode, res, domain) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   // Create new user
-  const domain = req.headers['x-frontend-url'];
+  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
   const newUser = await UserAccount.create({
     username: req.body.username,
     email: req.body.email,
@@ -56,7 +56,9 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  const domain = req.headers['x-frontend-url'];
+  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+  console.log(req.headers.origin);
+  // console.log(domain);
 
   // 1) Check if email and password exist
   if (!email || !password) {
@@ -82,7 +84,7 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
 
   if (!user?.role) return next();
 
-  const url = req.headers['x-frontend-url'].split('/')[2] || req.url;
+  const url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
   const isAuthorized =
     url.startsWith('localhost') ||
@@ -266,9 +268,14 @@ exports.logout = (req, res) => {
 // Handle Protected Routes (Requires Authentication)
 
 exports.protect = catchAsync(async (req, res, next) => {
+  // console.log('s', 'test');
+  console.log(req.headers.origin, 'test');
+
+  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
   let token;
-  if (req.cookies.jwt) {
-    token = req.cookies.jwt;
+  if (req.cookies[`jwt_${domain}`]) {
+    token = req.cookies[`jwt_${domain}`];
   } else if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -320,10 +327,12 @@ exports.customValidate = async (req, res, next) => {
 
 exports.isLoginedIn = async (req, res, next) => {
   try {
-    if (req.cookies.jwt) {
+    const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
+    if (req.cookies[`jwt_${domain}`]) {
       // 2) Verification token
       const decoded = await promisify(jwt.verify)(
-        req.cookies.jwt,
+        req.cookies[`jwt_${domain}`],
         process.env.JWT_SECRET,
       );
 
