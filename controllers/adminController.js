@@ -2,6 +2,7 @@ const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
 const Instructor = require('../models/instructorModel');
+const Customer = require('../models/customerModel');
 const Category = require('../models/categoryModel');
 
 const {
@@ -23,6 +24,7 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllInstructor = handleFactory.getAll(Instructor);
+exports.getAllCustomers = handleFactory.getAll(Customer);
 
 //Categories
 exports.getCategory = handleFactory.getOne(Category);
