@@ -14,6 +14,12 @@ const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const Customer = require('../models/customerModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 
+const {
+  getInstructorOverviewSales,
+  getInstructorProductTopSales,
+  getInstructorCourseTopSales,
+} = require('../utils/findTopSales');
+
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
 
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
@@ -236,12 +242,6 @@ exports.getRecentTransations = catchAsync(async (req, res, next) => {
 });
 
 // Dashboard
-const {
-  getInstructorOverviewSales,
-  getInstructorProductTopSales,
-  getInstructorCourseTopSales,
-} = require('../utils/findTopSales');
-
 exports.getInstructorOverviewSales = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   const instructorOverviewSales =
