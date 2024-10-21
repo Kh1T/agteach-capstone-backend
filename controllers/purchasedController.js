@@ -159,3 +159,14 @@ exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
     products: purchases,
   });
 });
+
+exports.updateDeliver = catchAsync(async (req, res, next) => {
+  const { purchasedId } = req.body;
+
+  const productSaleHistory = await ProductSaleHistory.update(
+    { isDelivered: true },
+    { where: { purchasedId } },
+  );
+
+  res.status(204).json({ status: 'success', data: productSaleHistory });
+});
