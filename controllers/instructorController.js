@@ -234,3 +234,18 @@ exports.getRecentTransations = catchAsync(async (req, res, next) => {
     data: { course: courseSaleHistory, product: productSaleHistory },
   });
 });
+
+// Dashboard
+const { getInstructorOverviewSales } = require('../utils/findTopSales');
+
+exports.getInstructorOverviewSales = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+  const instructorOverviewSales =
+    await getInstructorOverviewSales(instructorId);
+
+  res.status(200).json({
+    status: 'success',
+    length: instructorOverviewSales.length,
+    data: instructorOverviewSales,
+  });
+});

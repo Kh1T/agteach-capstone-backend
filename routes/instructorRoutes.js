@@ -34,4 +34,6 @@ router.get('/searchCourseBalance', instructorController.getAllCourseBalance);
 router.get('/searchProductBalance', instructorController.getAllProductBalance);
 router.get('/getRecentTransaction', instructorController.getRecentTransations);
 
+//Dashboard
+router.get('/getInstructorOverviewSales', instructorController.getInstructorOverviewSales);
 module.exports = router;
