@@ -13,16 +13,24 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSendToken = (user, statusCode, req, res) => {
+const createSendToken = (
+  user,
+  statusCode,
+  req,
+  res,
+  keepMeLoggedIn = false,
+) => {
   const token = signToken(user.userUid);
+  const tokenExpiry = keepMeLoggedIn
+    ? process.env.JWT_EXPIRES_COOKIE_LONG_IN
+    : process.env.JWT_EXPIRES_COOKIE_IN;
+
   let domain = 'localhost';
   if (req.headers.origin)
     domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
   const cookieOption = {
-    expires: new Date(
-      Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
-    ),
+    expires: new Date(Date.now() + tokenExpiry * 24 * 60 * 60 * 1000),
     httpOnly: true,
     sameSite: 'None',
     secure: true, // Add this line
@@ -58,7 +66,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 // Handle Login User
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, keepMeLoggedIn } = req.body;
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
@@ -73,7 +81,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
   // 3) If everything ok, send token to client
-  createSendToken(user, 200, req, res);
+  createSendToken(user, 200, req, res, keepMeLoggedIn);
 });
 
 exports.roleRestrict = catchAsync(async (req, res, next) => {
