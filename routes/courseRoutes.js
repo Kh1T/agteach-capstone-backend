@@ -13,7 +13,6 @@ router.get('/getOneCourse/:id', courseController.getOne);
 router.get('/searchData', courseController.searchData);
 router.get('/getRecommendCourse/:id', courseController.recommendCourse);
 
-
 router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 
 router.use(authController.protect);
@@ -27,23 +26,19 @@ router.get(
   courseController.getOne,
 );
 
-router.patch(
-  '/:id',
-  instructorController.fetchInstructor,
-  courseController.updateCourse,
-);
-
-router.patch('/:id', courseController.updateCourse);
-
 router.post(
   '/uploadCourse',
-  // courseController.timeConfig,
   instructorController.fetchInstructor,
   courseController.uploadCourse,
+);
+
+router.patch(
+  '/updateCourse/:id',
+  instructorController.fetchInstructor,
+  courseController.updateCourse,
 );
 
 // router.post('/uploadCourse', courseController.uploadCourse);
 // router.get('/sortData', courseController.sortData);
 
 module.exports = router;
-
