@@ -1,5 +1,4 @@
 const { DataTypes } = require('sequelize');
-const PurchasedDetail = require('./purchasedDetailModel');
 const sequelize = require('../config/db');
 
 const ProductSaleHistory = sequelize.define('product_sale_history', {
@@ -40,6 +39,13 @@ const ProductSaleHistory = sequelize.define('product_sale_history', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     default: false,
+  },
+  purchasedId:{
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'purchased',
+      key: 'purchasedId',
+    },
   },
   createdAt: {
     type: DataTypes.DATE,

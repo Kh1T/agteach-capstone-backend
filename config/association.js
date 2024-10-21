@@ -133,6 +133,8 @@ PurchasedDetail.hasMany(ProductSaleHistory, {
 ProductSaleHistory.belongsTo(PurchasedDetail, {
   foreignKey: 'purchasedDetailId',
 });
+Purchased.hasMany(ProductSaleHistory, { foreignKey: 'purchasedId' });
+ProductSaleHistory.belongsTo(Purchased, { foreignKey: 'purchasedId' });
 
 Instructor.hasMany(ProductSaleHistory, { foreignKey: 'instructorId' });
 ProductSaleHistory.belongsTo(Instructor, { foreignKey: 'instructorId' });

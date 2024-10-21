@@ -55,6 +55,7 @@ const createProductSaleHistory = async (
   customerId,
   purchasedDetailId,
   instructorId,
+  purchasedId,
 ) => {
   await ProductSaleHistory.create({
     productId,
@@ -62,6 +63,7 @@ const createProductSaleHistory = async (
     purchasedDetailId,
     instructorId,
     isDelivered: false, // Set to true upon delivery
+    purchasedId,
   }).catch((err) => console.log(`Something went wrong: ${err}`));
 };
 
@@ -126,7 +128,6 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       // Calculate the new quantity for each product
       const insufficientStock = [];
       const updates = products.map((product) => {
-
         // Find the product in the productUpdates
         const lineItem = productUpdates.find(
           (item) => Number(item.productId) === product.dataValues.productId,
@@ -190,6 +191,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
             customerId,
             purchasedDetail.purchasedDetailId,
             instructorId,
+            purchased.purchasedId,
           );
         }),
       );

@@ -13,7 +13,7 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, res, domain) => {
   const token = signToken(user.userUid);
   const cookieOption = {
     expires: new Date(
@@ -22,7 +22,7 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: true,
     sameSite: 'None',
     secure: true, // Add this line
-    // domain: 'your-domain.com', // Uncomment and set if needed
+    domain, // Uncomment and set if needed
   };
   res.cookie('jwt', token, cookieOption);
   res.status(statusCode).json({
@@ -38,6 +38,7 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   // Create new user
+  const domain = req.headers['x-frontend-url'];
   const newUser = await UserAccount.create({
     username: req.body.username,
     email: req.body.email,
@@ -48,13 +49,14 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   newUser.createEmailVerifyCode();
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, res, domain);
 });
 
 // Handle Login User
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
+  const domain = req.headers['x-frontend-url'];
 
   // 1) Check if email and password exist
   if (!email || !password) {
@@ -70,7 +72,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
   // 3) If everything ok, send token to client
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, res, domain);
 });
 
 exports.roleRestrict = catchAsync(async (req, res, next) => {
