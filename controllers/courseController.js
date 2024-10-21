@@ -68,7 +68,6 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     totalDuration,
   } = req.body;
 
-
   const { instructorId } = req.memberData;
 
   const parsedSections = JSON.parse(allSection);
@@ -103,6 +102,7 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     parsedSections,
     newCourse.courseId,
     instructorId,
+    newCourse,
     req,
   );
 
@@ -112,7 +112,6 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
     data: newCourse,
   });
 });
-
 
 exports.updateCourse = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -126,9 +125,12 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     totalDuration,
   } = req.body;
 
-  const parseAllSection = JSON.parse(allSection);
+  const parseAllSection = !!allSection ? JSON.parse(allSection) : null;
   const transaction = await sequelize.transaction();
-  const parseUpdateProductSuggestions = JSON.parse(ProductSuggestionId);
+  const parseUpdateProductSuggestions = !!ProductSuggestionId
+    ? JSON.parse(ProductSuggestionId)
+    : null;
+  // const parseUpdateProductSuggestions = JSON.parse(ProductSuggestionId);
   try {
     //Update the course details
     const course = await Course.findByPk(id);
@@ -221,7 +223,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         files: req.files,
         isUpdated: true,
         transaction,
-      }); 
+      });
     }
 
     // Bulk update lectures
@@ -242,6 +244,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
 
     // Delete lectures that were not in the request
     if (lecturesToDelete.length > 0) {
+      console.log('lecturesToDelete', lecturesToDelete);
       await Lecture.destroy({
         where: { lectureId: lecturesToDelete },
         transaction,

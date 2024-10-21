@@ -121,21 +121,29 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     let sectionIdx = sectionIndexMapping[sectionId];
     const lectureIdx = lectureIndexMapping[sectionId];
 
-    // `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
-    if (!options.isUpdated) {
-      sectionIdx = options.videoIndex;
+    if (options.isUpdated) {
+      sectionIdx = sectionId;
+      console.log('optionsIsupdate');
     }
-    const videoFile = options.files.find(
-      (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,      
+    console.log(
+      `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
     );
-    
+    const videoFile = options.files.find(
+      (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,
+    );
+
+    console.log('videoFile', videoFile);
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
-    
+
+    console.log('file:', filename);
     // Updated preview Video
-    if(!options.isUpdated && sectionIdx === 0 && lectureIdx === 0) {
-      const course = await Course.findByPk(options.courseId);
-      course.update({previewVideoUrl: filename})
-      course.save();
+    if (!options.isUpdated && sectionIdx === 0 && lectureIdx === 0) {
+      const { newCourse } = options;
+      console.log('currentCourse', newCourse);
+
+      newCourse.previewVideoUrl = url + filename;
+      // course.update({ previewVideoUrl: filename });
+      newCourse.save();
     }
 
     if (videoFile) {
@@ -155,3 +163,101 @@ module.exports = {
   uploadCourseVideos,
   uploadToS3,
 };
+
+// [
+//   {
+//       "sectionId": 1284,
+//       "instructorId": 71,
+//       "courseId": 785,
+//       "name": "updated section",
+//       "lectures": [
+//           {
+//               "lectureId": 1866,
+//               "instructorId": 71,
+//               "sectionId": 1284,
+//               "name": "Lecuter 1 updated",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1284/lecture-1866.mp4",
+//           },
+//           {
+//               "lectureId": 1867,
+//               "instructorId": 71,
+//               "sectionId": 1284,
+//               "name": "lecture 2",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1284/lecture-1867.mp4",
+//           }
+//       ]
+//   },
+//   {
+//       "sectionId": 1285,
+//       "instructorId": 71,
+//       "courseId": 785,
+//       "name": "section 2",
+//       "lectures": [
+//           {
+//               "lectureId": 1868,
+//               "instructorId": 71,
+//               "sectionId": 1285,
+//               "name": "lecture 1",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1285/lecture-1868.mp4",
+//           },
+//           {
+//               "lectureId": 1869,
+//               "instructorId": 71,
+//               "sectionId": 1285,
+//               "name": "lecture 2",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1285/lecture-1869.mp4",
+//           },
+//           {
+//               "lectureId": 1870,
+//               "instructorId": null,
+//               "sectionId": 1285,
+//               "name": "3",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1285/lecture-1870.mp4",
+//           }
+//       ]
+//   },
+//   {
+//       "sectionId": 1286,
+//       "instructorId": 71,
+//       "courseId": 785,
+//       "name": "section 3",
+//       "lectures": [
+//           {
+//               "lectureId": 1871,
+//               "instructorId": null,
+//               "sectionId": 1286,
+//               "name": "lecture 1",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1286/lecture-1871.mp4",
+//           },
+//           {
+//               "lectureId": 1872,
+//               "instructorId": null,
+//               "sectionId": 1286,
+//               "name": "lecture 2",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1286/lecture-1872.mp4",
+//           },
+//           {
+//               "lectureId": 1873,
+//               "instructorId": null,
+//               "sectionId": 1286,
+//               "name": "lecture 3",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1286/lecture-1873.mp4",
+//           }
+//       ]
+//   },
+//   {
+//       "sectionId": 1287,
+//       "instructorId": 71,
+//       "courseId": 785,
+//       "name": "section 4",
+//       "lectures": [
+//           {
+//               "lectureId": 1874,
+//               "instructorId": null,
+//               "sectionId": 1287,
+//               "name": "lecture 1",
+//               "videoUrl": "https://agteach-dev-assets.s3.ap-southeast-2.amazonaws.com/courses/785/section-1287/lecture-1874.mp4",
+//           }
+//       ]
+//   }
+// ]

@@ -1,6 +1,17 @@
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const Lecture = require('../models/lectureModel');
 const Section = require('../models/sectionModel');
 const { uploadToS3 } = require('./uploadMiddleware');
+const s3Client = require('../config/s3Connection');
+
+const deleteFromS3 = async (filename) => {
+  const input = {
+    Bucket: process.env.AWS_S3_ASSET_BUCKET, // your bucket name
+    Key: filename, // file path
+  };
+
+  await s3Client.send(new DeleteObjectCommand(input));
+};
 
 exports.processLectures = async (
   id,
@@ -91,6 +102,22 @@ exports.processLectures = async (
               videoUrl: lecture.videoUrl,
               duration: lecture.lectureDuration,
             });
+          }
+        }),
+      );
+      // Delete lectures from S3 before deleting them from the database
+      await Promise.all(
+        lecturesToDelete.map(async (lectureId) => {
+          const lecture = existingLectures.find(
+            (lec) => lec.lectureId === lectureId,
+          );
+          console.log('lecture to delete in s3:', lecture);
+          if (lecture && lecture.videoUrl) {
+            const filename = lecture.videoUrl.replace(
+              process.env.AWS_S3_BUCKET_URL,
+              '',
+            ); // Get S3 key
+            await deleteFromS3(filename); // Delete from S3
           }
         }),
       );

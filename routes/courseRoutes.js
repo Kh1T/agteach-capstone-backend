@@ -28,6 +28,7 @@ router.patch('/:id', courseController.updateCourse);
 
 router.post(
   '/uploadCourse',
+  // courseController.timeConfig,
   instructorController.fetchInstructor,
   courseController.uploadCourse,
 );
@@ -36,3 +37,4 @@ router.post(
 // router.get('/sortData', courseController.sortData);
 
 module.exports = router;
+
