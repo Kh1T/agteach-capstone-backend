@@ -115,15 +115,17 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
     createIndexMappings(currentLectures);
 
   const url = process.env.AWS_S3_BUCKET_URL;
+  console.log('currentLecture', options.isNewUpdateSection);
 
   const lecturePromises = currentLectures.map(async (lecture) => {
     const { sectionId } = lecture.dataValues;
     let sectionIdx = sectionIndexMapping[sectionId];
     const lectureIdx = lectureIndexMapping[sectionId];
-
     if (options.isUpdated) {
       sectionIdx = sectionId;
       console.log('optionsIsupdate');
+    }else{
+      sectionIdx = options.videoIndex;
     }
     console.log(
       `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,

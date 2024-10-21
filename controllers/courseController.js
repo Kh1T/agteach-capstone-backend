@@ -223,6 +223,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         files: req.files,
         isUpdated: true,
         transaction,
+        isNewUpdateSection: newLectures.isNewUpdateSection,
       });
     }
 

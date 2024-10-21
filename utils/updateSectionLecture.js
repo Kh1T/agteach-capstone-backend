@@ -36,7 +36,7 @@ exports.processLectures = async (
         });
         if (updatedSection) {
           await updatedSection.update(
-            { name: section.sectionName },
+            { name: section.sectionName ,isNewUpdateSection: false},
             { transaction },
           );
         }
@@ -46,6 +46,7 @@ exports.processLectures = async (
             courseId: id,
             name: section.sectionName,
             instructorId,
+            isNewUpdateSection: true,
           },
           { transaction },
         );
@@ -94,6 +95,7 @@ exports.processLectures = async (
               lectureId: lecture.lectureId,
               name: lecture.lectureName,
               duration: lecture.lectureDuration,
+              isNewUpdateSection: updatedSection.isNewUpdateSection,
             });
           } else {
             newLectures.push({
@@ -101,6 +103,7 @@ exports.processLectures = async (
               name: lecture.lectureName,
               videoUrl: lecture.videoUrl,
               duration: lecture.lectureDuration,
+              isNewUpdateSection: updatedSection.isNewUpdateSection,
             });
           }
         }),
