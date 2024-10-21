@@ -13,8 +13,12 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSendToken = (user, statusCode, res, domain) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user.userUid);
+  let domain = 'localhost';
+  if (req.headers.origin)
+    domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
   const cookieOption = {
     expires: new Date(
       Date.now() + process.env.JWT_EXPIRES_COOKIE_IN * 24 * 60 * 60 * 1000,
@@ -22,9 +26,9 @@ const createSendToken = (user, statusCode, res, domain) => {
     httpOnly: true,
     sameSite: 'None',
     secure: true, // Add this line
-    domain, // Uncomment and set if needed
+    // domain, // Uncomment and set if needed
   };
-  res.cookie('jwt', token, cookieOption);
+  res.cookie(`jwt_${domain}`, token, cookieOption);
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -38,7 +42,6 @@ const createSendToken = (user, statusCode, res, domain) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   // Create new user
-  const domain = req.headers['x-frontend-url'];
   const newUser = await UserAccount.create({
     username: req.body.username,
     email: req.body.email,
@@ -49,15 +52,13 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   newUser.createEmailVerifyCode();
 
-  createSendToken(newUser, 201, res, domain);
+  createSendToken(newUser, 201, req, res);
 });
 
 // Handle Login User
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  const domain = req.headers['x-frontend-url'];
-
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
@@ -72,7 +73,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
   // 3) If everything ok, send token to client
-  createSendToken(user, 200, res, domain);
+  createSendToken(user, 200, req, res);
 });
 
 exports.roleRestrict = catchAsync(async (req, res, next) => {
@@ -80,13 +81,13 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
     where: { email: req.body.email },
   });
 
+  if (!req.headers.origin || req.headers.origin.includes('localhost')) {
+    return next();
+  }
+
   if (!user?.role) return next();
-
-  const url = req.headers['x-frontend-url'].split('/')[2] || req.url;
-
+  const url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
   const isAuthorized =
-    url.startsWith('localhost') ||
-    url.includes('/login') ||
     (url.startsWith('teach') && user.role === 'instructor') ||
     (url.startsWith('admin') && user.role === 'admin') ||
     (url.startsWith('agteach') && user.role === 'guest');
@@ -190,7 +191,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 // Update Current User Password
@@ -210,7 +211,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 // Handle Email Verification Code
@@ -256,19 +257,27 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  res.cookie('jwt', 'loggedout', {
+  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+  res.cookie(`jwt_${domain}`, 'logout', {
     expires: new Date(Date.now() + 10 * 1000), // make the cookie expire in 10 seconds
     httpOnly: true,
+    sameSite: 'None',
+    secure: true, // Add this line
   });
+
   res.status(200).json({ status: 'success' });
 };
 
 // Handle Protected Routes (Requires Authentication)
 
 exports.protect = catchAsync(async (req, res, next) => {
+  let domain = 'localhost';
+  if (req.headers.origin)
+    domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
   let token;
-  if (req.cookies.jwt) {
-    token = req.cookies.jwt;
+  if (req.cookies[`jwt_${domain}`]) {
+    token = req.cookies[`jwt_${domain}`];
   } else if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -320,10 +329,14 @@ exports.customValidate = async (req, res, next) => {
 
 exports.isLoginedIn = async (req, res, next) => {
   try {
-    if (req.cookies.jwt) {
+    let domain = 'localhost';
+    if (req.headers.origin)
+      domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
+    if (req.cookies[`jwt_${domain}`]) {
       // 2) Verification token
       const decoded = await promisify(jwt.verify)(
-        req.cookies.jwt,
+        req.cookies[`jwt_${domain}`],
         process.env.JWT_SECRET,
       );
 
