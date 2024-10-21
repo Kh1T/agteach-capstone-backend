@@ -93,8 +93,7 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
   const url = process.env.AWS_S3_BUCKET_URL;
 
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
-    console.log('options', options.newLectures);
-    const { sectionId } = lecture.dataValues;
+    // const { sectionId } = lecture.dataValues;
 
     let sectionIdx;
     let lectureIdx;
@@ -105,28 +104,21 @@ const uploadCourseVideos = catchAsync(async (currentLectures, options) => {
       sectionIdx = options.newLectures[idx].updatedSections[0];
       lectureIdx = options.newLectures[idx].updatedSections[1];
 
-      console.log('optionsIsupdate videos:', sectionIdx, lectureIdx);
     } else {
       sectionIdx = options.videoIndex;
       lectureIdx = idx;
     }
 
 
-    console.log(
-      `Lecture ID: ${lecture.dataValues.lectureId}, Section ID: ${sectionId}, Section Index: ${sectionIdx}, Lecture Index: ${lectureIdx}`,
-    );
     const videoFile = options.files.find(
       (file) => file.fieldname === `videos[${sectionIdx}][${lectureIdx}]`,
     );
 
-    console.log('videoFile', videoFile);
     const filename = `courses/${options.courseId}/section-${lecture.sectionId}/lecture-${lecture.lectureId}.mp4`;
 
-    console.log('file:', filename);
     // Updated preview Video
     if (!options.isUpdated && sectionIdx === 0 && lectureIdx === 0) {
       const { newCourse } = options;
-      console.log('currentCourse', newCourse);
 
       newCourse.previewVideoUrl = url + filename;
       newCourse.save();
@@ -149,3 +141,4 @@ module.exports = {
   uploadCourseVideos,
   uploadToS3,
 };
+
