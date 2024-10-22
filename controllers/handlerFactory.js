@@ -166,13 +166,12 @@ exports.sortData = (Model) =>
 
 exports.SearchData = (Model) =>
   catchAsync(async (req, res, next) => {
-    const { name, order, page = 1 } = req.query;
+    const { name, order, page = 1, limit = 20 } = req.query;
 
     // Initialize options object for the query
     let options = {};
 
     if (req.query.page) {
-      const limit = 20;
       const offset = (page - 1) * limit;
 
       options.offset = Number(offset);
@@ -192,9 +191,13 @@ exports.SearchData = (Model) =>
     // Fetch data from the Model based on options
     const data = await Model.findAll(options);
 
+    const totalCount = await Model.count({
+      where: options.where,
+    });
+
     res.status(200).json({
       status: 'success',
-      results: data.length,
+      results: totalCount,
       page: Number(page),
       data,
     });
