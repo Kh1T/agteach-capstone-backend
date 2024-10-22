@@ -1,6 +1,7 @@
 const Customer = require('../models/customerModel');
 const factory = require('./handlerFactory');
 const UserAccount = require('../models/userModel');
+const Location = require('../models/locationModel');
 const { uploadProfileImage } = require('../utils/multerConfig');
 const { resizeUploadProfileImage } = require('../utils/uploadMiddleware');
 
@@ -18,10 +19,14 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
         'address',
         'firstName',
         'lastName',
-        'location_id',
         'dateOfBirth',
         'imageUrl',
+        'bio',
       ],
+      include: {
+        model: Location,
+        attributes: ['locationId', 'name'],
+      },
     },
   ],
 });
