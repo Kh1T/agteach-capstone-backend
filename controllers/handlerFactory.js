@@ -73,6 +73,7 @@ exports.updateMe = (Model) =>
       'imageUrl',
       'firstName',
       'lastName',
+      'address',
       'phone',
       'dateOfBirth',
       'locationId',
