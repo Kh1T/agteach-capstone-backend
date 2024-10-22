@@ -206,12 +206,16 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // Get Current User
-  const { password, passwordConfirm } = req.body;
+  const { password, passwordCurrent, passwordConfirm } = req.body;
 
   const user = await UserAccount.findByPk(req.user.userUid);
 
-  if (user.authenticate(password)) {
+  if (!user.authenticate(passwordCurrent)) {
     return next(new AppError('Incorrect Password', 401));
+  }
+
+  if (password !== passwordConfirm) {
+    return next(new AppError('Passwords do not match', 401));
   }
 
   user.password = password;
