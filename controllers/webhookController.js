@@ -9,6 +9,7 @@ const PurchasedDetail = require('../models/purchasedDetailModel');
 const Purchased = require('../models/purchasedModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const sendEnrollmentEmail = require('../utils/sendEnrollmentEmail');
 
 /**
  * Create a Course Sale History record in the DB.
@@ -85,6 +86,8 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    const customerEmail = session.customer_details.email
+
     if (session.metadata.type === 'course') {
       const { courseId, instructorId, customerId } = session.metadata;
 
@@ -94,9 +97,15 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         customerId,
         session.amount_total / 100,
       );
+      
       createEnrollment(courseId, customerId);
 
       console.log(`Course Payment completed for session: ${session.id}`);
+
+      const subject = 'Course Enrollment Successful';
+      const content = `<p>Thank you for enrolling in the course! Course ID: ${courseId}</p>`;
+      await sendEnrollmentEmail(customerEmail, subject, content);
+
     }
     if (session.metadata.type === 'product') {
       const { customerId } = session.metadata;
