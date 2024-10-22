@@ -49,6 +49,9 @@ ProductSuggestion.belongsTo(Instructor, { foreignKey: 'instructorId' });
 Location.hasMany(Instructor, { foreignKey: 'locationId' });
 Instructor.belongsTo(Location, { foreignKey: 'locationId' });
 
+Location.hasMany(Customer, { foreignKey: 'locationId' });
+Customer.belongsTo(Location, { foreignKey: 'locationId' });
+
 // Course
 
 // One Instructor can have many Courses
