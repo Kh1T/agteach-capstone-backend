@@ -154,7 +154,7 @@ const generateEnrollmentEmailContent = (courseId) => {
   </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="2902260e-6d12-4b47-8f06-6a467d597db6" data-mc-module-version="2019-10-22">
     <tbody>
       <tr>
-        <td style="padding:60px 0px 0px 0px; line-height:30px; text-align:inherit;" height="100%" valign="top" bgcolor="" role="module-content"><div><h2 style="text-align: center">Thank you for your enrollment!</h2><div></div></div></td>
+        <td style="padding:60px 0px 0px 0px; line-height:30px; text-align:inherit;" height="100%" valign="top" bgcolor="" role="module-content"><div><h2 style="text-align: center">Thanks for your enrollment!</h2><div></div></div></td>
       </tr>
     </tbody>
   </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="4691ce0f-58bf-408d-9cb3-87e118aa02bc" data-mc-module-version="2019-10-22">
@@ -172,7 +172,7 @@ const generateEnrollmentEmailContent = (courseId) => {
               <tbody>
                 <tr>
                 <td align="center" bgcolor="#F3BE2A" class="inner-td" style="border-radius:6px; font-size:16px; text-align:center; background-color:inherit;">
-                  <a href="https://agteach.site/courses/${courseId}/watch/overview" style="background-color:#F3BE2A; border:1px solid #F3BE2A; border-color:#F3BE2A; border-radius:6px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 18px 12px 18px; text-align:center; text-decoration:none; border-style:solid;" target="_blank">Start Leaning</a>
+                  <a href="https://agteach.site/courses/${courseId}/watch/overview" style="background-color:#F3BE2A; border:1px solid #F3BE2A; border-color:#F3BE2A; border-radius:6px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 18px 12px 18px; text-align:center; text-decoration:none; border-style:solid;" target="_blank">Start Learning</a>
                 </td>
                 </tr>
               </tbody>
