@@ -1,21 +1,5 @@
 const generatePurchasedEmailContent = (products, totalAmount) => {
   const purchasedDate = new Date().toLocaleDateString();
-  // const content = `
-  //     <p>Thank you for enrolling in the following courses:</p>
-  //     ${products
-  //       .map(
-  //         (product) => `
-  //       <div>
-  //         <p>Course: <strong>${product.name}</strong></p>
-  //         <p>Image: <img src="${product.imageUrl}" alt="${product.name}" width="100"/></p>
-  //         <p>Price per unit: $${product.price}</p>
-  //         <p>Quantity: ${product.quantity}</p>
-  //       </div>
-  //     `,
-  //       )
-  //       .join('')}
-  //     <p>Purchased Date: ${purchasedDate}</p>
-  //   `;
   const content = `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html data-editor-version="2" class="sg-campaigns" xmlns="http://www.w3.org/1999/xhtml">
