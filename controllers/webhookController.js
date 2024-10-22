@@ -207,7 +207,8 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         }),
       );
 
-      const content = generatePurchasedEmailContent(productUpdates);
+      const totalAmount = session.amount_total / 100;
+      const content = generatePurchasedEmailContent(productUpdates, totalAmount);
       await sendPurchasedEmail({ email: customerEmail, content });
       console.log(`Product Payment completed: ${session.id}`);
     }

@@ -1,4 +1,4 @@
-const generatePurchasedEmailContent = (products) => {
+const generatePurchasedEmailContent = (products, totalAmount) => {
   const purchasedDate = new Date().toLocaleDateString();
   // const content = `
   //     <p>Thank you for enrolling in the following courses:</p>
@@ -193,7 +193,7 @@ const generatePurchasedEmailContent = (products) => {
     <tbody>
       <tr>
         <td style="font-size:6px; line-height:10px; padding:0px 0px 0px 0px;" valign="top" align="center">
-          <img class="max-width" border="0" style="display:block; color:#000000; text-decoration:none; font-family:Helvetica, arial, sans-serif; font-size:16px; max-width:50% !important; width:50%; height:auto !important;" width="93" alt="" data-proportionally-constrained="true" data-responsive="true" src="http://cdn.mcauto-images-production.sendgrid.net/1fbfb976e8873f58/77cd4186-743f-4f11-8b01-126a1d6d33eb/495x512.png">
+          <img class="max-width" border="0" style="display:block; color:#000000; text-decoration:none; font-family:Helvetica, arial, sans-serif; font-size:16px; max-width:50% !important; width:50%; height:auto !important;" width="93" alt="" data-proportionally-constrained="true" data-responsive="true" src="${product.imageUrl}">
         </td>
       </tr>
     </tbody>
@@ -242,8 +242,8 @@ const generatePurchasedEmailContent = (products) => {
   </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="35c064de-ded6-47a0-ab31-5245ecdd0140" data-mc-module-version="2019-10-22">
     <tbody>
       <tr>
-        <td style="padding:30px 0px 60px 0px; line-height:22px; text-align:inherit;" height="100%" valign="top" bgcolor="" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 12px; color: #565656">Total: $$xx</span></div>
-<div style="font-family: inherit; text-align: center"><span style="font-size: 12px; color: #565656">xxxxx</span></div><div></div></div></td>
+        <td style="padding:30px 0px 60px 0px; line-height:22px; text-align:inherit;" height="100%" valign="top" bgcolor="" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 12px; color: #565656">Total: $ ${totalAmount}</span></div>
+<div style="font-family: inherit; text-align: center"><span style="font-size: 12px; color: #565656">${purchasedDate}</span></div><div></div></div></td>
       </tr>
     </tbody>
   </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="9417dba6-a547-43dc-9d2d-61a7f3465965" data-mc-module-version="2019-10-22">
