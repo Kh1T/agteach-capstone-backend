@@ -113,7 +113,6 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         },
       );
 
-      console.log("I'm Lookin Line Items", lineItems);
 
       // Fetch productId and quantity from the lineItems
       const productUpdates = lineItems.data.map((item) => ({
@@ -124,7 +123,6 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         price: item.price.unit_amount / 100,
       }));
 
-      console.log(productUpdates)
 
       // Get only the product IDs from the productUpdates
       const productIds = productUpdates.map((item) => item.productId);
