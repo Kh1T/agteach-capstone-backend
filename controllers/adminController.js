@@ -15,6 +15,7 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
   const admin = await UserAccount.findOne({
     where: {
       role: 'admin',
+      userUid: req.user.userUid,
     },
   });
   res.status(200).json({
