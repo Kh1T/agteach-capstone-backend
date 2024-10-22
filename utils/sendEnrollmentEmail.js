@@ -1,17 +1,16 @@
 const sgMail = require('@sendgrid/mail');
 
-const sendEnrollmentEmail = ({ email, subject, content }) => {
+const sendEnrollmentEmail = ({ email, content }) => {
+  const subject = 'Course Enrollment Successful';
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  console.log("I'm looking at this: ", process.env.SENDGRID_API_KEY);
-  
+
   const msg = {
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: subject,
+    subject,
     html: content,
   };
 
-  console.log("I'm looking at this: ", msg);
   sgMail
     .send(msg)
     .then(() => {
