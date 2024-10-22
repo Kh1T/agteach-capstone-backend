@@ -75,6 +75,7 @@ exports.updateMe = (Model) =>
       'lastName',
       'address',
       'phone',
+      'bio',
       'dateOfBirth',
       'locationId',
     );
