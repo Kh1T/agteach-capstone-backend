@@ -35,6 +35,7 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
         'lastName',
         'dateOfBirth',
         'imageUrl',
+        'bio',
       ],
       include: {
         model: Location,
