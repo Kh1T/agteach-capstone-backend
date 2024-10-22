@@ -1,6 +1,7 @@
 const { col, fn, Op } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const Instructor = require('../models/instructorModel');
+const Location = require('../models/locationModel');
 const Course = require('../models/courseModel');
 const Product = require('../models/productModel');
 
@@ -14,6 +15,12 @@ const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const Customer = require('../models/customerModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 
+const {
+  getInstructorOverviewSales,
+  getInstructorProductTopSales,
+  getInstructorCourseTopSales,
+} = require('../utils/findTopSales');
+
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
 
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
@@ -26,10 +33,13 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
         'address',
         'firstName',
         'lastName',
-        'location_id',
         'dateOfBirth',
         'imageUrl',
       ],
+      include: {
+        model: Location,
+        attributes: ['locationId', 'name'],
+      },
     },
   ],
 });
@@ -232,5 +242,40 @@ exports.getRecentTransations = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: { course: courseSaleHistory, product: productSaleHistory },
+  });
+});
+
+// Dashboard
+exports.getInstructorOverviewSales = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+  const instructorOverviewSales =
+    await getInstructorOverviewSales(instructorId);
+
+  res.status(200).json({
+    status: 'success',
+    length: instructorOverviewSales.length,
+    data: instructorOverviewSales,
+  });
+});
+
+exports.getInstructorProductTopSales = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+  const productTopSales = await getInstructorProductTopSales(instructorId);
+
+  res.status(200).json({
+    status: 'success',
+    length: productTopSales.length,
+    data: productTopSales,
+  });
+});
+
+exports.getInstructorCourseTopSales = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+  const courseTopSales = await getInstructorCourseTopSales(instructorId);
+
+  res.status(200).json({
+    status: 'success',
+    length: courseTopSales.length,
+    data: courseTopSales,
   });
 });

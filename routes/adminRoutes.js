@@ -10,6 +10,7 @@ router.use(authController.protect);
 router.get('/getAdminInfo', adminController.getAdminInfo);
 
 router.get('/getAllInstructors', adminController.getAllInstructor);
+router.get("/getAllCustomers", adminController.getAllCustomers);
 
 //Categories
 router.get('/getAllCategories', adminController.getAllCategories);

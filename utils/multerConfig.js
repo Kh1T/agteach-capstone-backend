@@ -37,7 +37,7 @@ const videoFilter = (req, file, cb) => {
   }
 };
 
-const uploadCourseVideos = multer({
+const uploadCourseVideosMulter = multer({
   storage: multerStorage,
   fileFilter: videoFilter,
   limits: {
@@ -48,5 +48,5 @@ const uploadCourseVideos = multer({
 module.exports = {
   uploadProfileImage,
   uploadProductImages,
-  uploadCourseVideos,
+  uploadCourseVideosMulter,
 };
