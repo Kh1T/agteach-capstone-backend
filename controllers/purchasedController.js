@@ -2,6 +2,7 @@ const { fn, col, Op, QueryTypes } = require('sequelize');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Customer = require('../models/customerModel');
 const ProductCategory = require('../models/productCategoryModel');
+const Purchased = require('../models/purchasedModel');
 const ProductSaleHistory = require('../models/productSaleHistoryModel');
 const PurchasedDetail = require('../models/purchasedDetailModel');
 
@@ -168,11 +169,15 @@ exports.updateDeliver = catchAsync(async (req, res, next) => {
     { isDelivered: true },
     { where: { purchasedId } },
   );
+  const purchased = await Purchased.findOne({
+    where: { purchasedId },
+  });
 
   await sendEmail(req.user, {
     templateId: process.env.DELIVER_EMAIL_TEMPLATE_ID,
     subject: 'Your order has been delivered',
     customerEmail: req.body.customerEmail,
+    purchased,
   });
 
   res.status(204).json({ status: 'success', data: productSaleHistory });
