@@ -1,8 +1,9 @@
 const sgMail = require('@sendgrid/mail');
 
-const sendEnrollmentEmail = async ({ email, subject, content }) => {
+const sendEnrollmentEmail = ({ email, subject, content }) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   console.log("I'm looking at this: ", process.env.SENDGRID_API_KEY);
+  
   const msg = {
     from: process.env.EMAIL_FROM,
     to: email,
@@ -11,7 +12,7 @@ const sendEnrollmentEmail = async ({ email, subject, content }) => {
   };
 
   console.log("I'm looking at this: ", msg);
-  await sgMail
+  sgMail
     .send(msg)
     .then(() => {
       console.log('Email sent successfully');

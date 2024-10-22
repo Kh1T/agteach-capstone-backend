@@ -107,7 +107,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
 
       const subject = 'Course Enrollment Successful';
       const content = `<p>Thank you for enrolling in the course! Course ID: ${courseId}</p>`;
-      await sendEnrollmentEmail(customerEmail, subject, content);
+      await sendEnrollmentEmail({ email: customerEmail, subject, content });
     }
     if (session.metadata.type === 'product') {
       const { customerId } = session.metadata;
