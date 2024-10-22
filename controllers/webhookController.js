@@ -119,7 +119,12 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       const productUpdates = lineItems.data.map((item) => ({
         productId: item.price.product.metadata.product_id,
         quantity: item.quantity,
+        name: item.price.product.name,
+        imageUrl: item.price.product.images[0],
+        price: item.price.unit_amount / 100,
       }));
+
+      console.log(productUpdates)
 
       // Get only the product IDs from the productUpdates
       const productIds = productUpdates.map((item) => item.productId);
