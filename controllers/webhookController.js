@@ -86,7 +86,10 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const customerEmail = session.customer_details.email
+    const customerEmail = session.customer_details.email;
+
+    console.log("I'm looking at", session);
+    console.log("I'm looking at", customerEmail);
 
     if (session.metadata.type === 'course') {
       const { courseId, instructorId, customerId } = session.metadata;
@@ -97,7 +100,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         customerId,
         session.amount_total / 100,
       );
-      
+
       createEnrollment(courseId, customerId);
 
       console.log(`Course Payment completed for session: ${session.id}`);
@@ -105,7 +108,6 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       const subject = 'Course Enrollment Successful';
       const content = `<p>Thank you for enrolling in the course! Course ID: ${courseId}</p>`;
       await sendEnrollmentEmail(customerEmail, subject, content);
-
     }
     if (session.metadata.type === 'product') {
       const { customerId } = session.metadata;
