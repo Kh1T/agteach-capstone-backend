@@ -237,9 +237,7 @@ const generateEnrollmentEmailContent = (courseId) => {
     </body>
   </html>`;
   // Generate and return the email content
-  return `<p>Thank you for enrolling in AgTeach course.</p>
-            <p>Course ID: ${courseId}</p>
-            <p>Enrollment Date: ${enrollmentDate}</p>`;
+  return content;
 };
 
 module.exports = generateEnrollmentEmailContent;
