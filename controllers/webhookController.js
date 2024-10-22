@@ -11,6 +11,8 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEnrollmentEmail = require('../utils/sendEnrollmentEmail');
 const generateEnrollmentEmailContent = require('../utils/enrollmentEmailContent');
+const generatePurchasedEmailContent = require('../utils/purchasedEmailContent');
+const sendPurchasedEmail = require('../utils/sendPurchasedEmail');
 
 /**
  * Create a Course Sale History record in the DB.
@@ -113,7 +115,6 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         },
       );
 
-
       // Fetch productId and quantity from the lineItems
       const productUpdates = lineItems.data.map((item) => ({
         productId: item.price.product.metadata.product_id,
@@ -122,7 +123,6 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         imageUrl: item.price.product.images[0],
         price: item.price.unit_amount / 100,
       }));
-
 
       // Get only the product IDs from the productUpdates
       const productIds = productUpdates.map((item) => item.productId);
@@ -207,6 +207,8 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         }),
       );
 
+      const content = generatePurchasedEmailContent(productUpdates);
+      await sendPurchasedEmail({ email: customerEmail, content });
       console.log(`Product Payment completed: ${session.id}`);
     }
   }
