@@ -113,6 +113,8 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         },
       );
 
+      console.log("I'm Lookin Line Items", lineItems);
+
       // Fetch productId and quantity from the lineItems
       const productUpdates = lineItems.data.map((item) => ({
         productId: item.price.product.metadata.product_id,
