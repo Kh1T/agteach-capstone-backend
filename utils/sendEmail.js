@@ -2,11 +2,12 @@ const sgMail = require('@sendgrid/mail');
 
 const sendEmail = ({ email, emailVerifyCode, username }, options) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const { customerEmail } = options;
 
   // Generate verification code
   const code = options.code ? options.code : emailVerifyCode;
   const msg = {
-    to: email,
+    to: customerEmail || email,
     from: process.env.EMAIL_FROM,
     subject: options.subject,
     templateId: options.templateId,

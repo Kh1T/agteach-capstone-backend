@@ -9,6 +9,7 @@ const AppError = require('../utils/appError');
 const sequelize = require('../config/db');
 const catchAsync = require('../utils/catchAsync');
 const Product = require('../models/productModel');
+const sendEmail = require('../utils/sendEmail');
 // const { raw } = require('express');
 
 const REDIRECT_DOMAIN = 'https://agteach.site';
@@ -167,6 +168,12 @@ exports.updateDeliver = catchAsync(async (req, res, next) => {
     { isDelivered: true },
     { where: { purchasedId } },
   );
+
+  await sendEmail(req.user, {
+    templateId: process.env.DELIVER_EMAIL_TEMPLATE_ID,
+    subject: 'Your order has been delivered',
+    customerEmail: req.body.customerEmail,
+  });
 
   res.status(204).json({ status: 'success', data: productSaleHistory });
 });
