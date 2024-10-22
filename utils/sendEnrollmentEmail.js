@@ -10,6 +10,7 @@ const sendEnrollmentEmail = ({ email, content }) => {
     subject,
     html: content,
   };
+  console.log(msg);
 
   sgMail
     .send(msg)
