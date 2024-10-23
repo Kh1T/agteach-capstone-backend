@@ -166,10 +166,10 @@ exports.sortData = (Model) =>
 
 exports.SearchData = (Model) =>
   catchAsync(async (req, res, next) => {
-    const { name, order, page = 1, limit = 20 } = req.query;
+    const { name, order, page = 1, limit = 20, category } = req.query;
 
     // Initialize options object for the query
-    let options = {};
+    let options = { where: {} };
 
     if (page) {
       const offset = (page - 1) * limit;
@@ -180,15 +180,17 @@ exports.SearchData = (Model) =>
 
     // Add search condition if "name" query exists
     if (name) {
-      options.where = { name: { [Op.iLike]: `%${name}%` } };
+      options.where.name = { [Op.iLike]: `%${name}%` };
+    }
+
+    if (category) {
+      options.where.categoryId = category;
     }
 
     // Add sorting condition if "order" query exists
     if (order) {
       options.order = [['createdAt', order]];
     }
-
-    console.log(options);
 
     // Fetch data from the Model based on options
     const data = await Model.findAll(options);
