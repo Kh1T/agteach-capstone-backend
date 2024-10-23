@@ -111,7 +111,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
     await handleAddUpdateCoverImage(product, req.files.productCover);
   }
 
-  if (req.files.productImages.length > 0) {
+  if (req.files?.productImages?.length > 0) {
     await handleAddUpdateAdditionalImages(
       'edit',
       product.productId,
