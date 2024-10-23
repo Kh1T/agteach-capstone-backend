@@ -9,10 +9,9 @@ const PurchasedDetail = require('../models/purchasedDetailModel');
 const Purchased = require('../models/purchasedModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const sendEnrollmentEmail = require('../utils/sendEnrollmentEmail');
+const sendPaymentEmail = require('../utils/sendPaymentEmail');
 const generateEnrollmentEmailContent = require('../utils/enrollmentEmailContent');
 const generatePurchasedEmailContent = require('../utils/purchasedEmailContent');
-const sendPurchasedEmail = require('../utils/sendPurchasedEmail');
 
 /**
  * Create a Course Sale History record in the DB.
@@ -104,7 +103,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       createEnrollment(courseId, customerId);
 
       const content = generateEnrollmentEmailContent(courseId);
-      await sendEnrollmentEmail({ email: customerEmail, content });
+      await sendPaymentEmail({ email: customerEmail, content, subject: 'Course Enrolled Successfully - AgTeach' });
     }
     if (session.metadata.type === 'product') {
       const { customerId } = session.metadata;
@@ -209,7 +208,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
 
       const totalAmount = session.amount_total / 100;
       const content = generatePurchasedEmailContent(productUpdates, totalAmount);
-      await sendPurchasedEmail({ email: customerEmail, content });
+      await sendPaymentEmail({ email: customerEmail, content, subject: 'Payment Successfully - AgTeach' });
       console.log(`Product Payment completed: ${session.id}`);
     }
   }
