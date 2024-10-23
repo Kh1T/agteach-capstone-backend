@@ -67,7 +67,7 @@ Product.saveAdditionalImages = async function (
 
 // Delete Product after destroy
 Product.afterDestroy(async (product) => {
-    await deleteFolderS3(product.productId, 'products');
-  });
+  await deleteFolderS3(product.productId, 'products');
+});
 
 module.exports = Product;
