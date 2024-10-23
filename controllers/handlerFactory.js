@@ -171,7 +171,7 @@ exports.SearchData = (Model) =>
     // Initialize options object for the query
     let options = {};
 
-    if (req.query.page) {
+    if (page) {
       const offset = (page - 1) * limit;
 
       options.offset = Number(offset);
@@ -187,6 +187,8 @@ exports.SearchData = (Model) =>
     if (order) {
       options.order = [['createdAt', order]];
     }
+
+    console.log(options);
 
     // Fetch data from the Model based on options
     const data = await Model.findAll(options);

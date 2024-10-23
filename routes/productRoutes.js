@@ -17,7 +17,6 @@ router.get('/getInstructorProduct', productController.getInstructorProduct);
 
 router.delete('/deleteOneProduct/:id', productController.deleteOne);
 router.get('/searchData', productController.searchData);
-router.get('/sortData', productController.sortData);
 router.post(
   '/createProduct',
   uploadProductImages,

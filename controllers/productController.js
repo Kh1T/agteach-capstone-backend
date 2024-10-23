@@ -18,7 +18,6 @@ const {
 
 exports.getAll = handleFactory.getAll(Product);
 exports.deleteOne = handleFactory.deleteOne(Product);
-exports.sortData = handleFactory.sortData(Product);
 exports.searchData = handleFactory.SearchData(Product);
 
 exports.recommendProduct = handleFactory.recommendItems(
