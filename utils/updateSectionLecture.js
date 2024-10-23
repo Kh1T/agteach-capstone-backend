@@ -4,9 +4,9 @@ const Section = require('../models/sectionModel');
 const { uploadVideoToS3 } = require('./uploadMiddleware');
 const s3Client = require('../config/s3Connection');
 
-const deleteFromS3 = async (filename) => {
+const deleteVideoFromS3 = async (filename) => {
   const input = {
-    Bucket: process.env.AWS_S3_ASSET_BUCKET, // your bucket name
+    Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET, // your bucket name
     Key: filename, // file path
   };
 
@@ -134,7 +134,7 @@ exports.processLectures = async (
               process.env.AWS_S3_BUCKET_URL,
               '',
             ); // Get S3 key
-            await deleteFromS3(filename); // Delete from S3
+            await deleteVideoFromS3(filename); // Delete from S3
           }
         }),
       );
