@@ -5,15 +5,16 @@ const adminController = require('../controllers/adminController');
 
 const router = express.Router();
 
+router.get('/getAllCategories', adminController.getAllCategories);
+
 router.use(authController.protect);
 
 router.get('/getAdminInfo', adminController.getAdminInfo);
 
 router.get('/getAllInstructors', adminController.getAllInstructor);
-router.get("/getAllCustomers", adminController.getAllCustomers);
+router.get('/getAllCustomers', adminController.getAllCustomers);
 
 //Categories
-router.get('/getAllCategories', adminController.getAllCategories);
 router.get('/getCategory/:id', adminController.getCategory);
 router.get('/searchCategory', adminController.searchCategory);
 router.post('/createCategory', adminController.createCategory);
