@@ -1,5 +1,10 @@
 const sharp = require('sharp');
-const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const {
+  PutObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+} = require('@aws-sdk/client-s3');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
@@ -35,13 +40,6 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
     Body: buffer,
     ContentType: 'image/jpeg',
   };
-
-  await s3Client.send(
-    new DeleteObjectCommand({
-      Bucket: process.env.AWS_S3_ASSET_BUCKET,
-      Key: req.file.filename,
-    }),
-  );
 
   await s3Client.send(new PutObjectCommand(input));
   req.file.filename = process.env.AWS_S3_BUCKET_URL + req.file.filename;
@@ -83,6 +81,7 @@ const resizeUplaodCourseThumbail = catchAsync(
     await currentCourse.save();
   },
 );
+
 
 const uploadCourseVideos = async (currentLectures, options) => {
   if (!options.files) return;
@@ -126,9 +125,45 @@ const uploadCourseVideos = async (currentLectures, options) => {
   await Promise.all(lecturePromises);
 };
 
+/**
+ *
+ *
+ * @param {*} id product id or course id
+ * @param {string} [type='products' | 'courses']
+ * @return {*}
+ */
+const deleteFolderS3 = async (id, type = 'products') => {
+  const listCommand = new ListObjectsV2Command({
+    Bucket:
+      type === 'course'
+        ? process.env.AWS_S3_ASSET_COURSE_BUCKET
+        : process.env.AWS_S3_ASSET_BUCKET, // the bucket
+    Prefix: `${type}/${id}`, // the 'folder' courses/id products/id
+  });
+  const list = await s3Client.send(listCommand); // get the list
+
+  if (list.KeyCount) {
+    // if items to delete
+    // delete the files
+    const deleteCommand = new DeleteObjectsCommand({
+      Bucket:
+        type === 'course'
+          ? process.env.AWS_S3_ASSET_COURSE_BUCKET
+          : process.env.AWS_S3_ASSET_BUCKET,
+      Delete: {
+        Objects: list.Contents.map((item) => ({ Key: item.Key })), // array of keys to be deleted
+        Quiet: false, // provides info on successful deletes
+      },
+    });
+    const deleted = await s3Client.send(deleteCommand); // delete the files
+    return `${deleted.Deleted.length} files deleted.`;
+  }
+};
+
 module.exports = {
   resizeUploadProfileImage,
   resizeUplaodCourseThumbail,
   uploadCourseVideos,
   uploadVideoToS3,
+  deleteFolderS3,
 };

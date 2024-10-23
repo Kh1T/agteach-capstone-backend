@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const ProductImage = require('./productImageModel');
+const { deleteFolderS3 } = require('../utils/uploadMiddleware');
 
 const Product = sequelize.define('product', {
   productId: {
@@ -63,4 +64,10 @@ Product.saveAdditionalImages = async function (
     ),
   );
 };
+
+// Delete Product after destroy
+Product.afterDestroy(async (product) => {
+    await deleteFolderS3(product.productId, 'products');
+  });
+
 module.exports = Product;
