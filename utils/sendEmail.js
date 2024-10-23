@@ -3,14 +3,15 @@ const sgMail = require('@sendgrid/mail');
 const sendEmail = ({ email, emailVerifyCode, username }, options) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   const { customerEmail, purchased } = options;
-  const createdPurchasedAt = new Date(purchased.createdAt).toLocaleDateString(
-    'en-US',
-    {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    },
-  );
+  const createdPurchasedAt = new Date(
+    purchased ? purchased.createdAt : Date.now(),
+  ).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const productPurchasedId = purchased ? purchased.purchasedId : 'N/A';
+
   // Generate verification code
   const code = options.code ? options.code : emailVerifyCode;
   const msg = {
@@ -19,11 +20,11 @@ const sendEmail = ({ email, emailVerifyCode, username }, options) => {
     subject: options.subject,
     templateId: options.templateId,
     dynamicTemplateData: {
-      username: username || "N/A",
+      username: username || 'N/A',
       code,
       verificationCode: emailVerifyCode,
-      purchasedId: purchased.purchasedId,
-      createdPurchasedAt: createdPurchasedAt || 'N/A',
+      purchasedId: productPurchasedId,
+      createdPurchasedAt: createdPurchasedAt,
     },
   };
   sgMail
