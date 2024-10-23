@@ -45,16 +45,9 @@ const purchasedRouter = require('./routes/purchasedRoutes');
 const cartRouter = require('./routes/cartRoutes');
 const paymentRouter = require('./routes/paymentRoutes');
 
-// app.use(authController.isLoginedIn);
 app.use('/webhook', webhookRoutes);
 app.use(express.json());
 app.use(cookieParser());
-
-app.get('/', async (req, res) => {
-  const all = await SectionLecture.findAll();
-
-  res.status(200).json({ all });
-});
 
 // Routes
 app.use('/api/users', userRouter);
