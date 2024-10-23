@@ -75,5 +75,5 @@ Course.afterUpdate(async (course, options) => {
 });
 
 Course.afterDestroy(async (course) => {
-  await deleteFolderS3(course.courseId, 'courses');
+  console.log(await deleteFolderS3(course.courseId, 'courses'))
 });
