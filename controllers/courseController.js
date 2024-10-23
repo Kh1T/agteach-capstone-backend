@@ -33,8 +33,15 @@ exports.recommendCourse = handleFactory.recommendItems(
 exports.getInstructorCourse = handleFactory.getUserItems(Course, Instructor);
 
 exports.getOne = catchAsync(async (req, res, next) => {
+  let instructor = {};
+
+  if (req.user) {
+    const { instructorId } = req.memberData;
+    instructor = { instructorId };
+  }
+
   const course = await Course.findOne({
-    where: { courseId: req.params.id },
+    where: { courseId: req.params.id, ...instructor },
     include: [
       {
         model: Section,
@@ -48,6 +55,11 @@ exports.getOne = catchAsync(async (req, res, next) => {
       [Section, { model: Lecture }, 'lectureId', 'ASC'],
     ],
   });
+
+  if (!course) {
+    return next(new AppError('Course not found', 404));
+  }
+
   res.status(200).json({
     status: 'success',
     data: course,

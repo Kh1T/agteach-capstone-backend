@@ -18,6 +18,12 @@ router.delete('/deleteOneCourse/:id', courseController.deleteOne);
 router.use(authController.protect);
 router.use(uploadCourseVideosMulter.any());
 
+router.get(
+  '/getOneCourseDetail/:id',
+  instructorController.fetchInstructor,
+  courseController.getOne,
+);
+
 router.get('/getInstructorCourse', courseController.getInstructorCourse);
 router.get(
   '/getEnrollmentCourse/:id',
