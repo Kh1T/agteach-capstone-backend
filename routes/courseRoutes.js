@@ -29,7 +29,7 @@ router.get(
   '/getEnrollmentCourse/:id',
   customerController.fetchCustomer,
   enrollmentController.checkCourseEnroll,
-  courseController.getOne,
+  courseController.getCourseVideo,
 );
 
 router.post(
