@@ -9,6 +9,9 @@ const PurchasedDetail = require('../models/purchasedDetailModel');
 const Purchased = require('../models/purchasedModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const sendPaymentEmail = require('../utils/sendPaymentEmail');
+const generateEnrollmentEmailContent = require('../utils/enrollmentEmailContent');
+const generatePurchasedEmailContent = require('../utils/purchasedEmailContent');
 
 /**
  * Create a Course Sale History record in the DB.
@@ -85,6 +88,8 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    const customerEmail = session.customer_details.email;
+
     if (session.metadata.type === 'course') {
       const { courseId, instructorId, customerId } = session.metadata;
 
@@ -94,9 +99,11 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         customerId,
         session.amount_total / 100,
       );
+
       createEnrollment(courseId, customerId);
 
-      console.log(`Course Payment completed for session: ${session.id}`);
+      const content = generateEnrollmentEmailContent(courseId);
+      await sendPaymentEmail({ email: customerEmail, content, subject: 'Course Enrolled Successfully - AgTeach' });
     }
     if (session.metadata.type === 'product') {
       const { customerId } = session.metadata;
@@ -111,6 +118,9 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       const productUpdates = lineItems.data.map((item) => ({
         productId: item.price.product.metadata.product_id,
         quantity: item.quantity,
+        name: item.price.product.name,
+        imageUrl: item.price.product.images[0],
+        price: item.price.unit_amount / 100,
       }));
 
       // Get only the product IDs from the productUpdates
@@ -196,7 +206,10 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
         }),
       );
 
-      console.log(`Product Payment completed: ${session.id}`);
+      const totalAmount = session.amount_total / 100;
+      const content = generatePurchasedEmailContent(productUpdates, totalAmount);
+      await sendPaymentEmail({ email: customerEmail, content, subject: 'Payment Successfully - AgTeach' });
+      console.log(`Product Payment completed`);
     }
   }
   res.status(200).json({ received: true });
