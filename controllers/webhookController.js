@@ -209,7 +209,7 @@ exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
       const totalAmount = session.amount_total / 100;
       const content = generatePurchasedEmailContent(productUpdates, totalAmount);
       await sendPaymentEmail({ email: customerEmail, content, subject: 'Payment Successfully - AgTeach' });
-      console.log(`Product Payment completed: ${session.id}`);
+      console.log(`Product Payment completed`);
     }
   }
   res.status(200).json({ received: true });
