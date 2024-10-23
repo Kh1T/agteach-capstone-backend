@@ -1,7 +1,7 @@
 const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const Lecture = require('../models/lectureModel');
 const Section = require('../models/sectionModel');
-const { uploadToS3 } = require('./uploadMiddleware');
+const { uploadVideoToS3 } = require('./uploadMiddleware');
 const s3Client = require('../config/s3Connection');
 
 const deleteFromS3 = async (filename) => {
@@ -94,7 +94,7 @@ exports.processLectures = async (
             // update video to S3 when there is a new video
             if (videoFile) {
               const filename = `courses/${id}/section-${section.sectionId}/lecture-${lecture.lectureId}.mp4`;
-              uploadToS3(filename, videoFile.buffer);
+              uploadVideoToS3(filename, videoFile.buffer);
             }
 
             updateLectures.push({

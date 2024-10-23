@@ -5,10 +5,10 @@ const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const AppError = require('./appError');
 
-const uploadToS3 = catchAsync(async (filename, body) => {
+const uploadVideoToS3 = catchAsync(async (filename, body) => {
   if (!body) return new AppError('There is no body to upload to', 400);
   const input = {
-    Bucket: process.env.AWS_S3_ASSET_BUCKET,
+    Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
     Key: filename,
     Body: body,
   };
@@ -52,7 +52,7 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 // This function will use in the after create course to get courseId
 const resizeUplaodCourseThumbail = catchAsync(
   async (currentCourse, options) => {
-    const url = process.env.AWS_S3_BUCKET_URL;
+    const url = process.env.AWS_S3_COURSE_BUCKET_URL;
     const filename = `courses/${currentCourse.courseId}/thumbnail.jpeg`;
     const thumbnailFile = options.files.find(
       (file) => file.fieldname === `thumbnailUrl`,
@@ -65,7 +65,7 @@ const resizeUplaodCourseThumbail = catchAsync(
       .toBuffer();
 
     const input = {
-      Bucket: process.env.AWS_S3_ASSET_BUCKET,
+      Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
       Key: filename,
       Body: buffer,
       ContentType: 'image/jpeg',
@@ -73,7 +73,7 @@ const resizeUplaodCourseThumbail = catchAsync(
 
     await s3Client.send(
       new DeleteObjectCommand({
-        Bucket: process.env.AWS_S3_ASSET_BUCKET,
+        Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
         Key: filename,
       }),
     );
@@ -88,7 +88,7 @@ const uploadCourseVideos = async (currentLectures, options) => {
   if (!options.files) return;
 
   // Create section and lecture index mappings
-  const url = process.env.AWS_S3_BUCKET_URL;
+  const url = process.env.AWS_S3_COURSE_BUCKET_URL;
 
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
     let sectionIdx;
@@ -117,7 +117,7 @@ const uploadCourseVideos = async (currentLectures, options) => {
     }
 
     if (videoFile) {
-      uploadToS3(filename, videoFile.buffer);
+      uploadVideoToS3(filename, videoFile.buffer);
     }
 
     lecture.videoUrl = url + filename;
@@ -130,5 +130,5 @@ module.exports = {
   resizeUploadProfileImage,
   resizeUplaodCourseThumbail,
   uploadCourseVideos,
-  uploadToS3,
+  uploadVideoToS3,
 };
