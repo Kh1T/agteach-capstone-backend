@@ -200,8 +200,6 @@ exports.getEnrollmentDetail = catchAsync(async (req, res, next) => {
 exports.getCustomerEnrollments = catchAsync(async (req, res, next) => {
   const { customerId } = req.memberData;
 
-  // const customerId = 132;
-
   const enrollments = await Enroll.findAll({
     where: { customerId },
     attributes: [
@@ -210,14 +208,19 @@ exports.getCustomerEnrollments = catchAsync(async (req, res, next) => {
       col('course.instructor.first_name'),
       col('course.instructor.last_name'),
       col('course.thumbnail_url'),
+      col('course.created_at'),
     ],
     include: [
       {
         model: Course,
         attributes: [],
-        include: { model: Instructor, attributes: [] },
+        include: {
+          model: Instructor,
+          attributes: [],
+        },
       },
     ],
+    order: [[col('course.created_at'), 'DESC']],
     raw: true,
   });
 
