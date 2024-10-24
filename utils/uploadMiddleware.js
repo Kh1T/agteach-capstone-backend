@@ -1,14 +1,19 @@
 const sharp = require('sharp');
-const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const {
+  PutObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+} = require('@aws-sdk/client-s3');
 
 const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const AppError = require('./appError');
 
-const uploadToS3 = catchAsync(async (filename, body) => {
+const uploadVideoToS3 = catchAsync(async (filename, body) => {
   if (!body) return new AppError('There is no body to upload to', 400);
   const input = {
-    Bucket: process.env.AWS_S3_ASSET_BUCKET,
+    Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
     Key: filename,
     Body: body,
   };
@@ -36,13 +41,6 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
     ContentType: 'image/jpeg',
   };
 
-  await s3Client.send(
-    new DeleteObjectCommand({
-      Bucket: process.env.AWS_S3_ASSET_BUCKET,
-      Key: req.file.filename,
-    }),
-  );
-
   await s3Client.send(new PutObjectCommand(input));
   req.file.filename = process.env.AWS_S3_BUCKET_URL + req.file.filename;
   next();
@@ -52,7 +50,7 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 // This function will use in the after create course to get courseId
 const resizeUplaodCourseThumbail = catchAsync(
   async (currentCourse, options) => {
-    const url = process.env.AWS_S3_BUCKET_URL;
+    const url = process.env.AWS_S3_COURSE_BUCKET_URL;
     const filename = `courses/${currentCourse.courseId}/thumbnail.jpeg`;
     const thumbnailFile = options.files.find(
       (file) => file.fieldname === `thumbnailUrl`,
@@ -65,7 +63,7 @@ const resizeUplaodCourseThumbail = catchAsync(
       .toBuffer();
 
     const input = {
-      Bucket: process.env.AWS_S3_ASSET_BUCKET,
+      Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
       Key: filename,
       Body: buffer,
       ContentType: 'image/jpeg',
@@ -73,7 +71,7 @@ const resizeUplaodCourseThumbail = catchAsync(
 
     await s3Client.send(
       new DeleteObjectCommand({
-        Bucket: process.env.AWS_S3_ASSET_BUCKET,
+        Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
         Key: filename,
       }),
     );
@@ -84,11 +82,12 @@ const resizeUplaodCourseThumbail = catchAsync(
   },
 );
 
+
 const uploadCourseVideos = async (currentLectures, options) => {
   if (!options.files) return;
 
   // Create section and lecture index mappings
-  const url = process.env.AWS_S3_BUCKET_URL;
+  const url = process.env.AWS_S3_COURSE_BUCKET_URL;
 
   const lecturePromises = currentLectures.map(async (lecture, idx) => {
     let sectionIdx;
@@ -117,7 +116,7 @@ const uploadCourseVideos = async (currentLectures, options) => {
     }
 
     if (videoFile) {
-      uploadToS3(filename, videoFile.buffer);
+      uploadVideoToS3(filename, videoFile.buffer);
     }
 
     lecture.videoUrl = url + filename;
@@ -126,9 +125,45 @@ const uploadCourseVideos = async (currentLectures, options) => {
   await Promise.all(lecturePromises);
 };
 
+/**
+ *
+ *
+ * @param {*} id product id or course id
+ * @param {string} [type='products' | 'courses']
+ * @return {*}
+ */
+const deleteFolderS3 = async (id, type = 'products') => {
+  const listCommand = new ListObjectsV2Command({
+    Bucket:
+      type === 'course'
+        ? process.env.AWS_S3_ASSET_COURSE_BUCKET
+        : process.env.AWS_S3_ASSET_BUCKET, // the bucket
+    Prefix: `${type}/${id}`, // the 'folder' courses/id products/id
+  });
+  const list = await s3Client.send(listCommand); // get the list
+
+  if (list.KeyCount) {
+    // if items to delete
+    // delete the files
+    const deleteCommand = new DeleteObjectsCommand({
+      Bucket:
+        type === 'course'
+          ? process.env.AWS_S3_ASSET_COURSE_BUCKET
+          : process.env.AWS_S3_ASSET_BUCKET,
+      Delete: {
+        Objects: list.Contents.map((item) => ({ Key: item.Key })), // array of keys to be deleted
+        Quiet: false, // provides info on successful deletes
+      },
+    });
+    const deleted = await s3Client.send(deleteCommand); // delete the files
+    return `${deleted.Deleted.length} files deleted.`;
+  }
+};
+
 module.exports = {
   resizeUploadProfileImage,
   resizeUplaodCourseThumbail,
   uploadCourseVideos,
-  uploadToS3,
+  uploadVideoToS3,
+  deleteFolderS3,
 };

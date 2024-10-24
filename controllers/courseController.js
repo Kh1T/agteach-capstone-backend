@@ -155,6 +155,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     courseObjective,
     ProductSuggestionId,
     allSection,
+    numberOfVideo,
     totalDuration,
   } = req.body;
 
@@ -178,6 +179,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
         price,
         duration: totalDuration,
         courseObjective,
+        numberOfVideo,
       },
       { files: req.files, transaction },
     );
