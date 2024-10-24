@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const { resizeUplaodCourseThumbail } = require('../utils/uploadMiddleware');
+const { resizeUplaodCourseThumbail, deleteFolderS3 } = require('../utils/uploadMiddleware');
 
 const Course = sequelize.define('course', {
   courseId: {
@@ -74,3 +74,6 @@ Course.afterUpdate(async (course, options) => {
   resizeUplaodCourseThumbail(course, options);
 });
 
+Course.afterDestroy(async (course) => {
+  console.log(await deleteFolderS3(course.courseId, 'courses'))
+});
