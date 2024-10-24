@@ -362,7 +362,8 @@ exports.isLoginedIn = async (req, res, next) => {
       res.json({
         status: 'success',
         message: 'You are logged in',
-        user: currentUser,
+        email: currentUser.email,
+        IsVerify: currentUser.isVerify,
         IsAuthenticated: true,
       });
     } else {
