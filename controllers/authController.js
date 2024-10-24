@@ -21,16 +21,17 @@ const createSendToken = (
   keepMeLoggedIn = false,
 ) => {
   const token = signToken(user.userUid);
-  const tokenExpiry = keepMeLoggedIn
-    ? process.env.JWT_EXPIRES_COOKIE_LONG_IN
-    : process.env.JWT_EXPIRES_COOKIE_IN;
+  const tokenExpiry = 5;
+  // const tokenExpiry = keepMeLoggedIn
+  //   ? process.env.JWT_EXPIRES_COOKIE_LONG_IN
+  //   : process.env.JWT_EXPIRES_COOKIE_IN;
 
   let domain = 'localhost';
   if (req.headers.origin)
     domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
   const cookieOption = {
-    expires: new Date(Date.now() + tokenExpiry * 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + tokenExpiry * 1000),
     httpOnly: true,
     sameSite: 'None',
     secure: true, // Add this line
