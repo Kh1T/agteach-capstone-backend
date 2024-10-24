@@ -29,7 +29,7 @@ router.get(
   '/getEnrollmentCourse/:id',
   customerController.fetchCustomer,
   enrollmentController.checkCourseEnroll,
-  courseController.getOne,
+  courseController.getCourseVideo,
 );
 
 router.post(
@@ -43,8 +43,5 @@ router.patch(
   instructorController.fetchInstructor,
   courseController.updateCourse,
 );
-
-// router.post('/uploadCourse', courseController.uploadCourse);
-// router.get('/sortData', courseController.sortData);
 
 module.exports = router;

@@ -4,6 +4,7 @@ const handleFactory = require('./handlerFactory');
 const Instructor = require('../models/instructorModel');
 const Customer = require('../models/customerModel');
 const Category = require('../models/categoryModel');
+const Location = require('../models/locationModel');
 
 const {
   getProductSalesTotals,
@@ -21,10 +22,23 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: admin,
-  })
+  });
 });
 
-exports.getAllInstructor = handleFactory.getAll(Instructor);
+exports.getAllInstructor = catchAsync(async (req, res, next) => {
+  const instructor = await Instructor.findAll({
+    include: [
+      {
+        model: Location,
+        attributes: ['locationId', 'name'],
+      },
+    ],
+  });
+  res.status(200).json({
+    status: 'success',
+    data: instructor,
+  });
+});
 exports.getAllCustomers = handleFactory.getAll(Customer);
 
 //Categories
