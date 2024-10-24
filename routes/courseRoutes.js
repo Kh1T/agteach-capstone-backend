@@ -44,7 +44,4 @@ router.patch(
   courseController.updateCourse,
 );
 
-// router.post('/uploadCourse', courseController.uploadCourse);
-// router.get('/sortData', courseController.sortData);
-
 module.exports = router;
