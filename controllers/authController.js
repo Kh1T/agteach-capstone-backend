@@ -363,7 +363,7 @@ exports.isLoginedIn = async (req, res, next) => {
         status: 'success',
         message: 'You are logged in',
         user: currentUser,
-        isVerify: currentUser.isVerify,
+        IsVerify: currentUser.isVerify,
         IsAuthenticated: true,
       });
     } else {
