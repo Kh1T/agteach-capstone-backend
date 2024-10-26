@@ -208,7 +208,7 @@ exports.getCustomerEnrollments = catchAsync(async (req, res, next) => {
       col('course.instructor.first_name'),
       col('course.instructor.last_name'),
       col('course.thumbnail_url'),
-      col('course.created_at'),
+      col('enroll.created_at'),
     ],
     include: [
       {
@@ -220,7 +220,7 @@ exports.getCustomerEnrollments = catchAsync(async (req, res, next) => {
         },
       },
     ],
-    order: [[col('course.created_at'), 'DESC']],
+    order: [[col('enroll.created_at'), 'DESC']],
     raw: true,
   });
 
