@@ -114,7 +114,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
             name: name,
             images: [thumbnailUrl],
           },
-          unit_amount: price * 100, // amount in cents
+          unit_amount: Math.round(price * 100), // amount in cents
         },
         quantity: 1,
       },
