@@ -100,6 +100,7 @@ project-root/
 | **Panha Phosda**     | Front-end            |
 | **Chiv Sovanchitra** | Front-end            |
 | **Rith Sohak Neadh** | Front-end            |
+| **Pann Senglay** | Front-end            |
 
 ## Usage
 

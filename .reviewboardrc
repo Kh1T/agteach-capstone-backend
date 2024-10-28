@@ -1,0 +1,5 @@
+REVIEWBOARD_URL = "https://review.clp.kr/"
+REPOSITORY = "AlphaBeez/AgTeach/Backend"
+REPOSITORY_TYPE = "git"
+BRANCH = "feature/enhance-productquantity-deduct"
+LAND_DEST_BRANCH = "feature/enhance-productquantity-deduct"
