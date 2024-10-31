@@ -26,8 +26,13 @@ const createSendToken = (
     : process.env.JWT_EXPIRES_COOKIE_IN;
 
   let domain = 'localhost';
-  if (req.headers.origin)
-    domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+  // if (req.headers.origin)
+  //   domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
+  if (req.headers.origin) {
+    const num = req.headers.origin.includes('www') ? 1 : 0;
+    domain = req.headers.origin.split('/')[2].split('.')[num] || req.url;
+  }
 
   const cookieOption = {
     expires: new Date(Date.now() + tokenExpiry * 24 * 60 * 60 * 1000),
@@ -96,7 +101,7 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
   if (!user?.role) return next();
   let url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
-  if (url.includes('www')) req.headers.origin.split('/')[2].split('.')[1];
+  if (url.includes('www')) url = req.headers.origin.split('/')[2].split('.')[1];
 
   const isAuthorized =
     (url.startsWith('teach') && user.role === 'instructor') ||
@@ -272,7 +277,13 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  const domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+  let domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
+  if (req.headers.origin) {
+    const num = req.headers.origin.includes('www') ? 1 : 0;
+    domain = req.headers.origin.split('/')[2].split('.')[num] || req.url;
+  }
+
   res.cookie(`jwt_${domain}`, 'logout', {
     expires: new Date(Date.now() + 10 * 1000), // make the cookie expire in 10 seconds
     httpOnly: true,
@@ -287,8 +298,10 @@ exports.logout = (req, res) => {
 
 exports.protect = catchAsync(async (req, res, next) => {
   let domain = 'localhost';
-  if (req.headers.origin)
-    domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+  if (req.headers.origin) {
+    const num = req.headers.origin.includes('www') ? 1 : 0;
+    domain = req.headers.origin.split('/')[2].split('.')[num] || req.url;
+  }
 
   let token;
   if (req.cookies[`jwt_${domain}`]) {
@@ -345,8 +358,10 @@ exports.customValidate = async (req, res, next) => {
 exports.isLoginedIn = async (req, res, next) => {
   try {
     let domain = 'localhost';
-    if (req.headers.origin)
-      domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+    if (req.headers.origin) {
+      const num = req.headers.origin.includes('www') ? 1 : 0;
+      domain = req.headers.origin.split('/')[2].split('.')[num] || req.url;
+    }
 
     if (req.cookies[`jwt_${domain}`]) {
       // 2) Verification token
