@@ -94,7 +94,10 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
   }
 
   if (!user?.role) return next();
-  const url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+  let url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
+
+  if (url.includes('www')) req.headers.origin.split('/')[2].split('.')[1];
+
   const isAuthorized =
     (url.startsWith('teach') && user.role === 'instructor') ||
     (url.startsWith('admin') && user.role === 'admin') ||
