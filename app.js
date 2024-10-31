@@ -12,6 +12,7 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://www.agteach.site',
   'https://agteach.site',
   'https://teach.agteach.site',
   'https://admin.agteach.site',
