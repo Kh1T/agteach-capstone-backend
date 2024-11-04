@@ -94,6 +94,10 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
     where: { email: req.body.email },
   });
 
+  if (!user) {
+    return next(new AppError('No user found', 404));
+  }
+
   if (!req.headers.origin || req.headers.origin.includes('localhost')) {
     return next();
   }

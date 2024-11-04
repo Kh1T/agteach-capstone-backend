@@ -18,7 +18,6 @@ const Instructor = sequelize.define('instructor', {
   },
   phone: {
     type: DataTypes.STRING,
-    // allowNull: false,
   },
   dateOfBirth: {
     type: DataTypes.DATE,
