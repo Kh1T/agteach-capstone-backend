@@ -8,6 +8,9 @@ const customerController = require('../controllers/customerController');
 
 const router = express.Router();
 
+// For CyberNexus
+router.get('/getAllCourseDisplay', courseController.getAllCourseDisplay);
+
 router.get('/getAllCourse', courseController.getAll);
 router.get('/getOneCourse/:id', courseController.getOne);
 router.get('/searchData', courseController.searchData);

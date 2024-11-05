@@ -16,6 +16,9 @@ const allowedOrigins = [
   'https://agteach.site',
   'https://teach.agteach.site',
   'https://admin.agteach.site',
+  //CyberNexus
+  'http://localhost:5173/',
+  'https://cybernexus.anbschool.org',
 ];
 
 const corsOptions = {
