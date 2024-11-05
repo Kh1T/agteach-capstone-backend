@@ -1,6 +1,9 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const { resizeUplaodCourseThumbail, deleteFolderS3 } = require('../utils/uploadMiddleware');
+const {
+  resizeUplaodCourseThumbail,
+  deleteFolderS3,
+} = require('../utils/uploadMiddleware');
 
 const Course = sequelize.define('course', {
   courseId: {
@@ -33,6 +36,12 @@ const Course = sequelize.define('course', {
     type: DataTypes.TEXT,
     allowNull: false,
     defaultValue: 'https://placehold.co/400',
+  },
+  courseUrl: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return `https://agteach.site/courses/${this.courseId}`;
+    },
   },
   duration: {
     type: DataTypes.STRING, // Sequelize doesn't support INTERVAL, use STRING or INTEGER
@@ -75,5 +84,5 @@ Course.afterUpdate(async (course, options) => {
 });
 
 Course.afterDestroy(async (course) => {
-  console.log(await deleteFolderS3(course.courseId, 'courses'))
+  console.log(await deleteFolderS3(course.courseId, 'courses'));
 });

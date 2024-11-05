@@ -298,3 +298,26 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
     return next(error);
   }
 });
+
+exports.getAllCourseDisplay = catchAsync(async (req, res, next) => {
+  const { page = 1, limit = 20 } = req.query;
+  let queryOption = {};
+
+  if (req.query.page) {
+    const offset = (page - 1) * limit;
+    queryOption = {
+      attributes: ['courseId', 'name', 'price', 'thumbnailUrl', 'courseUrl'],
+      offset: Number(offset),
+      limit: Number(limit),
+    };
+  }
+
+  const data = await Course.findAll(queryOption);
+
+  res.status(200).json({
+    status: 'success',
+    results: data.length,
+    page: Number(page),
+    data,
+  });
+});

@@ -33,7 +33,7 @@ exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
     let queryOption = {};
     const { page = 1, limit = 20 } = req.query;
-
+    console.log('hi');
     if (req.query.page) {
       const offset = (page - 1) * limit;
 
