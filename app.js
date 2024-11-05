@@ -17,7 +17,7 @@ const allowedOrigins = [
   'https://teach.agteach.site',
   'https://admin.agteach.site',
   //CyberNexus
-  'http://localhost:5173/',
+  'http://localhost:5173',
   'https://cybernexus.anbschool.org',
 ];
 
