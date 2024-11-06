@@ -19,6 +19,7 @@ const allowedOrigins = [
   //CyberNexus
   'http://localhost:5173',
   'https://cybernexus.anbschool.org',
+  'https://harvesthub.site',
 ];
 
 const corsOptions = {
