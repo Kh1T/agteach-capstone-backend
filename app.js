@@ -12,10 +12,9 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://www.agteach.site',
-  'https://agteach.site',
-  'https://teach.agteach.site',
-  'https://admin.agteach.site',
+  'https://alphabeez.anbschool.org',
+  'https://instructor.alphabeez.anbschool.org',
+  'https://admin.alphabeez.anbschool.org',
   //CyberNexus
   'http://localhost:5173',
   'https://cybernexus.anbschool.org',
