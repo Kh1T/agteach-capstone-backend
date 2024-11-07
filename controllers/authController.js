@@ -156,7 +156,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 3) Send it to user's email
   // http://localhost:3000/auth/reset-password
 
-  let resetURL = `${req.protocol}://agteach.site/auth/reset-password/${resetToken}`;
+  let resetURL = `${req.protocol}://alphabeez.anbschool.org/auth/reset-password/${resetToken}`;
 
   if (user.role === 'instructor') {
     resetURL = resetURL.replace('agteach', 'teach.agteach');
