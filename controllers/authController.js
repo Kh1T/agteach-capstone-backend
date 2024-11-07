@@ -159,7 +159,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   let resetURL = `${req.protocol}://alphabeez.anbschool.org/auth/reset-password/${resetToken}`;
 
   if (user.role === 'instructor') {
-    resetURL = resetURL.replace('agteach', 'teach.agteach');
+    resetURL = resetURL.replace('alphabeez', 'instructor.alphabeez');
   }
 
   try {
