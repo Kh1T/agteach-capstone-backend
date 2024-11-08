@@ -13,7 +13,7 @@ const Product = require('../models/productModel');
 const sendEmail = require('../utils/sendEmail');
 // const { raw } = require('express');
 
-const REDIRECT_DOMAIN = 'https://agteach.site';
+const REDIRECT_DOMAIN = 'https://alphabeez.anbschool.org';
 
 /**
  * Creates a Stripe checkout session for a product purchase

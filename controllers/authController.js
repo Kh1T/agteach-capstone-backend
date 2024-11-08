@@ -104,13 +104,13 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
 
   if (!user?.role) return next();
   let url = req.headers.origin.split('/')[2].split('.')[0] || req.url;
-
+  console.log(url);
   if (url.includes('www')) url = req.headers.origin.split('/')[2].split('.')[1];
 
   const isAuthorized =
-    (url.startsWith('teach') && user.role === 'instructor') ||
+    (url.startsWith('instructor') && user.role === 'instructor') ||
     (url.startsWith('admin') && user.role === 'admin') ||
-    (url.startsWith('agteach') && user.role === 'guest');
+    (url.startsWith('alphabeez') && user.role === 'guest');
 
   if (isAuthorized) return next();
 
@@ -156,10 +156,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 3) Send it to user's email
   // http://localhost:3000/auth/reset-password
 
-  let resetURL = `${req.protocol}://agteach.site/auth/reset-password/${resetToken}`;
+  let resetURL = `${req.protocol}://alphabeez.anbschool.org/auth/reset-password/${resetToken}`;
 
   if (user.role === 'instructor') {
-    resetURL = resetURL.replace('agteach', 'teach.agteach');
+    resetURL = resetURL.replace('alphabeez', 'instructor.alphabeez');
   }
 
   try {

@@ -40,7 +40,7 @@ const Course = sequelize.define('course', {
   courseUrl: {
     type: DataTypes.VIRTUAL,
     get() {
-      return `https://agteach.site/courses/${this.courseId}`;
+      return `https://alphabeez.anbschool.org/courses/${this.courseId}`;
     },
   },
   duration: {
