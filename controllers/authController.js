@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
+const Instructor = require('../models/instructorModel');
+const Customer = require('../models/customerModel');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/sendEmail');
 const cooldownRespond = require('../utils/cooldownRespond');
@@ -63,7 +65,19 @@ exports.signup = catchAsync(async (req, res, next) => {
     role: req.body.role,
   });
 
-  console.log(req.headers.origin);
+  // console.log(req.headers.origin);
+
+  if (newUser.role === 'instructor') {
+    await Instructor.create({
+      userUid: newUser.userUid,
+      email: newUser.email,
+    });
+  } else if (newUser.role === 'guest') {
+    await Customer.create({
+      userUid: newUser.userUid,
+      email: newUser.email,
+    });
+  }
 
   newUser.createEmailVerifyCode();
 
