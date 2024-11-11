@@ -63,6 +63,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     role: req.body.role,
   });
 
+  console.log(req.headers.origin);
+
   newUser.createEmailVerifyCode();
 
   createSendToken(newUser, 201, req, res);
