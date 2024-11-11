@@ -8,7 +8,7 @@ const CourseSaleHistory = require('../models/courseSaleHistoryModel');
 const AppError = require('../utils/appError');
 const Instructor = require('../models/instructorModel');
 
-const REDIRECT_DOMAIN = 'https://agteach.site';
+const REDIRECT_DOMAIN = 'https://alphabeez.anbschool.org';
 
 /**
  * Handles Stripe Webhooks

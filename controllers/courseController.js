@@ -306,11 +306,20 @@ exports.getAllCourseDisplay = catchAsync(async (req, res, next) => {
   if (req.query.page) {
     const offset = (page - 1) * limit;
     queryOption = {
-      attributes: ['courseId', 'name', 'price', 'thumbnailUrl', 'courseUrl'],
+      attributes: [
+        'courseId',
+        'name',
+        'price',
+        'thumbnailUrl',
+        'courseUrl',
+        'description',
+      ],
       offset: Number(offset),
       limit: Number(limit),
     };
   }
+
+  console.log('hi');
 
   const data = await Course.findAll(queryOption);
 
