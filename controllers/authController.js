@@ -352,8 +352,11 @@ exports.customValidate = async (req, res, next) => {
     UserAccount.findOne({ where: { username } }),
   ]);
 
+  // console.log(userEmail, userName);
   if (userEmail || userName) {
-    return next(new AppError('User already exists', 400));
+    return next(
+      new AppError(`${userEmail ? 'Email' : 'Username'} already exists`, 400),
+    );
   }
 
   next();
