@@ -170,7 +170,7 @@ const generateEnrollmentEmailContent = (courseId) => {
               <tbody>
                 <tr>
                 <td align="center" bgcolor="#F3BE2A" class="inner-td" style="border-radius:6px; font-size:16px; text-align:center; background-color:inherit;">
-                  <a href="https://agteach.site/courses/${courseId}/watch/overview" style="background-color:#F3BE2A; border:1px solid #F3BE2A; border-color:#F3BE2A; border-radius:6px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 18px 12px 18px; text-align:center; text-decoration:none; border-style:solid;" target="_blank">Start Learning</a>
+                  <a href="https://alphabeez.anbschool.org/courses/${courseId}/watch/overview" style="background-color:#F3BE2A; border:1px solid #F3BE2A; border-color:#F3BE2A; border-radius:6px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 18px 12px 18px; text-align:center; text-decoration:none; border-style:solid;" target="_blank">Start Learning</a>
                 </td>
                 </tr>
               </tbody>
