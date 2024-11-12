@@ -3,8 +3,6 @@ const { getDigitalCode } = require('node-verification-code');
 const crypto = require('crypto');
 const useBcrypt = require('sequelize-bcrypt');
 const AppError = require('../utils/appError');
-const sendEmail = require('../utils/sendEmail');
-const Customer = require('./customerModel');
 
 const sequelize = require('../config/db');
 
@@ -120,7 +118,7 @@ UserAccount.prototype.createPasswordResetToken = function () {
   return resetToken;
 };
 
-// Create email verify code 
+// Create email verify code
 UserAccount.prototype.createEmailVerifyCode = async function () {
   const verificationCode = getDigitalCode(6).toString('utf8');
   this.emailVerifyCode = verificationCode;

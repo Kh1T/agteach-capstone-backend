@@ -140,7 +140,13 @@ exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
     ],
   });
 
-  res.status(200).json({ status: 'success', purchasedDetails, customer });
+  const { isDelivered } = await ProductSaleHistory.findOne({
+    where: { purchasedId: req.params.id },
+  });
+
+  res
+    .status(200)
+    .json({ status: 'success', purchasedDetails, customer, isDelivered });
 });
 
 exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
