@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const AppError = require('../utils/appError');
 const UserAccount = require('../models/userModel');
+const Instructor = require('../models/instructorModel');
+const Customer = require('../models/customerModel');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/sendEmail');
 const cooldownRespond = require('../utils/cooldownRespond');
@@ -62,6 +64,20 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role,
   });
+
+  // console.log(req.headers.origin);
+
+  if (newUser.role === 'instructor') {
+    await Instructor.create({
+      userUid: newUser.userUid,
+      email: newUser.email,
+    });
+  } else if (newUser.role === 'guest') {
+    await Customer.create({
+      userUid: newUser.userUid,
+      email: newUser.email,
+    });
+  }
 
   newUser.createEmailVerifyCode();
 
@@ -352,8 +368,11 @@ exports.customValidate = async (req, res, next) => {
     UserAccount.findOne({ where: { username } }),
   ]);
 
+  // console.log(userEmail, userName);
   if (userEmail || userName) {
-    return next(new AppError('User already exists', 400));
+    return next(
+      new AppError(`${userEmail ? 'Email' : 'Username'} already exists`, 400),
+    );
   }
 
   next();

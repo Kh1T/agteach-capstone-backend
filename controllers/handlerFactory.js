@@ -99,8 +99,15 @@ exports.additionalInfo = (Model) =>
     try {
       const data = req.body;
       data.userUid = req.user.userUid;
-      data.email = req.user.email;
-      const userData = await Model.create(data);
+
+      const userData = await Model.update(
+        {
+          ...data,
+        },
+        {
+          where: { userUid: req.user.userUid },
+        },
+      );
 
       await sendEmail(req.user, {
         templateId: process.env.SIGNUP_EMAIL_TEMPLATE_ID,
