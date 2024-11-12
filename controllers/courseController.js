@@ -269,7 +269,7 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
             {
               name: lecture.name,
               videoUrl: lecture.videoUrl,
-              duration: lecture.lectureDuration,
+              duration: lecture.duration,
             },
             { where: { lectureId: lecture.lectureId }, transaction },
           ),
@@ -319,7 +319,6 @@ exports.getAllCourseDisplay = catchAsync(async (req, res, next) => {
     };
   }
 
-  console.log('hi');
 
   const data = await Course.findAll(queryOption);
 
