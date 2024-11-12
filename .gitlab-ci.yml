@@ -7,7 +7,7 @@ install_dependencies:
   stage: install
   image: node:20
   only:
-    - develop
+    - main
   script:
     - node -v # Verify Node.js installation
     - echo "Installing dependencies"
@@ -22,7 +22,7 @@ deploy_to_ec2:
   stage: deploy
   image: node:20
   only:
-    - develop
+    - main
   before_script:
     - 'which ssh-agent || (brew install openssh)'
     - eval $(ssh-agent -s)
