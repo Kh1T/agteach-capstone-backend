@@ -1,4 +1,4 @@
-const { Op, or } = require('sequelize');
+const { Op } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/sendEmail');
@@ -33,7 +33,7 @@ exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
     let queryOption = {};
     const { page = 1, limit = 20 } = req.query;
-    console.log('hi');
+
     if (req.query.page) {
       const offset = (page - 1) * limit;
 
@@ -146,30 +146,6 @@ exports.sortData = (Model) =>
       data,
     });
   });
-
-// exports.getAll = (Model) =>
-//   catchAsync(async (req, res, next) => {
-//     let queryOption = {};
-//     const { page = 1, limit = 20 } = req.query;
-
-//     if (req.query.page) {
-//       const offset = (page - 1) * limit;
-
-//       queryOption = {
-//         offset: Number(offset),
-//         limit: Number(limit),
-//       };
-//     }
-
-//     const data = await Model.findAll(queryOption);
-
-//     res.status(200).json({
-//       status: 'success',
-//       results: data.length,
-//       page: Number(page),
-//       data,
-//     });
-//   });
 
 exports.SearchData = (Model) =>
   catchAsync(async (req, res, next) => {

@@ -15,6 +15,8 @@ const {
   getSalesOverview,
 } = require('../utils/findTopSales');
 const AppError = require('../utils/appError');
+const sendEmail = require('../utils/sendEmail');
+const { Inspector } = require('aws-sdk');
 
 /**
  * Get information about the currently logged-in admin.
@@ -201,6 +203,7 @@ exports.getSalesOverview = catchAsync(async (req, res, next) => {
  * @returns {Promise<void>}
  */
 exports.verifyInstructor = catchAsync(async (req, res, next) => {
+  const instructorAccount = await Instructor.findByPk(req.params.id);
   const instructor = await Instructor.update(req.body, {
     where: {
       instructorId: req.params.id,
@@ -212,11 +215,17 @@ exports.verifyInstructor = catchAsync(async (req, res, next) => {
   }
 
   if ('isApproved' in req.body) {
+    await sendEmail(instructorAccount, {
+      templateId: process.env.APPROVE_INSTRUCTOR_TEMPLATE,
+    });
     res.status(200).json({
       status: 'success',
       message: 'Your account has been approved',
     });
   } else {
+    await sendEmail(instructorAccount, {
+      templateId: process.env.REJECT_INSTRUCTOR_TEMPLATE,
+    });
     res.status(200).json({
       status: 'success',
       message: 'Your account has been rejected',
