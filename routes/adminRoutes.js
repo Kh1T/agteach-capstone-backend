@@ -1,5 +1,4 @@
 const express = require('express');
-const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const adminController = require('../controllers/adminController');
 
@@ -7,7 +6,9 @@ const router = express.Router();
 
 router.get('/getAllCategories', adminController.getAllCategories);
 
-router.use(authController.protect);
+router.use(authController.protect, authController.restrictTo('admin'));
+
+router.patch('/verifyInstructor/:id', adminController.verifyInstructor);
 
 router.get('/getAdminInfo', adminController.getAdminInfo);
 

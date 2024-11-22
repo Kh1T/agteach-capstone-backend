@@ -1,3 +1,8 @@
+/**
+ * @file authController.js
+ * @description This file contains the controller functions for user authentication.
+ */
+
 const { promisify } = require('util');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
@@ -10,11 +15,24 @@ const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/sendEmail');
 const cooldownRespond = require('../utils/cooldownRespond');
 
+/**
+ * Signs a JWT token with the user's ID.
+ * @param {string} id - The user's ID.
+ * @returns {string} The signed JWT token.
+ */
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+/**
+ * Creates and sends a JWT token to the client.
+ * @param {Object} user - The user object.
+ * @param {number} statusCode - The HTTP status code.
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {boolean} [keepMeLoggedIn=false] - Whether to set a longer cookie expiration time.
+ */
 const createSendToken = (
   user,
   statusCode,
@@ -28,8 +46,6 @@ const createSendToken = (
     : process.env.JWT_EXPIRES_COOKIE_IN;
 
   let domain = 'localhost';
-  // if (req.headers.origin)
-  //   domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
   if (req.headers.origin) {
     const num = req.headers.origin.includes('www') ? 1 : 0;
@@ -40,8 +56,7 @@ const createSendToken = (
     expires: new Date(Date.now() + tokenExpiry * 24 * 60 * 60 * 1000),
     httpOnly: true,
     sameSite: 'None',
-    secure: true, // Add this line
-    // domain, // Uncomment and set if needed
+    secure: true,
   };
   res.cookie(`jwt_${domain}`, token, cookieOption);
   res.status(statusCode).json({
@@ -53,10 +68,14 @@ const createSendToken = (
   });
 };
 
-// Handle Signup User
-
+/**
+ * Handles user signup.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.signup = catchAsync(async (req, res, next) => {
-  // Create new user
   const newUser = await UserAccount.create({
     username: req.body.username,
     email: req.body.email,
@@ -64,8 +83,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role,
   });
-
-  // console.log(req.headers.origin);
 
   if (newUser.role === 'instructor') {
     await Instructor.create({
@@ -84,28 +101,36 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, req, res);
 });
 
-// Handle Login User
-
+/**
+ * Handles user login.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password, keepMeLoggedIn } = req.body;
-  // 1) Check if email and password exist
+
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
   }
 
-  // 2) Check if user exists && password is correct
   const user = await UserAccount.findOne({ where: { email } });
 
-  // Check if password is correct
-
-  if (!user.authenticate(password)) {
+  if (!user || !user.authenticate(password)) {
     return next(new AppError('Incorrect email or password', 401));
   }
 
-  // 3) If everything ok, send token to client
   createSendToken(user, 200, req, res, keepMeLoggedIn);
 });
 
+/**
+ * Restricts access based on user role and origin.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.roleRestrict = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({
     where: { email: req.body.email },
@@ -136,6 +161,11 @@ exports.roleRestrict = catchAsync(async (req, res, next) => {
   );
 });
 
+/**
+ * Middleware to restrict access to certain routes based on user roles.
+ * @param {...string} roles - The allowed roles.
+ * @returns {function} - Middleware function.
+ */
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
@@ -147,7 +177,13 @@ exports.restrictTo =
     next();
   };
 
-// Handle Forget Password
+/**
+ * Handles forgot password requests.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await UserAccount.findOne({ where: { email: req.body.email } });
 
@@ -164,14 +200,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   if (isCooldownActive) return;
 
   const resetToken = user.createPasswordResetToken();
-  user.save({ validateBeforeSave: false });
-
-  // Change field
+  await user.save({ validateBeforeSave: false });
 
   user.updatePasswordChangedAt();
-
-  // 3) Send it to user's email
-  // http://localhost:3000/auth/reset-password
 
   let resetURL = `${req.protocol}://alphabeez.anbschool.org/auth/reset-password/${resetToken}`;
 
@@ -203,9 +234,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
+/**
+ * Handles password reset.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.resetPassword = catchAsync(async (req, res, next) => {
-  // DON"T FORGET TO CHANGE UPDATE TO req.params.token
-
   const hashedToken = crypto
     .createHash('sha256')
     .update(req.params.resetToken)
@@ -231,10 +267,14 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, req, res);
 });
 
-// Update Current User Password
-
+/**
+ * Handles updating the current user's password.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  // Get Current User
   const { password, passwordCurrent, passwordConfirm } = req.body;
 
   const user = await UserAccount.findByPk(req.user.userUid);
@@ -255,11 +295,15 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, req, res);
 });
 
-// Handle Email Verification Code
-
+/**
+ * Resends the email verification code.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   const { email } = req.body;
-  // Find the user by email
   const user = await UserAccount.findOne({ where: { email } });
 
   const isCooldownActive = cooldownRespond(user.updatedAt, 'email verify', res);
@@ -278,17 +322,23 @@ exports.resendVerifyCode = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Verifies the user's email.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.verifyEmail = catchAsync(async (req, res, next) => {
   const { emailVerifyCode } = req.body;
-  // Find the user with the provided verification code
   const user = await UserAccount.findOne({ where: { emailVerifyCode } });
 
   if (!user) {
     return next(new AppError('Invalid verification code', 400));
   }
-  // Mark the user as verified
+
   user.isVerify = true;
-  user.emailVerifyCode = null; // Clear the verification code
+  user.emailVerifyCode = null;
   await user.save();
 
   res.status(200).json({
@@ -297,6 +347,11 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Handles user logout.
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 exports.logout = (req, res) => {
   let domain = req.headers.origin.split('/')[2].split('.')[0] || req.url;
 
@@ -306,17 +361,22 @@ exports.logout = (req, res) => {
   }
 
   res.cookie(`jwt_${domain}`, 'logout', {
-    expires: new Date(Date.now() + 10 * 1000), // make the cookie expire in 10 seconds
+    expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
     sameSite: 'None',
-    secure: true, // Add this line
+    secure: true,
   });
 
   res.status(200).json({ status: 'success' });
 };
 
-// Handle Protected Routes (Requires Authentication)
-
+/**
+ * Protects routes that require authentication.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.protect = catchAsync(async (req, res, next) => {
   let domain = 'localhost';
   if (req.headers.origin) {
@@ -340,10 +400,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // 2) Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  // 3) Check if user still exists
   const currentUser = await UserAccount.findByPk(decoded.id);
   if (!currentUser) {
     return next(
@@ -354,13 +412,19 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
   res.locals.user = currentUser;
 
   next();
 });
 
+/**
+ * Custom validation middleware for checking if email and username already exist.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.customValidate = async (req, res, next) => {
   const { email, username } = req.body;
 
@@ -369,7 +433,6 @@ exports.customValidate = async (req, res, next) => {
     UserAccount.findOne({ where: { username } }),
   ]);
 
-  // console.log(userEmail, userName);
   if (userEmail || userName) {
     return next(
       new AppError(`${userEmail ? 'Email' : 'Username'} already exists`, 400),
@@ -379,6 +442,13 @@ exports.customValidate = async (req, res, next) => {
   next();
 };
 
+/**
+ * Checks if the user is logged in.
+ * @async
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ */
 exports.isLoginedIn = async (req, res, next) => {
   try {
     let domain = 'localhost';
@@ -388,18 +458,15 @@ exports.isLoginedIn = async (req, res, next) => {
     }
 
     if (req.cookies[`jwt_${domain}`]) {
-      // 2) Verification token
       const decoded = await promisify(jwt.verify)(
         req.cookies[`jwt_${domain}`],
         process.env.JWT_SECRET,
       );
 
-      // 3) Check if user still exists
       const currentUser = await UserAccount.findByPk(decoded.id);
       if (!currentUser) {
         throw Error();
       }
-      // GRANT ACCESS TO PROTECTED ROUTE
 
       res.json({
         status: 'success',
