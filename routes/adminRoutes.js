@@ -9,6 +9,8 @@ router.get('/getAllCategories', adminController.getAllCategories);
 
 router.use(authController.protect);
 
+router.patch('/verifyInstructor/:id', adminController.verifyInstructor);
+
 router.get('/getAdminInfo', adminController.getAdminInfo);
 
 router.get('/getAllInstructors', adminController.getAllInstructor);
