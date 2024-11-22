@@ -284,11 +284,18 @@ exports.getInstructorCourseTopSales = catchAsync(async (req, res, next) => {
 exports.addVerificationData = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
+  if (!instructorId) {
+    return next(new AppError('This User does not exist', 404));
+  }
+
   const updateData = req.body;
 
-  const instructor = await Instructor.update(updateData, {
-    where: { instructorId },
-  });
+  const instructor = await Instructor.update(
+    { isFormSubmitted: true, ...updateData },
+    {
+      where: { instructorId },
+    },
+  );
 
   res.status(204).json({
     instructor,
