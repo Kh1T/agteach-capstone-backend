@@ -23,6 +23,15 @@ const {
 
 exports.fetchInstructor = factory.fetchMemberData(Instructor, ['instructorId']);
 
+/**
+ * @description Gets additional user account information, including instructor details and location.
+ * @async
+ * @function getAdditionalInfo
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getAdditionalInfo = factory.getOne(UserAccount, {
   include: [
     {
@@ -45,14 +54,54 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
   ],
 });
 
+/**
+ * @description Uploads a single profile image.
+ * @function uploadProfile
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ */
 exports.uploadProfile = uploadProfileImage.single('photo');
 
+/**
+ * @description Resizes the uploaded profile image.
+ * @function resizeProfile
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ */
 exports.resizeProfile = resizeUploadProfileImage;
 
+/**
+ * @description Adds additional information to the instructor profile.
+ * @async
+ * @function addAdditionalInfo
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ */
 exports.addAdditionalInfo = factory.additionalInfo(Instructor);
 
+/**
+ * @description Updates the current instructor's profile.
+ * @async
+ * @function updateMe
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ */
 exports.updateMe = factory.updateMe(Instructor);
 
+/**
+ * @description Retrieves detailed information about a specific instructor.
+ * @async
+ * @function getInstructorDetail
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ * @throws {AppError} If the instructor is not found.
+ */
 exports.getInstructorDetail = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
@@ -74,6 +123,16 @@ exports.getInstructorDetail = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Gets instructor data for the currently logged-in instructor.
+ * @async
+ * @function getInstructorData
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ * @throws {AppError} If the instructor is not found.
+ */
 exports.getInstructorData = catchAsync(async (req, res, next) => {
   // Fetch instructor data
   const instructor = await Instructor.findOne({
@@ -91,6 +150,17 @@ exports.getInstructorData = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Get the balance of an instructor.
+ * @async
+ * @function getBalance
+ * @param {Object} req - Express request object.
+ * @param {Object} req.memberData - Instructor data from middleware.
+ * @param {number} req.memberData.instructorId - The ID of the instructor.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getBalance = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   //
@@ -128,6 +198,15 @@ exports.getBalance = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Retrieves all product balances for an instructor.
+ * @async
+ * @function getAllProductBalance
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getAllProductBalance = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   const { name, order } = req.query;
@@ -168,6 +247,15 @@ exports.getAllProductBalance = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Retrieves all course balances for an instructor with pagination.
+ * @async
+ * @function getAllCourseBalance
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   const { name, order, page = 1, pageSize = 10 } = req.query;
@@ -209,6 +297,15 @@ exports.getAllCourseBalance = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Gets recent transactions for an instructor.
+ * @async
+ * @function getRecentTransations
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getRecentTransations = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
@@ -246,7 +343,15 @@ exports.getRecentTransations = catchAsync(async (req, res, next) => {
   });
 });
 
-// Dashboard
+/**
+ * @description Retrieves overview sales data for an instructor.
+ * @async
+ * @function getInstructorOverviewSales
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getInstructorOverviewSales = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   const instructorOverviewSales =
@@ -259,6 +364,15 @@ exports.getInstructorOverviewSales = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Retrieves top selling products for an instructor.
+ * @async
+ * @function getInstructorProductTopSales
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getInstructorProductTopSales = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   const productTopSales = await getInstructorProductTopSales(instructorId);
@@ -270,6 +384,15 @@ exports.getInstructorProductTopSales = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Retrieves top selling courses for an instructor.
+ * @async
+ * @function getInstructorCourseTopSales
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getInstructorCourseTopSales = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   const courseTopSales = await getInstructorCourseTopSales(instructorId);
