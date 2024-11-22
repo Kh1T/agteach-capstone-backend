@@ -191,6 +191,15 @@ exports.getSalesOverview = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Verify an instructor.
+ * @async
+ * @function verifyInstructor
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.verifyInstructor = catchAsync(async (req, res, next) => {
   const instructor = await Instructor.update(req.body, {
     where: {
