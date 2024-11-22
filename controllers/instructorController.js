@@ -281,6 +281,19 @@ exports.getInstructorCourseTopSales = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Add verification data for an instructor.
+ * @async
+ * @function addVerificationData
+ * @param {Object} req - Express request object.
+ * @param {Object} req.memberData - Instructor data from middleware.
+ * @param {number} req.memberData.instructorId - The ID of the instructor.
+ * @param {Object} req.body - Request body containing verification data.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ * @throws {AppError} If the instructor is not found (404).
+ */
 exports.addVerificationData = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
