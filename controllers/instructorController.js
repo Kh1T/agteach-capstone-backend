@@ -421,19 +421,18 @@ exports.addVerificationData = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
   if (!instructorId) {
-    return next(new AppError('This User does not exist', 404));
+    return next(new AppError('User does not exist', 404));
   }
 
-  const updateData = req.body;
-
   const instructor = await Instructor.update(
-    { isFormSubmitted: true, ...updateData },
+    { isFormSubmitted: true, ...req.body },
     {
       where: { instructorId },
     },
   );
 
-  res.status(204).json({
+  res.status(200).json({
+    status: 'success',
     instructor,
   });
 });

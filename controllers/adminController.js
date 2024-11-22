@@ -211,8 +211,15 @@ exports.verifyInstructor = catchAsync(async (req, res, next) => {
     return next(new AppError('Instructor not found'));
   }
 
-  res.status(204).json({
-    status: 'success',
-    instructor,
-  });
+  if ('isApproved' in req.body) {
+    res.status(200).json({
+      status: 'success',
+      message: 'Your account has been approved',
+    });
+  } else {
+    res.status(200).json({
+      status: 'fail',
+      message: 'Your account has been rejected',
+    });
+  }
 });
