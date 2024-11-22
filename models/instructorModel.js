@@ -62,14 +62,17 @@ const Instructor = sequelize.define('instructor', {
 
   isRejected: {
     type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
 
   isFormSubmitted: {
     type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
 
   isApproved: {
     type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
 
   nationalId: {
