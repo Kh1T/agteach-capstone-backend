@@ -280,3 +280,17 @@ exports.getInstructorCourseTopSales = catchAsync(async (req, res, next) => {
     data: courseTopSales,
   });
 });
+
+exports.addVerificationData = catchAsync(async (req, res, next) => {
+  const { instructorId } = req.memberData;
+
+  const updateData = req.body;
+
+  const instructor = await Instructor.update(updateData, {
+    where: { instructorId },
+  });
+
+  res.status(204).json({
+    instructor,
+  });
+});
