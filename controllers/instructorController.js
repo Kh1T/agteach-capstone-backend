@@ -433,6 +433,6 @@ exports.addVerificationData = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    instructor,
+    message: 'The Form has been sumbit',
   });
 });
