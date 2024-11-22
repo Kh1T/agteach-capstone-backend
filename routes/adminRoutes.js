@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/getAllCategories', adminController.getAllCategories);
 
-router.use(authController.protect);
+router.use(authController.protect, authController.restrictTo('admin'));
 
 router.patch('/verifyInstructor/:id', adminController.verifyInstructor);
 
