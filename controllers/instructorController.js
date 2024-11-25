@@ -45,6 +45,9 @@ exports.getAdditionalInfo = factory.getOne(UserAccount, {
         'dateOfBirth',
         'imageUrl',
         'bio',
+        'isApproved',
+        'isFormSubmitted',
+        'isRejected',
       ],
       include: {
         model: Location,
