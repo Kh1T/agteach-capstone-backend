@@ -15,6 +15,7 @@ const {
   getSalesOverview,
 } = require('../utils/findTopSales');
 const AppError = require('../utils/appError');
+const sendEmail = require('../utils/sendEmail');
 
 /**
  * Get information about the currently logged-in admin.
@@ -47,8 +48,36 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
  * @param {Function} next - The next middleware function.
  * @returns {Promise<void>}
  */
+/**
+ * Get all instructors.
+ * @async
+ * @function getAllInstructor
+ * @param {Object} req - The Express request object.
+ * @param {Object} req.query - Query parameters.
+ * @param {string} [req.query.isApproved] - If true, only return approved instructors. If false, only return unapproved instructors.
+ * @param {string} [req.query.isRejected] - If true, only return rejected instructors. If false, only return unapproved instructors.
+ * @param {Object} res - The Express response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getAllInstructor = catchAsync(async (req, res, next) => {
-  const instructor = await Instructor.findAll({
+  let { isApproved, isRejected } = req.query;
+
+  isApproved =
+    isApproved === 'true' ? true : isApproved === 'false' ? false : undefined;
+  isRejected =
+    isRejected === 'true' ? true : isRejected === 'false' ? false : undefined;
+
+  const filterConditions = {};
+  if (isApproved !== undefined) {
+    filterConditions.isApproved = isApproved;
+  }
+  if (isRejected !== undefined) {
+    filterConditions.isRejected = isRejected;
+  }
+
+  const instructors = await Instructor.findAll({
+    where: filterConditions,
     include: [
       {
         model: Location,
@@ -56,9 +85,10 @@ exports.getAllInstructor = catchAsync(async (req, res, next) => {
       },
     ],
   });
+
   res.status(200).json({
     status: 'success',
-    data: instructor,
+    data: instructors,
   });
 });
 
@@ -201,6 +231,7 @@ exports.getSalesOverview = catchAsync(async (req, res, next) => {
  * @returns {Promise<void>}
  */
 exports.verifyInstructor = catchAsync(async (req, res, next) => {
+  const instructorAccount = await Instructor.findByPk(req.params.id);
   const instructor = await Instructor.update(req.body, {
     where: {
       instructorId: req.params.id,
@@ -212,11 +243,17 @@ exports.verifyInstructor = catchAsync(async (req, res, next) => {
   }
 
   if ('isApproved' in req.body) {
+    await sendEmail(instructorAccount, {
+      templateId: process.env.APPROVE_INSTRUCTOR_TEMPLATE,
+    });
     res.status(200).json({
       status: 'success',
       message: 'Your account has been approved',
     });
   } else {
+    await sendEmail(instructorAccount, {
+      templateId: process.env.REJECT_INSTRUCTOR_TEMPLATE,
+    });
     res.status(200).json({
       status: 'success',
       message: 'Your account has been rejected',

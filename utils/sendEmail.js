@@ -1,7 +1,11 @@
 const sgMail = require('@sendgrid/mail');
 
-const sendEmail = ({ email, emailVerifyCode, username }, options) => {
+const sendEmail = (
+  { email, emailVerifyCode, username, firstName, lastName },
+  options,
+) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
   const { customerEmail, purchased } = options;
   const createdPurchasedAt = new Date(
     purchased ? purchased.createdAt : Date.now(),
@@ -21,6 +25,8 @@ const sendEmail = ({ email, emailVerifyCode, username }, options) => {
     templateId: options.templateId,
     dynamicTemplateData: {
       username: username || 'N/A',
+      firstName: firstName || 'N/A',
+      lastName: lastName || 'N/A',
       code,
       verificationCode: emailVerifyCode,
       purchasedId: productPurchasedId,
