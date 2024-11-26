@@ -128,4 +128,3 @@ module.exports = (err, req, res, next) => {
     sendErrorProd(error, req, res);
   }
 };
-```
