@@ -75,7 +75,7 @@ exports.getAllInstructor = catchAsync(async (req, res, next) => {
   if (isRejected !== undefined) {
     filterConditions.isRejected = isRejected;
   }
-
+  console.log('hi');
   const instructors = await Instructor.findAll({
     where: filterConditions,
     include: [
@@ -84,7 +84,10 @@ exports.getAllInstructor = catchAsync(async (req, res, next) => {
         attributes: ['locationId', 'name'],
       },
     ],
+    order: [['createdAt', 'DESC']],
   });
+
+  console.log(instructors);
 
   res.status(200).json({
     status: 'success',
