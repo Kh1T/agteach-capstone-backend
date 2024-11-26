@@ -77,7 +77,6 @@ const Instructor = sequelize.define('instructor', {
 
   nationalId: {
     type: DataTypes.CHAR(15),
-    allowNull: false,
   },
 
   targetProduct: {
@@ -94,7 +93,6 @@ const Instructor = sequelize.define('instructor', {
 
   bankNumber: {
     type: DataTypes.CHAR(35),
-    allowNull: false,
   },
 });
 
