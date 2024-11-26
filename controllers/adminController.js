@@ -77,6 +77,8 @@ exports.getAllInstructor = catchAsync(async (req, res, next) => {
     filterConditions.isRejected = isRejected;
   }
 
+  const numInstructor = await Instructor.count();
+
   const instructors = await Instructor.findAll({
     where: filterConditions,
     include: [
@@ -90,7 +92,7 @@ exports.getAllInstructor = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    result: instructors.length,
+    numInstructor,
     data: instructors,
   });
 });

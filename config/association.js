@@ -3,7 +3,6 @@ const UserAccount = require('../models/userModel');
 const ProductSuggestion = require('../models/productSuggestionModel');
 const Course = require('../models/courseModel');
 const Customer = require('../models/customerModel');
-const SectionLecture = require('../models/sectionLectureModel');
 const Location = require('../models/locationModel');
 const Lecture = require('../models/lectureModel');
 const Section = require('../models/sectionModel');
@@ -74,24 +73,8 @@ Section.belongsTo(Instructor, { foreignKey: 'instructorId' });
 Instructor.hasMany(Lecture, { foreignKey: 'instructorId' });
 Lecture.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
-// One Section can have many SectionLectures
-Section.hasMany(SectionLecture, { foreignKey: 'sectionId' });
-SectionLecture.belongsTo(Section, { foreignKey: 'sectionId' });
-
 Section.hasMany(Lecture, { foreignKey: 'sectionId' });
 Lecture.belongsTo(Section, { foreignKey: 'sectionId' });
-
-// One Course can have many SectionLectures
-Course.hasMany(SectionLecture, { foreignKey: 'courseId' });
-SectionLecture.belongsTo(Course, { foreignKey: 'courseId' });
-
-// One Lecture can have many SectionLectures
-Lecture.hasMany(SectionLecture, { foreignKey: 'lectureId' });
-SectionLecture.belongsTo(Lecture, { foreignKey: 'lectureId' });
-
-// One Instructor can be responsible for many SectionLectures
-Instructor.hasMany(SectionLecture, { foreignKey: 'instructorId' });
-SectionLecture.belongsTo(Instructor, { foreignKey: 'instructorId' });
 
 //Course Sales History Association
 Course.hasMany(CourseSaleHistory, { foreignKey: 'courseId' });
@@ -146,7 +129,6 @@ module.exports = {
   UserAccount,
   Customer,
   Instructor,
-  SectionLecture,
   Lecture,
   Section,
   Course,
