@@ -48,7 +48,7 @@ const uploadProductImages = multer({
 const uploadProfileImage = multer({
   storage: multerStorage,
   fileFilter: imageFilter,
-}).single('photo');
+});
 
 /**
  * Filters incoming files to allow only videos or images.
