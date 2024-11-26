@@ -1,6 +1,7 @@
 /**
  * @file Controller functions for admin-related operations.
  */
+const { Op } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
@@ -61,21 +62,21 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
  * @returns {Promise<void>}
  */
 exports.getAllInstructor = catchAsync(async (req, res, next) => {
-  let { isApproved, isRejected } = req.query;
+  let { isApproved, isRejected, email } = req.query;
 
   isApproved =
     isApproved === 'true' ? true : isApproved === 'false' ? false : undefined;
   isRejected =
     isRejected === 'true' ? true : isRejected === 'false' ? false : undefined;
 
-  const filterConditions = {};
+  const filterConditions = { email: { [Op.iLike]: `%${email}%` } };
   if (isApproved !== undefined) {
     filterConditions.isApproved = isApproved;
   }
   if (isRejected !== undefined) {
     filterConditions.isRejected = isRejected;
   }
-  console.log('hi');
+
   const instructors = await Instructor.findAll({
     where: filterConditions,
     include: [
@@ -87,10 +88,9 @@ exports.getAllInstructor = catchAsync(async (req, res, next) => {
     order: [['createdAt', 'DESC']],
   });
 
-  console.log(instructors);
-
   res.status(200).json({
     status: 'success',
+    result: instructors.length,
     data: instructors,
   });
 });
