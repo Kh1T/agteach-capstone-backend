@@ -1,8 +1,19 @@
+/**
+ * @module documentController
+ * @description This module provides controller functions for managing documents.
+ */
+
 const { Op } = require('sequelize');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/sendEmail');
 
+/**
+ * Filters an object to include only allowed fields.
+ * @param {object} obj - The object to filter.
+ * @param {...string} allowedFields - The allowed fields.
+ * @returns {object} - The filtered object.
+ */
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
   Object.keys(obj).forEach((el) => {
@@ -11,7 +22,12 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-// Factory function for getting one document by primary key
+/**
+ * Factory function for getting one document by primary key.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @param {object} [options={}] - Additional options for the query.
+ * @returns {function} - The controller function.
+ */
 exports.getOne = (Model, options = {}) =>
   catchAsync(async (req, res, next) => {
     // Fetch the document by primary key (UID) with optional inclusion
@@ -29,6 +45,11 @@ exports.getOne = (Model, options = {}) =>
     });
   });
 
+/**
+ * Factory function for getting all documents.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @returns {function} - The controller function.
+ */
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
     let queryOption = {};
@@ -53,6 +74,11 @@ exports.getAll = (Model) =>
     });
   });
 
+/**
+ * Factory function for updating a user document.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @returns {function} - The controller function.
+ */
 exports.updateMe = (Model) =>
   catchAsync(async (req, res, next) => {
     // 1) Create error if user POSTs password data
@@ -94,6 +120,11 @@ exports.updateMe = (Model) =>
     });
   });
 
+/**
+ * Factory function for adding additional user information.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @returns {function} - The controller function.
+ */
 exports.additionalInfo = (Model) =>
   catchAsync(async (req, res, next) => {
     try {
@@ -123,6 +154,11 @@ exports.additionalInfo = (Model) =>
     }
   });
 
+/**
+ * Factory function for deleting one document by primary key.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @returns {function} - The controller function.
+ */
 exports.deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const data = await Model.findByPk(req.params.id);
@@ -133,6 +169,11 @@ exports.deleteOne = (Model) =>
     });
   });
 
+/**
+ * Factory function for sorting data by createdAt field.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @returns {function} - The controller function.
+ */
 exports.sortData = (Model) =>
   catchAsync(async (req, res, next) => {
     const sortOrder = req.query.order || 'ASC';
@@ -147,12 +188,17 @@ exports.sortData = (Model) =>
     });
   });
 
+/**
+ * Factory function for searching data based on name and category.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @returns {function} - The controller function.
+ */
 exports.SearchData = (Model) =>
   catchAsync(async (req, res, next) => {
     const { name, order, page = 1, limit = 20, category } = req.query;
 
     // Initialize options object for the query
-    let options = { where: {} };
+    const options = { where: {} };
 
     if (page) {
       const offset = (page - 1) * limit;
@@ -190,6 +236,11 @@ exports.SearchData = (Model) =>
     });
   });
 
+/**
+ * Factory function for creating one document.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @returns {function} - The controller function.
+ */
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const data = await Model.create(req.body);
@@ -199,6 +250,14 @@ exports.createOne = (Model) =>
     });
   });
 
+/**
+ * Factory function for recommending items based on category.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @param {string} idField - The name of the ID field.
+ * @param {string} categoryField - The name of the category field.
+ * @param {string[]} attributes - The attributes to return.
+ * @returns {function} - The controller function.
+ */
 exports.recommendItems = (Model, idField, categoryField, attributes) =>
   catchAsync(async (req, res, next) => {
     const itemId = req.params.id;
@@ -228,6 +287,13 @@ exports.recommendItems = (Model, idField, categoryField, attributes) =>
     });
   });
 
+/**
+ * Factory function for getting user items.
+ * @param {Sequelize.Model} Model1 - The main model.
+ * @param {Sequelize.Model} Model2 - The embedded model.
+ * @param {Sequelize.Includeable} category - Category to include.
+ * @returns {function} - The controller function.
+ */
 exports.getUserItems = (Model1, Model2, category) =>
   catchAsync(async (req, res, next) => {
     // Model 1 : Model For Finding Data
@@ -262,6 +328,12 @@ exports.getUserItems = (Model1, Model2, category) =>
     });
   });
 
+/**
+ * Factory function for fetching member data.
+ * @param {Sequelize.Model} Model - The Sequelize model.
+ * @param {string[]} field - The fields to fetch.
+ * @returns {function} - The controller function.
+ */
 exports.fetchMemberData = (Model, field) =>
   catchAsync(async (req, res, next) => {
     const memberData = await Model.findOne({

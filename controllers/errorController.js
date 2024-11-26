@@ -43,7 +43,27 @@ const sendErrorProd = (err, req, res) => {
 };
 
 module.exports = (err, req, res, next) => {
-  // console.log(err.stack);
+  // if (err instanceof SequelizeValidationError) {
+  //   const uniqueField = err.errors[0].path;
+  //   const uniqueValue = err.errors[0].value;
+
+  //   // Customize the error response
+  //   res.status(409).json({
+  //     //Use 409 Conflict status code
+  //     status: 'error',
+  //     message: `The ${uniqueField} "${uniqueValue}" already exists.`, //Clear and concise message
+  //     details: err.errors, // optionally include original details for debugging (remove in production)
+  //   });
+  // }
+
+  console.log(err.name);
+
+  if (
+    err.name === 'SequelizeUniqueConstraintError' &&
+    process.env.NODE_ENV === 'development'
+  ) {
+    err.message = err.errors[0].message;
+  }
 
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
