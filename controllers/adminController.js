@@ -253,7 +253,7 @@ exports.verifyInstructor = catchAsync(async (req, res, next) => {
     });
     res.status(200).json({
       status: 'success',
-      message: 'Your account has been approved',
+      message: 'Account has been approved',
     });
   } else {
     await sendEmail(instructorAccount, {
@@ -261,7 +261,7 @@ exports.verifyInstructor = catchAsync(async (req, res, next) => {
     });
     res.status(200).json({
       status: 'success',
-      message: 'Your account has been rejected',
+      message: 'Account has been rejected',
     });
   }
 });
