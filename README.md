@@ -56,11 +56,11 @@ project-root/
 | **Folder Name**        | **Contain**                                                                |
 | ---------------------- | -------------------------------------------------------------------------- |
 | **project-name/**      | All file and folder in project                                             |
-| **config**             | contain configuration file                                                 |
-| **controllers**        | Handle HTTP requests and responses.                                        |
-| **model**              | files that define the data schema and interact with the database directly. |
+| **config/**            | contain configuration file                                                 |
+| **controllers/**       | Handle HTTP requests and responses.                                        |
+| **model/**             | files that define the data schema and interact with the database directly. |
 | **routes/**            | Contains route definitions                                                 |
-| **views/**             | Components for displaying the data to the users                            |
+| **tests/**             | Contain test cases                                                         |
 | **utils/**             | Contains utility functions and helpers.                                    |
 
 ## Contributors
