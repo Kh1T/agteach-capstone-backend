@@ -10,8 +10,15 @@ const catchAsync = require('./catchAsync');
 const s3Client = require('../config/s3Connection');
 const AppError = require('./appError');
 
+/**
+ * Uploads a video to S3.
+ * @async
+ * @param {string} filename - The S3 key for the video.
+ * @param {Buffer} body - The video file buffer.
+ * @throws {AppError} If the body is not provided.
+ */
 const uploadVideoToS3 = catchAsync(async (filename, body) => {
-  if (!body) return new AppError('There is no body to upload to', 400);
+  if (!body) throw new AppError('There is no body to upload', 400);
   const input = {
     Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
     Key: filename,
@@ -19,8 +26,16 @@ const uploadVideoToS3 = catchAsync(async (filename, body) => {
   };
   await s3Client.send(new PutObjectCommand(input));
 });
-// Upload Profile Image
-// Need User role from protected route
+
+
+/**
+ * @function resizeUploadProfileImage
+ * @description Resize and upload user profile image to s3
+ * @param {object} req - The Express request object
+ * @param {object} res - The Express response object
+ * @param {function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
   if (!req.file) {
     return next();
@@ -48,6 +63,13 @@ const resizeUploadProfileImage = catchAsync(async (req, res, next) => {
 
 // Upload Thumnail Course
 // This function will use in the after create course to get courseId
+/**
+ * @function resizeUplaodCourseThumbail
+ * @description Upload thumbnail course and resize to 500x500
+ * @param {object} currentCourse - The current course model
+ * @param {object} options - The options object
+ * @returns {Promise}
+ */
 const resizeUplaodCourseThumbail = catchAsync(
   async (currentCourse, options) => {
     const url = process.env.AWS_S3_COURSE_BUCKET_URL;
@@ -69,6 +91,7 @@ const resizeUplaodCourseThumbail = catchAsync(
       ContentType: 'image/jpeg',
     };
 
+    // Delete the old file
     await s3Client.send(
       new DeleteObjectCommand({
         Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
@@ -76,6 +99,7 @@ const resizeUplaodCourseThumbail = catchAsync(
       }),
     );
 
+    // Upload the new file
     await s3Client.send(new PutObjectCommand(input));
     currentCourse.thumbnailUrl = url + filename;
     await currentCourse.save();
@@ -83,6 +107,21 @@ const resizeUplaodCourseThumbail = catchAsync(
 );
 
 
+/**
+ * Uploads course videos to S3 and updates lecture video URLs.
+ * 
+ * @async
+ * @param {Array} currentLectures - Array of lecture objects to be processed.
+ * @param {Object} options - Options for processing the lectures.
+ * @param {Object[]} options.files - Array of file objects containing video buffers.
+ * @param {boolean} options.isUpdated - Flag indicating whether the lectures are updated.
+ * @param {Object} options.newLectures - New lecture data containing updated sections.
+ * @param {number} options.videoIndex - Index for video files in the upload sequence.
+ * @param {Object} options.newCourse - Course object being processed.
+ * @param {number} options.courseId - ID of the course for which videos are being uploaded.
+ * 
+ * @throws {Error} If any video upload fails.
+ */
 const uploadCourseVideos = async (currentLectures, options) => {
   if (!options.files) return;
 
