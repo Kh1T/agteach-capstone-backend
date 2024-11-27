@@ -1,6 +1,7 @@
 /**
  * @file Controller functions for admin-related operations.
  */
+const { Op } = require('sequelize');
 const UserAccount = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const handleFactory = require('./handlerFactory');
@@ -61,20 +62,22 @@ exports.getAdminInfo = catchAsync(async (req, res, next) => {
  * @returns {Promise<void>}
  */
 exports.getAllInstructor = catchAsync(async (req, res, next) => {
-  let { isApproved, isRejected } = req.query;
+  let { isApproved, isRejected, email } = req.query;
 
   isApproved =
     isApproved === 'true' ? true : isApproved === 'false' ? false : undefined;
   isRejected =
     isRejected === 'true' ? true : isRejected === 'false' ? false : undefined;
 
-  const filterConditions = {};
+  const filterConditions = { email: { [Op.iLike]: `%${email}%` } };
   if (isApproved !== undefined) {
     filterConditions.isApproved = isApproved;
   }
   if (isRejected !== undefined) {
     filterConditions.isRejected = isRejected;
   }
+
+  const numInstructor = await Instructor.count();
 
   const instructors = await Instructor.findAll({
     where: filterConditions,
@@ -84,10 +87,12 @@ exports.getAllInstructor = catchAsync(async (req, res, next) => {
         attributes: ['locationId', 'name'],
       },
     ],
+    order: [['createdAt', 'DESC']],
   });
 
   res.status(200).json({
     status: 'success',
+    numInstructor,
     data: instructors,
   });
 });
@@ -248,7 +253,7 @@ exports.verifyInstructor = catchAsync(async (req, res, next) => {
     });
     res.status(200).json({
       status: 'success',
-      message: 'Your account has been approved',
+      message: 'Account has been approved',
     });
   } else {
     await sendEmail(instructorAccount, {
@@ -256,7 +261,7 @@ exports.verifyInstructor = catchAsync(async (req, res, next) => {
     });
     res.status(200).json({
       status: 'success',
-      message: 'Your account has been rejected',
+      message: 'Account has been rejected',
     });
   }
 });
