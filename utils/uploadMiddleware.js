@@ -18,7 +18,7 @@ const AppError = require('./appError');
  * @throws {AppError} If the body is not provided.
  */
 const uploadVideoToS3 = catchAsync(async (filename, body) => {
-  if (!body) throw new AppError('There is no body to upload', 400);
+  if (!body) return new AppError('There is no body to upload', 400);
   const input = {
     Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET,
     Key: filename,
