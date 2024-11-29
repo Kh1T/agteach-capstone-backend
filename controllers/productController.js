@@ -27,6 +27,15 @@ exports.recommendProduct = handleFactory.recommendItems(
   ['instructorId', 'productId', 'name', 'price', 'imageUrl'],
 );
 
+/**
+ * @description Get product detail by product ID.
+ * @async
+ * @function getProductDetail
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getProductDetail = catchAsync(async (req, res, next) => {
   const product = await Product.findOne({
     where: { productId: req.params.id },
@@ -46,6 +55,15 @@ exports.getProductDetail = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Creates a new product with cover and additional images.
+ * @async
+ * @function createProduct
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.createProduct = catchAsync(async (req, res, next) => {
   // Validate cover and additional images
   validateImages(req.files.productCover, 'Product cover image', next);
@@ -78,6 +96,15 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Retrieves product images based on product ID.
+ * @async
+ * @function getProductImages
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getProductImages = catchAsync(async (req, res, next) => {
   if (req.params.id === 'creating') {
     res.status(201).json({
@@ -95,6 +122,14 @@ exports.getProductImages = catchAsync(async (req, res, next) => {
   }
 });
 
+/**
+ * Updates a product with the given data.
+ * @function updateProduct
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.updateProduct = catchAsync(async (req, res, next) => {
   const { id: productId } = req.params;
   const { categoryId, name, description, quantity, price, removedImages } =
@@ -132,6 +167,15 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @description Retrieves products associated with an instructor.
+ * @async
+ * @function getInstructorProduct
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getInstructorProduct = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(Product, req.query, Instructor)
     .search()
