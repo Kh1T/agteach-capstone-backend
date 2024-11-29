@@ -2,8 +2,6 @@
 
 This repository contains the backend codebase for our Agricultural Training Video platform. Our backend is designed to provide robust, scalable, and efficient services to support video content management, user interactions, and data processing.
 
-[//]: # (> 🎯 Samsung Web Clone <a href="https://samsungalphabeez.netlify.app/index.html">Click Here</a>.)
-
 ## Table of Contents
 
 - [Technology Used](#technology-used)
@@ -29,26 +27,20 @@ We use folder structure to organize our project and it is essential for maintain
 ```
 project-root/
 |
-├── server/
-│   ├── config/
-│   │   └── db.js
-│   ├── controllers/
-│   │   └── userController.js
-│   ├── models/
-│   │   └── userModel.js
-│   ├── routes/
-│   │   └── userRoutes.js
-│   ├── services/
-│   │   └── userService.js
-│   ├── utils/
-│   ├── app.js
-│   ├── server.js
-│   ├── .env
-│   └── package.json
-├── scripts/
-│   ├── build/
-│   ├── deploy/
-│   └── start/
+├── config/
+│   └── db.js
+├── controllers/
+│   └── userController.js
+├── models/
+│   └── userModel.js
+├── routes/
+│   └── userRoutes.js
+├── tests/
+├── utils/
+├── app.js
+├── server.js
+├── config.env
+├── package.json
 ├── .gitignore
 ├── README.md
 └── package.json
@@ -64,30 +56,12 @@ project-root/
 | **Folder Name**        | **Contain**                                                                |
 | ---------------------- | -------------------------------------------------------------------------- |
 | **project-name/**      | All file and folder in project                                             |
-| **server/config**      | contain configuration file                                                 |
-| **server/controllers** | Handle HTTP requests and responses.                                        |
-| **server/model**       | files that define the data schema and interact with the database directly. |
-| **server/routes/**     | Contains route definitions                                                 |
-| **server/views/**      | Components for displaying the data to the users                            |
-| **server/utils/**      | Contains utility functions and helpers.                                    |
-
-<!-- ## Pages Included
-
-| Page Names                                                                                             |
-| ------------------------------------------------------------------------------------------------------ |
-| <a href="https://samsungalphabeez.netlify.app/index.html">🏡 Home</a>                                  |
-| <a href="https://samsungalphabeez.netlify.app/pages/product-detail/">🛍️ Product Detail</a>             |
-| <a href="https://samsungalphabeez.netlify.app/pages/nearby-store/index.html">📍 Nearby Store</a>       |
-| <a href="https://samsungalphabeez.netlify.app/pages/cart/index.html">🛒 Cart</a>                       |
-| <a href="https://samsungalphabeez.netlify.app/pages/checkout/">📊 Checkout</a>                         |
-| <a href="https://samsungalphabeez.netlify.app/pages/login/index.html">🔒 Login</a>                     |
-| <a href="https://samsungalphabeez.netlify.app/pages/continue-shopping/index.html">💎 All Offers</a>    |
-| <a href="https://samsungalphabeez.netlify.app/pages/smartphone/index.html">📱 Smartphone</a>           |
-| <a href="https://samsungalphabeez.netlify.app/pages/galaxy-ai/index.html">🤖 Galaxy AI</a>             |
-| <a href="https://samsungalphabeez.netlify.app/pages/support/index.html">🥷 Support</a>                 |
-| <a href="https://samsungalphabeez.netlify.app/pages/privacy-page/index.html">🔑 Privacy</a>            |
-| <a href="https://samsungalphabeez.netlify.app/pages/account-benefit/index.html">🎁 Account Benefit</a> |
-| <a href="https://samsungalphabeez.netlify.app/pages/track-order/index.html">📦 Track Orders</a>        | -->
+| **config/**            | contain configuration file                                                 |
+| **controllers/**       | Handle HTTP requests and responses.                                        |
+| **model/**             | files that define the data schema and interact with the database directly. |
+| **routes/**            | Contains route definitions                                                 |
+| **tests/**             | Contain test cases                                                         |
+| **utils/**             | Contains utility functions and helpers.                                    |
 
 ## Contributors
 
@@ -99,8 +73,8 @@ project-root/
 | **Khom Khit**        | Middle man           |
 | **Panha Phosda**     | Front-end            |
 | **Chiv Sovanchitra** | Front-end            |
-| **Rith Sohak Neadh** | Front-end            |
-| **Pann Senglay** | Front-end            |
+| **Rith Sokha Neadh** | Front-end            |
+| **Pann Senglay**     | Front-end            |
 
 ## Usage
 

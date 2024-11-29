@@ -18,6 +18,12 @@ router.get(
   instructorController.getAdditionalInfo,
 );
 
+router.patch(
+  '/addVerificationData',
+  instructorController.fetchInstructor,
+  instructorController.addVerificationData,
+);
+
 router.post('/addAdditionalInfo', instructorController.addAdditionalInfo);
 router.patch(
   '/updateMe',
@@ -35,7 +41,16 @@ router.get('/searchProductBalance', instructorController.getAllProductBalance);
 router.get('/getRecentTransaction', instructorController.getRecentTransations);
 
 //Dashboard
-router.get('/getInstructorOverviewSales', instructorController.getInstructorOverviewSales);
-router.get('/getInstructorProductTopSales', instructorController.getInstructorProductTopSales);
-router.get('/getInstructorCourseTopSales', instructorController.getInstructorCourseTopSales);
+router.get(
+  '/getInstructorOverviewSales',
+  instructorController.getInstructorOverviewSales,
+);
+router.get(
+  '/getInstructorProductTopSales',
+  instructorController.getInstructorProductTopSales,
+);
+router.get(
+  '/getInstructorCourseTopSales',
+  instructorController.getInstructorCourseTopSales,
+);
 module.exports = router;

@@ -21,11 +21,6 @@ const Enroll = sequelize.define('enroll', {
       key: 'customerId',
     },
   },
-  progress: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 0,
-  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

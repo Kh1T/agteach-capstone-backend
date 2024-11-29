@@ -3,6 +3,14 @@ const Product = require('../models/productModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
+/**
+ * @description Fetches cart items by product IDs from the database.
+ * @function getCartItems
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getCartItems = catchAsync(async (req, res, next) => {
   const cartItems = req.body;
 

@@ -59,6 +59,41 @@ const Instructor = sequelize.define('instructor', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+
+  isRejected: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+
+  isFormSubmitted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+
+  isApproved: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+
+  nationalId: {
+    type: DataTypes.CHAR(15),
+  },
+
+  targetProduct: {
+    type: DataTypes.TEXT,
+  },
+
+  targetCourse: {
+    type: DataTypes.TEXT,
+  },
+
+  profileBackground: {
+    type: DataTypes.TEXT,
+  },
+
+  bankNumber: {
+    type: DataTypes.CHAR(35),
+  },
 });
 
 module.exports = Instructor;

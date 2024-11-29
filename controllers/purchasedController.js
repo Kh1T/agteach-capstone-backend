@@ -73,6 +73,15 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Get all purchased products for the instructor.
+ * @async
+ * @function getAllPurchased
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getAllPurchased = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
@@ -120,6 +129,15 @@ exports.getAllPurchased = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', result: data.length, data });
 });
 
+/**
+ * Retrieves all purchased products for a customer.
+ * @async
+ * @function getPurchaseDetail
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
 
@@ -149,6 +167,15 @@ exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
     .json({ status: 'success', purchasedDetails, customer, isDelivered });
 });
 
+/**
+ * Retrieves all purchased products for a customer.
+ * @async
+ * @function getCustomerPurchased
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
   // Get customerId from the request
   const { customerId } = req.memberData;
@@ -168,6 +195,15 @@ exports.getCustomerPurchased = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Updates the delivery status of a purchased product to true
+ * and sends a "delivered" email to the customer.
+ * @function updateDeliver
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.updateDeliver = catchAsync(async (req, res, next) => {
   const { purchasedId } = req.body;
 

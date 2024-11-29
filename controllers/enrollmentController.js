@@ -134,6 +134,15 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', id: session.id });
 });
 
+/**
+ * @description Retrieves a list of enrolled courses for the instructor, sorted by course.created_at.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @property {string} name - Optional. The name of the course to search for.
+ * @property {string} order - Optional. The order of the courses. Defaults to 'ASC'.
+ * @returns {Promise<void>}
+ */
 exports.getEnrollment = catchAsync(async (req, res, next) => {
   const { instructorId } = req.memberData;
   const { name, order = 'ASC' } = req.query;
@@ -161,6 +170,15 @@ exports.getEnrollment = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', courseSaleHistory });
 });
 
+/**
+ * @description Retrieves enrollment details for a specific course.
+ * @async
+ * @function getEnrollmentDetail
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getEnrollmentDetail = catchAsync(async (req, res, next) => {
   const courseId = req.params.id;
 
@@ -197,6 +215,14 @@ exports.getEnrollmentDetail = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', students, course });
 });
 
+/**
+ * Retrieves all enrollments of a customer.
+ * @function getCustomerEnrollments
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getCustomerEnrollments = catchAsync(async (req, res, next) => {
   const { customerId } = req.memberData;
 
@@ -226,3 +252,4 @@ exports.getCustomerEnrollments = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ status: 'success', enrollments });
 });
+

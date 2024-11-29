@@ -4,6 +4,13 @@ const Section = require('../models/sectionModel');
 const { uploadVideoToS3 } = require('./uploadMiddleware');
 const s3Client = require('../config/s3Connection');
 
+/**
+ * Deletes a video from S3 with the given filename.
+ *
+ * @param {string} filename - The S3 key for the video.
+ *
+ * @returns {Promise<void>}
+ */
 const deleteVideoFromS3 = async (filename) => {
   const input = {
     Bucket: process.env.AWS_S3_ASSET_COURSE_BUCKET, // your bucket name
@@ -13,6 +20,17 @@ const deleteVideoFromS3 = async (filename) => {
   await s3Client.send(new DeleteObjectCommand(input));
 };
 
+  /**
+   * Process lectures for each section of a course.
+   * 
+   * @param {number} id - The ID of the course.
+   * @param {Object} req - The Express request object.
+   * @param {Object[]} parseAllSection - An array of section objects parsed from the request body.
+   * @param {number} instructorId - The ID of the course instructor.
+   * @param {Sequelize.Transaction} transaction - The Sequelize transaction object.
+   * 
+   * @returns {Promise<Object>} An object containing an array of new lectures, an array of updated lectures, and an array of lectures to delete.
+   */
 exports.processLectures = async (
   id,
   req,
@@ -20,12 +38,10 @@ exports.processLectures = async (
   instructorId,
   transaction,
 ) => {
-  // Step 4: Process sections individually (no bulk section creation)
+  // Process sections individually (no bulk section creation)
   const newLectures = [];
   const updateLectures = [];
-  const lecturesToDelete = [];
-  // let videoIndex = 0;
-  // Step 4: Process sections in parallel using Promise.all
+  const lecturesToDelete = []; 
   let sectionIdx = 0;
   await Promise.all(
     parseAllSection.map(async (section) => {
@@ -57,7 +73,7 @@ exports.processLectures = async (
         sectionIdx += 1;
       }
 
-      // Step 5: Handle lectures for each section
+      // Handle lectures for each section
       const lectureIdsFromRequest = section.allLecture
         .map((lecture) => lecture.lectureId)
         .filter(Boolean);

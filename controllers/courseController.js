@@ -32,6 +32,14 @@ exports.recommendCourse = handleFactory.recommendItems(
 
 exports.getInstructorCourse = handleFactory.getUserItems(Course, Instructor);
 
+/**
+ * Get a course by id.
+ * @function getOne
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getOne = catchAsync(async (req, res, next) => {
   let instructor = {};
 
@@ -66,6 +74,14 @@ exports.getOne = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Retrieves a course by courseId
+ * @function getCourseVideo
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.getCourseVideo = catchAsync(async (req, res, next) => {
   const course = await Course.findOne({
     where: { courseId: req.params.id },
@@ -88,6 +104,14 @@ exports.getCourseVideo = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Creates a course and related data.
+ * @function uploadCourse
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.uploadCourse = catchAsync(async (req, res, next) => {
   const {
     courseName,
@@ -146,6 +170,14 @@ exports.uploadCourse = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Update a course
+ * @function updateCourse
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 exports.updateCourse = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const {
@@ -299,6 +331,18 @@ exports.updateCourse = catchAsync(async (req, res, next) => {
   }
 });
 
+/**
+ * @description Retrieves all courses with their display information.
+ * @async
+ * @function getAllCourseDisplay
+ * @param {Object} req - Express request object.
+ * @param {Object} req.query - Query parameters.
+ * @param {number} [req.query.page=1] - Page number.
+ * @param {number} [req.query.limit=20] - Number of items per page.
+ * @param {Object} res - Express response object.
+ * @param {function} next - Express next function.
+ * @returns {Promise<Object>}
+ */
 exports.getAllCourseDisplay = catchAsync(async (req, res, next) => {
   const { page = 1, limit = 20 } = req.query;
   let queryOption = {};
