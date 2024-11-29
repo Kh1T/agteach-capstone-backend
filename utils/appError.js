@@ -1,4 +1,9 @@
 class AppError extends Error {
+  /**
+   * Constructs a new operational error instance.
+   * @param {string} message - The error message.
+   * @param {number} statusCode - The HTTP status code of the error.
+   */
   constructor(message, statusCode) {
     super(message);
     this.statusCode = statusCode;
