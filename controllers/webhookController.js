@@ -70,6 +70,23 @@ const createProductSaleHistory = async (
   }).catch((err) => console.log(`Something went wrong: ${err}`));
 };
 
+/**
+ * Handles Stripe Webhooks
+ * @module controllers/webhookController
+ */
+
+/**
+ * Enrollment controller
+ * @namespace controllers/enrollmentController
+ */
+
+/**
+ * Handles Stripe Webhooks
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {function} next - Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.webhookEnrollmentCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
 
